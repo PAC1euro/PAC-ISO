@@ -456,12 +456,14 @@ btn.textContent='⏳ Envoi en cours…';btn.disabled=true;
 var totalRac=S.racPac+S.racIso,racStr=(!S.pacOk||!S.surfOk)?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac),dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—',date=new Date().toLocaleDateString('fr-FR'),isISO=S.dossier==='PAC+ISO';
 var message='FICHE CLIENT — AIDES ÉNERGÉTIQUES\nDate : '+date+'\n========\nNom : '+S.prenom+' '+S.nom+'\nNaissance : '+dob+'\nTél : '+S.telephone+'\nEmail : '+(S.email||'—')+'\nAdresse : '+S.adresse+', '+S.cp+' '+S.ville+'\n\nFISCAL\nN° déclarant : '+S.numDeclarant+'\nRFR : '+fmt(S.rfr)+'\nParts : '+S.parts+'\nRégion : '+(S.isIDF?'IDF':'Province')+'\nCouleur ANAH : '+S.couleur+'\nDpt / Zone : '+S.dept+' — Zone '+S.zone+'\n\nPAC\nChauffage : '+S.chauffage+'\nSurface : '+S.surfPac+' m²\nCompteur : '+S.compteur+'\nECS : '+S.ecs+'\nVMC : '+S.vmc+'\nAction : '+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'\nRAC PAC : '+((S.pacOk&&S.surfOk)?(S.racPac===0?'1€':fmt(S.racPac)):'VOIR RESPONSABLE TECHNIQUE')+(isISO?'\n\nISOLATION\nGestes : '+S.gestes.join(', ')+'\nSurface : '+S.surfIso+' m²\nRAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE'):'')+'\n\n========\nRAC TOTAL : '+racStr+'\n========';
 emailjs.send('service_leads','template_2komt8b',{
-  subject:'[Dossier] '+S.prenom+' '+S.nom+' — '+S.dossier+' — RAC: '+racStr,
-  message:message,
+  name:S.prenom+' '+S.nom,
   nom_client:S.prenom+' '+S.nom,
+  time:new Date().toLocaleString('fr-FR'),
+  dossier:S.dossier,
+  rac_total:racStr,
+  message:message,
   telephone:S.telephone,
   adresse:S.adresse+', '+S.cp+' '+S.ville,
-  rac_total:racStr,
   couleur_anah:S.couleur,
   zone:S.zone,
   date:date
