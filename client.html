@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aides Énergétiques 2025 — Vérifiez votre éligibilité gratuitement</title>
+<meta name="description" content="Testez votre éligibilité aux aides MaPrimeRénov en 2 minutes. Pompe à chaleur et isolation financés jusqu'à 100% par l'État."/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;min-height:100vh;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#166534 0%,#15803d 40%,#0d9488 100%);color:#fff;padding:32px 20px 28px;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.hero h1{font-size:26px;font-weight:900;line-height:1.2;margin-bottom:10px;text-shadow:0 1px 4px rgba(0,0,0,.2);}
+.hero h1 span{color:#fbbf24;}
+.hero p{font-size:14px;opacity:.92;margin-bottom:20px;line-height:1.6;}
+.hero-stats{display:flex;justify-content:center;gap:0;background:rgba(0,0,0,.15);border-radius:14px;overflow:hidden;max-width:340px;margin:0 auto;}
+.stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.15);}
+.stat:last-child{border-right:none;}
+.stat-n{font-size:18px;font-weight:900;color:#fbbf24;}
+.stat-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+
+/* PROGRESS */
+.prog-wrap{background:#fff;padding:14px 20px 0;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:8px;}
+.prog-track{height:5px;background:#e2e8f0;border-radius:10px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#16a34a,#0d9488);border-radius:10px;transition:width .4s ease;}
+.steps-row{display:flex;justify-content:space-around;padding:10px 0 0;}
+.sdot{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.sdot .d{width:22px;height:22px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;transition:all .3s;}
+.sdot.done .d{background:#16a34a;color:#fff;}
+.sdot.on .d{background:#0f172a;color:#fff;box-shadow:0 0 0 3px rgba(15,23,42,.15);}
+.sdot.done{color:#16a34a;}
+.sdot.on{color:#0f172a;}
+
+/* CARD */
+.card{background:#fff;padding:26px 20px 30px;max-width:480px;margin:0 auto;}
+
+/* Labels and inputs */
+.slabel{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.slabel::after{content:'';flex:1;height:1px;background:#e2e8f0;}
+.stag{display:inline-block;background:#dcfce7;color:#16a34a;font-size:10px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px;}
+.stitle{font-size:22px;font-weight:900;margin-bottom:6px;line-height:1.2;}
+.ssub{font-size:13px;color:#64748b;margin-bottom:22px;line-height:1.6;}
+.flabel{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#64748b;margin-bottom:7px;}
+input,select{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;color:#0f172a;font-family:inherit;font-size:15px;padding:12px 14px;margin-bottom:14px;-webkit-appearance:none;appearance:none;}
+input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+.hint{font-size:11px;color:#94a3b8;margin-top:-10px;margin-bottom:14px;line-height:1.5;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* Choices */
+.choices{display:grid;gap:10px;margin-bottom:16px;}
+.c2{grid-template-columns:1fr 1fr;}
+.c3{grid-template-columns:1fr 1fr 1fr;}
+.choice{background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:16px 10px;cursor:pointer;text-align:center;user-select:none;transition:all .18s;-webkit-tap-highlight-color:transparent;}
+.choice:active{transform:scale(.97);}
+.choice.sel{border-color:#16a34a;background:#dcfce7;box-shadow:0 0 0 3px rgba(22,163,74,.12);}
+.chi{font-size:26px;margin-bottom:8px;}
+.chl{font-size:13px;font-weight:700;}
+.chs{font-size:10px;color:#94a3b8;margin-top:3px;}
+.choice.sel .chs{color:#15803d;}
+
+/* Alerts */
+.alert{border-radius:10px;padding:11px 14px;font-size:13px;font-weight:500;display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;line-height:1.5;}
+.ag{background:#dcfce7;color:#166534;border:1px solid #86efac;}
+.ar{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
+.ao{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
+.ab{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+
+/* Buttons */
+.brow{display:flex;gap:10px;margin-top:22px;}
+.btn{flex:1;padding:15px 16px;border-radius:12px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;border:none;transition:all .2s;-webkit-tap-highlight-color:transparent;letter-spacing:.2px;}
+.bp{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;box-shadow:0 4px 16px rgba(22,163,74,.3);}
+.bp:active{opacity:.9;transform:scale(.99);}
+.bs{background:#f1f5f9;border:1.5px solid #e2e8f0;color:#475569;}
+
+/* Error */
+.err{color:#dc2626;font-size:12px;font-weight:500;margin-top:-4px;margin-bottom:10px;display:none;}
+.err.show{display:block;}
+
+/* Steps */
+.step-content{display:none;}
+.step-content.active{display:block;}
+
+/* Result */
+.result-hero{text-align:center;padding:10px 0 20px;}
+.result-ico{font-size:60px;display:block;margin-bottom:14px;}
+.result-title{font-size:24px;font-weight:900;margin-bottom:8px;}
+.result-sub{font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6;}
+.result-badge{display:inline-block;background:#dcfce7;color:#166534;font-size:13px;font-weight:700;padding:8px 22px;border-radius:20px;border:1px solid #86efac;}
+
+.recall-box{background:linear-gradient(135deg,#166534,#0d9488);color:#fff;border-radius:16px;padding:22px 20px;text-align:center;margin:18px 0;}
+.recall-box .rco{font-size:36px;margin-bottom:10px;}
+.recall-box h3{font-size:17px;font-weight:800;margin-bottom:6px;}
+.recall-box p{font-size:12px;opacity:.88;line-height:1.6;}
+
+.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin:14px 0;}
+.summary-box h4{font-size:13px;font-weight:700;margin-bottom:12px;color:#374151;}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px;gap:8px;}
+.srow:last-child{border:none;}
+.sl{color:#64748b;flex-shrink:0;}
+.sv{font-weight:700;text-align:right;}
+
+/* Trust */
+.trust{background:#fff;padding:14px 20px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;border-top:1px solid #dcfce7;}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748b;font-weight:500;}
+
+/* Footer */
+.footer{background:#0f172a;color:#64748b;padding:18px 20px;text-align:center;font-size:10px;line-height:1.8;}
+
+/* Urgency banner */
+.urgency{background:linear-gradient(90deg,#dc2626,#b91c1c);color:#fff;padding:8px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.3px;}
+
+@media(max-width:360px){.c3{grid-template-columns:1fr 1fr;}.hero h1{font-size:22px;}}
+</style>
+</head>
+<body>
+<script>emailjs.init('ikg4K9rtN8zThodmu');</script>
+
+<!-- URGENCY -->
+<div class="urgency">⚡ Aides 2025 disponibles — Délai limité — Testez votre éligibilité maintenant</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🌿 MaPrimeRénov' 2025</div>
+  <h1>Votre installation financée<br/>jusqu'à <span>100%</span> par l'État</h1>
+  <p>Pompe à chaleur · Isolation · Sans avance de frais<br/>Vérifiez votre éligibilité en <strong>2 minutes</strong> · 100% gratuit</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n">70 000€</div><div class="stat-l">Aides max</div></div>
+    <div class="stat"><div class="stat-n">2 min</div><div class="stat-l">Pour savoir</div></div>
+    <div class="stat"><div class="stat-n">Gratuit</div><div class="stat-l">Sans engagement</div></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-wrap">
+  <div class="prog-row"><span id="pLbl">Étape 1 sur 4</span><span id="pPct" style="font-weight:bold;color:#16a34a;">0%</span></div>
+  <div class="prog-track"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
+  <div class="steps-row">
+    <div class="sdot on" id="sd1"><div class="d">1</div><span>Projet</span></div>
+    <div class="sdot" id="sd2"><div class="d">2</div><span>Logement</span></div>
+    <div class="sdot" id="sd3"><div class="d">3</div><span>Foyer</span></div>
+    <div class="sdot" id="sd4"><div class="d">4</div><span>Contact</span></div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="card">
+
+<!-- ÉTAPE 1 : Projet -->
+<div class="step-content active" id="sc1">
+  <div class="stag">📋 Étape 1</div>
+  <div class="stitle">Quel projet vous intéresse ?</div>
+  <div class="ssub">Choisissez l'équipement que vous souhaitez installer dans votre logement</div>
+  <div class="choices c3" id="cProjet">
+    <div class="choice" data-val="PAC Air/Eau" onclick="pick(this,'cProjet')">
+      <div class="chi">🔥</div><div class="chl">Pompe à chaleur</div><div class="chs">PAC Air/Eau</div>
+    </div>
+    <div class="choice" data-val="Isolation" onclick="pick(this,'cProjet')">
+      <div class="chi">🏠</div><div class="chl">Isolation</div><div class="chs">Combles, murs…</div>
+    </div>
+    <div class="choice" data-val="PAC + Isolation" onclick="pick(this,'cProjet')">
+      <div class="chi">⚡</div><div class="chl">PAC + Isolation</div><div class="chs">Dossier complet</div>
+    </div>
+  </div>
+  <div class="alert ab" style="margin-top:4px;">💡 <div><strong>Bon à savoir :</strong> Les deux aides peuvent se cumuler pour atteindre jusqu'à <strong>70 000€ d'aides</strong></div></div>
+  <div class="err" id="e1">⚠ Veuillez choisir un projet pour continuer.</div>
+  <div class="brow"><button class="btn bp" onclick="goNext(1)">Continuer →</button></div>
+</div>
+
+<!-- ÉTAPE 2 : Logement -->
+<div class="step-content" id="sc2">
+  <div class="stag">🏡 Étape 2</div>
+  <div class="stitle">Votre logement</div>
+  <div class="ssub">Ces informations permettent de calculer les aides auxquelles vous avez droit</div>
+
+  <div id="chaufSection">
+    <div class="slabel">Chauffage actuel</div>
+    <div class="choices c3" id="cChauf">
+      <div class="choice" data-val="Gaz" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🔵</div><div class="chl">Gaz</div></div>
+      <div class="choice" data-val="Fioul" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🛢️</div><div class="chl">Fioul</div></div>
+      <div class="choice" data-val="Bois" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🪵</div><div class="chl">Bois</div></div>
+      <div class="choice" data-val="Charbon" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚫</div><div class="chl">Charbon</div></div>
+      <div class="choice" data-val="Électrique" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚡</div><div class="chl">Électrique</div></div>
+      <div class="choice" data-val="Autre" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">❓</div><div class="chl">Autre</div></div>
+    </div>
+    <div id="chaufAlert"></div>
+  </div>
+
+  <div class="slabel">Votre logement</div>
+  <label class="flabel">Surface habitable (m²)</label>
+  <input type="number" id="surface" placeholder="Ex : 100" min="10" oninput="chkSurf()"/>
+  <div id="surfAlert"></div>
+
+  <label class="flabel">Année de construction</label>
+  <input type="number" id="annee" placeholder="Ex : 1985" min="1800" max="2024" oninput="chkAnnee()"/>
+  <div id="anneeAlert"></div>
+
+  <div class="slabel">Statut d'occupation</div>
+  <div class="choices c2" id="cStatut">
+    <div class="choice" data-val="Propriétaire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏠</div><div class="chl">Propriétaire</div></div>
+    <div class="choice" data-val="Locataire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🔑</div><div class="chl">Locataire</div></div>
+  </div>
+  <div id="statutAlert"></div>
+
+  <div class="err" id="e2">⚠ Veuillez remplir toutes les informations.</div>
+  <div class="brow">
+    <button class="btn bs" onclick="goPrev(2)">← Retour</button>
+    <button class="btn bp" onclick="goNext(2)">Continuer →</button>
+  </div>
+</div>
+
+<!-- ÉTAPE 3 : Foyer -->
+<div class="step-content" id="sc3">
+  <div class="stag">👨‍👩‍👧 Étape 3</div>
+  <div class="stitle">Votre situation</div>
+  <div class="ssub">Le montant des aides dépend de la composition et des revenus de votre foyer</div>
+
+  <div class="slabel">Personnes dans le foyer</div>
+  <div class="choices c3" id="cPersonnes">
+    <div class="choice" data-val="1 personne" onclick="pick(this,'cPersonnes')"><div class="chi">👤</div><div class="chl">1</div></div>
+    <div class="choice" data-val="2 personnes" onclick="pick(this,'cPersonnes')"><div class="chi">👥</div><div class="chl">2</div></div>
+    <div class="choice" data-val="3 personnes" onclick="pick(this,'cPersonnes')"><div class="chi">👨‍👩‍👦</div><div class="chl">3</div></div>
+    <div class="choice" data-val="4 personnes" onclick="pick(this,'cPersonnes')"><div class="chi">👨‍👩‍👧‍👦</div><div class="chl">4</div></div>
+    <div class="choice" data-val="5 personnes" onclick="pick(this,'cPersonnes')"><div class="chi">🏡</div><div class="chl">5</div></div>
+    <div class="choice" data-val="6 personnes ou plus" onclick="pick(this,'cPersonnes')"><div class="chi">🏠</div><div class="chl">6 ou +</div></div>
+  </div>
+
+  <div class="slabel">Revenus annuels du foyer</div>
+  <div class="hint" style="margin-top:0;margin-bottom:10px;">Revenu total de toutes les personnes vivant au foyer</div>
+  <div class="choices c2" id="cRevenus">
+    <div class="choice" data-val="Moins de 20 000€/an" data-score="1" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;">Moins de<br/><strong>20 000€/an</strong></div></div>
+    <div class="choice" data-val="20 000 – 35 000€/an" data-score="2" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;"><strong>20 000</strong> à<br/><strong>35 000€/an</strong></div></div>
+    <div class="choice" data-val="35 000 – 55 000€/an" data-score="3" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;"><strong>35 000</strong> à<br/><strong>55 000€/an</strong></div></div>
+    <div class="choice" data-val="Plus de 55 000€/an" data-score="4" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;">Plus de<br/><strong>55 000€/an</strong></div></div>
+  </div>
+
+  <div class="err" id="e3">⚠ Veuillez remplir toutes les informations.</div>
+  <div class="brow">
+    <button class="btn bs" onclick="goPrev(3)">← Retour</button>
+    <button class="btn bp" onclick="goNext(3)">Voir mes aides →</button>
+  </div>
+</div>
+
+<!-- ÉTAPE 4 : Contact -->
+<div class="step-content" id="sc4">
+  <div class="stag">📞 Étape 4</div>
+  <div class="stitle">Où envoyer vos résultats ?</div>
+  <div class="ssub">Un conseiller vous rappelle <strong>gratuitement</strong> pour finaliser votre dossier et vous accompagner</div>
+
+  <div class="row2">
+    <div><label class="flabel">Prénom</label><input type="text" id="prenom" placeholder="Jean"/></div>
+    <div><label class="flabel">Nom</label><input type="text" id="nom" placeholder="Dupont"/></div>
+  </div>
+  <label class="flabel">Téléphone</label>
+  <input type="tel" id="telephone" placeholder="06 00 00 00 00"/>
+  <label class="flabel">Email (facultatif)</label>
+  <input type="email" id="email" placeholder="jean@exemple.fr"/>
+  <label class="flabel">Code postal</label>
+  <input type="text" id="cp" placeholder="75001" maxlength="5"/>
+
+  <div class="alert ag" style="margin-top:4px;">
+    🔒 <div>Vos coordonnées sont <strong>confidentielles</strong>. Aucune vente à des tiers. Un seul rappel de notre part.</div>
+  </div>
+
+  <div class="err" id="e4">⚠ Veuillez renseigner votre prénom, téléphone et code postal.</div>
+  <div class="brow">
+    <button class="btn bs" onclick="goPrev(4)">← Retour</button>
+    <button class="btn bp" id="btnSubmit" onclick="submit()">🎯 Voir mes résultats</button>
+  </div>
+</div>
+
+<!-- RÉSULTAT -->
+<div class="step-content" id="sc5">
+  <div class="result-hero">
+    <span class="result-ico" id="rIco">🎉</span>
+    <div class="result-title" id="rTitle">Bonne nouvelle !</div>
+    <div class="result-sub" id="rSub">Vous êtes potentiellement éligible aux aides MaPrimeRénov'</div>
+    <div class="result-badge" id="rBadge">✅ Dossier favorable</div>
+  </div>
+
+  <div class="recall-box">
+    <div class="rco">📞</div>
+    <h3>Un conseiller vous rappelle sous 24h</h3>
+    <p>Étude complète <strong>gratuite</strong> · Sans engagement · Prise en charge totale de votre dossier</p>
+  </div>
+
+  <div class="summary-box">
+    <h4>📋 Récapitulatif de votre demande</h4>
+    <div id="summaryRows"></div>
+  </div>
+
+  <button class="btn bp" style="width:100%;margin-top:6px;" onclick="location.reload()">↺ Nouvelle simulation</button>
+</div>
+
+</div><!-- /card -->
+
+<!-- TRUST -->
+<div class="trust">
+  <div class="trust-item">🏛️ Agréé MaPrimeRénov'</div>
+  <div class="trust-item">🇫🇷 Entreprise française</div>
+  <div class="trust-item">🔒 100% gratuit</div>
+  <div class="trust-item">⭐ Sans engagement</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Ce simulateur est fourni à titre indicatif. Les montants d'aides définitifs sont déterminés après étude complète de votre dossier par un conseiller agréé.</p>
+  <p style="margin-top:6px;">© 2025 · Aides Énergétiques · Tous droits réservés</p>
+</div>
+
+<script>
+emailjs.init('ikg4K9rtN8zThodmu');
+var L={projet:'',chauffage:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
+var cur=1;
+
+function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}  
+function g(id){return document.getElementById(id);}
+function gv(id){var el=g(id);return el?(el.value||'').trim():'';
+}
+
+function updProg(){
+  var pcts=[0,25,50,75,100];
+  var n=Math.min(cur,4);
+  g('pFill').style.width=pcts[n]+'%';
+  g('pLbl').textContent='Étape '+n+' sur 4';
+  g('pPct').textContent=pcts[n]+'%';
+  for(var i=1;i<=4;i++){
+    var d=g('sd'+i);
+    d.className='sdot'+(i<cur?' done':i===cur?' on':'');
+  }
+}
+
+function show(n){
+  var all=document.querySelectorAll('.step-content');
+  for(var i=0;i<all.length;i++)all[i].classList.remove('active');
+  g('sc'+n).classList.add('active');
+  cur=n;
+  if(n===2){
+    var proj=gSel('cProjet');
+    var needChauf=proj==='PAC Air/Eau'||proj==='PAC + Isolation';
+    g('chaufSection').style.display=needChauf?'block':'none';
+  }
+  updProg();
+  window.scrollTo(0,0);
+}
+
+function chkChauf(){
+  var el=document.querySelector('#cChauf .sel');if(!el)return;
+  var ok=el.getAttribute('data-ok')==='1';
+  g('chaufAlert').innerHTML=ok
+    ?'<div class="alert ag">✅ Votre chauffage est éligible au remplacement par une PAC Air/Eau</div>'
+    :'<div class="alert ao">⚠️ Votre chauffage nécessite une étude — un conseiller vérifiera votre situation</div>';
+}
+
+function chkSurf(){
+  var s=Number(g('surface').value);
+  if(!s){g('surfAlert').innerHTML='';return;}
+  if(s<70)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface inférieure à 70 m² — un conseiller étudiera votre cas</div>';
+  else if(s>250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface importante — un conseiller étudiera votre cas</div>';
+  else g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible</div>';
+}
+
+function chkAnnee(){
+  var v=Number(g('annee').value);
+  if(!v){g('anneeAlert').innerHTML='';return;}
+  var limite=new Date().getFullYear()-15;
+  if(v>limite)g('anneeAlert').innerHTML='<div class="alert ao">⚠️ Maison de moins de 15 ans — un conseiller vérifiera votre éligibilité</div>';
+  else g('anneeAlert').innerHTML='<div class="alert ag">✅ Logement éligible (plus de 15 ans)</div>';
+}
+
+function chkStatut(){
+  var s=gSel('cStatut');
+  g('statutAlert').innerHTML=s==='Locataire'
+    ?'<div class="alert ao">⚠️ En tant que locataire, l\'accord du propriétaire est nécessaire — un conseiller vous expliquera la démarche</div>'
+    :'';
+}
+
+function goNext(s){
+  g('e'+s).classList.remove('show');
+  if(s===1){
+    if(!gSel('cProjet')){g('e1').classList.add('show');return;}
+    L.projet=gSel('cProjet');
+    show(2);return;
+  }
+  if(s===2){
+    var proj=gSel('cProjet');
+    var needChauf=proj==='PAC Air/Eau'||proj==='PAC + Isolation';
+    if(needChauf&&!gSel('cChauf')){g('e2').classList.add('show');return;}
+    if(!gv('surface')){g('e2').classList.add('show');return;}
+    if(!gv('annee')){g('e2').classList.add('show');return;}
+    if(!gSel('cStatut')){g('e2').classList.add('show');return;}
+    L.chauffage=gSel('cChauf')||'—';
+    L.surface=gv('surface');
+    L.annee=gv('annee');
+    L.statut=gSel('cStatut');
+    show(3);return;
+  }
+  if(s===3){
+    if(!gSel('cPersonnes')||!gSel('cRevenus')){g('e3').classList.add('show');return;}
+    L.personnes=gSel('cPersonnes');
+    L.revenus=gSel('cRevenus');
+    show(4);return;
+  }
+}
+
+function goPrev(s){show(s-1);}
+
+function getScore(){
+  var ok=true,notes=[];
+  var proj=L.projet,chauf=L.chauffage,surf=Number(L.surface),annee=Number(L.annee),rev=L.revenus,statut=L.statut;
+  if((proj==='PAC Air/Eau'||proj==='PAC + Isolation')&&chauf==='Électrique'){ok=false;}
+  if(annee>new Date().getFullYear()-15)notes.push('maison récente');
+  if(surf<70)notes.push('petite surface');
+  if(rev==='Plus de 55 000€/an')notes.push('revenus élevés');
+  if(statut==='Locataire')notes.push('locataire');
+  if(!ok)return{label:'À étudier avec un conseiller',ico:'📊',color:'#d97706',favorable:false};
+  if(notes.length===0)return{label:'Très favorable ⭐',ico:'🎉',color:'#16a34a',favorable:true};
+  if(notes.length===1)return{label:'Favorable',ico:'✅',color:'#0d9488',favorable:true};
+  return{label:'À étudier avec un conseiller',ico:'📊',color:'#d97706',favorable:false};
+}
+
+function submit(){
+  g('e4').classList.remove('show');
+  if(!gv('prenom')||!gv('telephone')||!gv('cp')){g('e4').classList.add('show');return;}
+  L.prenom=gv('prenom');L.nom=gv('nom');L.telephone=gv('telephone');L.email=gv('email');L.cp=gv('cp');
+  var btn=g('btnSubmit');
+  btn.textContent='⏳ Envoi en cours…';btn.disabled=true;
+  var date=new Date().toLocaleString('fr-FR');
+  var score=getScore();
+  var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
+  +'<div style="background:#16a34a;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🌿 NOUVEAU LEAD — AIDES ÉNERGÉTIQUES</div>'
+  +'<div style="background:#166534;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Reçu le : '+date+' · Projet : '+L.projet+' · Éligibilité : '+score.label+'</div>'
+  +'<div style="background:#dcfce7;color:#166534;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">📞 CONTACT</div>'
+  +'<table style="width:100%;border-collapse:collapse;">'
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Prénom / Nom</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.prenom+' '+L.nom+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Téléphone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.telephone+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Email</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(L.email||'—')+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;">Code postal</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+L.cp+'</td></tr>'
+  +'</table>'
+  +'<div style="background:#dcfce7;color:#166534;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">🏡 LOGEMENT</div>'
+  +'<table style="width:100%;border-collapse:collapse;">'
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Projet</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.projet+'</td></tr>'
+  +(L.chauffage&&L.chauffage!=='—'?'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Chauffage actuel</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.chauffage+'</td></tr>':'')
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Surface</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.surface+' m²</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Année de construction</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.annee+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;">Statut</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+L.statut+'</td></tr>'
+  +'</table>'
+  +'<div style="background:#dcfce7;color:#166534;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">💰 FOYER</div>'
+  +'<table style="width:100%;border-collapse:collapse;">'
+  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Composition</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.personnes+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;">Revenus annuels</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+L.revenus+'</td></tr>'
+  +'</table>'
+  +'<div style="background:'+score.color+';color:#fff;padding:12px 18px;border-radius:8px;display:flex;justify-content:space-between;font-size:14px;font-weight:bold;margin:14px 0;"><span>📊 ÉLIGIBILITÉ ESTIMÉE</span><span>'+score.label+'</span></div>'
+  +'<div style="font-size:10px;color:#94a3b8;text-align:center;">Lead généré automatiquement — '+date+'</div>'
+  +'</div>';
+  emailjs.send('service_leads','template_2komt8b',{
+    to_email:'maxime.paciso1@gmail.com',
+    name:L.prenom+' '+L.nom,
+    nom_client:L.prenom+' '+L.nom,
+    subject:'🌿 Lead '+L.prenom+' '+L.nom+' — '+L.projet+' — '+L.telephone+' — CP '+L.cp,
+    time:date,
+    dossier:L.projet,
+    rac_total:score.label,
+    message:message,
+    telephone:L.telephone,
+    adresse:L.cp,
+    couleur_anah:'—',
+    zone:'—',
+    date:date
+  }).then(function(){showResult();},function(){showResult();});
+}
+
+function showResult(){
+  var score=getScore();
+  g('rIco').textContent=score.ico;
+  g('rTitle').textContent=score.favorable?'Bonne nouvelle !':'Votre demande est bien reçue !';
+  g('rSub').textContent=score.favorable
+    ?'Vous êtes potentiellement éligible aux aides MaPrimeRénov\'. Un conseiller vous contacte sous 24h.'
+    :'Un conseiller spécialisé va étudier votre situation personnellement et vous rappeler sous 24h.';
+  g('rBadge').textContent='📞 Rappel conseiller sous 24h';
+  var rows='';
+  rows+='<div class="srow"><span class="sl">Projet</span><span class="sv">'+L.projet+'</span></div>';
+  if(L.chauffage&&L.chauffage!=='—')rows+='<div class="srow"><span class="sl">Chauffage</span><span class="sv">'+L.chauffage+'</span></div>';
+  rows+='<div class="srow"><span class="sl">Surface</span><span class="sv">'+L.surface+' m²</span></div>';
+  rows+='<div class="srow"><span class="sl">Foyer</span><span class="sv">'+L.personnes+'</span></div>';
+  rows+='<div class="srow"><span class="sl">Revenus</span><span class="sv">'+L.revenus+'</span></div>';
+  rows+='<div class="srow"><span class="sl">Code postal</span><span class="sv">'+L.cp+'</span></div>';
+  rows+='<div class="srow"><span class="sl">Téléphone</span><span class="sv">'+L.telephone+'</span></div>';
+  rows+='<div class="srow" style="background:#dcfce7;border-radius:8px;padding:8px 6px;margin-top:4px;"><span class="sl" style="color:#166534;font-weight:bold;">Éligibilité estimée</span><span class="sv" style="color:#166534;">'+score.label+'</span></div>';
+  g('summaryRows').innerHTML=rows;
+  show(5);
+}
+
+updProg();
+</script>
+</body>
+</html>
