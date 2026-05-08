@@ -5,6 +5,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Fiche Client — PAC Air/Eau</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#f0f4f8;font-family:Arial,sans-serif;color:#0f172a;padding:20px 14px 60px;min-height:100vh;}
@@ -135,9 +138,10 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="stag">📋 Démarrage</div>
   <div class="stitle">Type de dossier</div>
   <div class="ssub">Quel équipement souhaitez-vous installer ?</div>
-  <div class="choices c2" id="cDossier">
-    <div class="choice" data-val="PAC" onclick="pick(this,'cDossier')"><div class="chi">🔥</div><div class="chl">Pompe à chaleur</div><div class="chs">PAC Air/Eau</div></div>
-    <div class="choice" data-val="PAC+ISO" onclick="pick(this,'cDossier')"><div class="chi">⚡</div><div class="chl">PAC + Isolation</div><div class="chs">Dossier complet</div></div>
+  <div class="choices c3" id="cDossier">
+    <div class="choice" data-val="PAC" onclick="pick(this,'cDossier')"><div class="chi">🔥</div><div class="chl">PAC</div><div class="chs">PAC Air/Eau</div></div>
+    <div class="choice" data-val="ISO" onclick="pick(this,'cDossier')"><div class="chi">🏠</div><div class="chl">Isolation</div><div class="chs">ISO seule</div></div>
+    <div class="choice" data-val="PAC+ISO" onclick="pick(this,'cDossier')"><div class="chi">⚡</div><div class="chl">PAC + ISO</div><div class="chs">Dossier complet</div></div>
   </div>
   <div class="err" id="e1">⚠ Veuillez sélectionner un type de dossier.</div>
   <div class="brow"><button class="btn bp" onclick="nx(1)">Suivant →</button></div>
@@ -158,9 +162,9 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   </div>
   <div id="chaufAlert"></div>
   <div class="slabel">Superficie</div>
-  <label class="flabel">Surface chauffée (m²) <span>*</span></label>
+  <label class="flabel">Surface chauffée (m²)</label>
   <input type="number" id="surfPac" placeholder="Ex: 120" oninput="chkSurf()"/>
-  <div class="hint">90–190m² : éligible · 190–250m² : +3 500€ · >250m² : +5 000€ · 70–90m² : +5 000€ · &lt;70m² : non éligible</div>
+  <div class="hint">90–190m² : éligible · 190–250m² : +3 500€ · >250m² : Voir Resp. technique · 70–90m² : +5 000€ · &lt;70m² : Voir Resp. technique</div>
   <div id="surfAlert"></div>
   <div class="slabel">Électricité</div>
   <div class="choices c2" id="cCompt">
@@ -186,9 +190,9 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 
 <div class="step" id="step3">
   <div class="stag">📍 Localisation</div>
-  <div class="stitle">Département & Zone</div>
+  <div class="stitle">Département &amp; Zone</div>
   <div class="ssub">Zone H1/H2/H3 détectée automatiquement</div>
-  <label class="flabel">Département <span>*</span></label>
+  <label class="flabel">Département</label>
   <input type="text" id="dept" placeholder="Ex: 95, 75, 13…" maxlength="3" oninput="this.value=this.value.replace(/[^0-9]/g,'');detectZone()"/>
   <div id="zoneBox"></div>
   <div class="err" id="e3">⚠ Veuillez saisir votre département.</div>
@@ -197,9 +201,9 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 
 <div class="step" id="step4">
   <div class="stag">💰 Revenus</div>
-  <div class="stitle">Déclaration fiscale & Couleur ANAH</div>
+  <div class="stitle">Déclaration fiscale &amp; Couleur ANAH</div>
   <div class="ssub">Calcul automatique selon RFR et parts fiscales</div>
-  <label class="flabel">Parts fiscales <span>*</span></label>
+  <label class="flabel">Parts fiscales</label>
   <div class="hint" style="margin-top:-4px;margin-bottom:10px;">Quotient familial sur l'avis d'imposition</div>
   <div class="choices c4" id="cFoyer">
     <div class="choice" data-val="1" onclick="pickFoyer(this)"><div class="chi">👤</div><div class="chl">1</div></div>
@@ -211,7 +215,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="5" onclick="pickFoyer(this)"><div class="chi">🏠</div><div class="chl">5 parts</div></div>
     <div class="choice" data-val="6" onclick="pickFoyer(this)"><div class="chi">🏡</div><div class="chl">6 ou +</div></div>
   </div>
-  <label class="flabel">Revenu Fiscal de Référence (RFR) <span>*</span></label>
+  <label class="flabel">Revenu Fiscal de Référence (RFR)</label>
   <input type="number" id="rfr" placeholder="Ex: 18000" oninput="previewCouleur()"/>
   <div class="hint" style="margin-top:-12px;margin-bottom:14px;">Case RFR sur l'avis d'imposition</div>
   <div id="couleurBloc"></div>
@@ -224,15 +228,23 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="stag">🏠 Isolation</div>
   <div class="stitle">Informations Isolation</div>
   <div class="ssub">Minimum 2 gestes obligatoires</div>
+  <div id="regionToggleISO" style="display:none;">
+    <div class="slabel">Région du chantier</div>
+    <div class="choices c2" id="cRegion">
+      <div class="choice" data-val="prov" onclick="pickRegion(this)"><div class="chi">🏘️</div><div class="chl">Province</div></div>
+      <div class="choice" data-val="idf" onclick="pickRegion(this)"><div class="chi">🗼</div><div class="chl">Île-de-France</div></div>
+    </div>
+    <div class="err" id="e5region">⚠ Veuillez sélectionner la région.</div>
+  </div>
   <div class="slabel">Gestes d'isolation</div>
   <div style="display:grid;gap:10px;margin-bottom:10px;" id="cGestes">
-    <div class="geste-choice" data-val="Isolation rampants" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏚️</div><div><div class="geste-lbl">Isolation rampants</div><div class="geste-sub">1 geste — incompatible avec combles perdus</div></div></div></div>
+    <div class="geste-choice" data-val="Isolation rampants" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏙️</div><div><div class="geste-lbl">Isolation rampants</div><div class="geste-sub">1 geste — incompatible avec combles perdus</div></div></div></div>
     <div class="geste-choice" data-val="Combles perdus" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏠</div><div><div class="geste-lbl">Combles perdus</div><div class="geste-sub">1 geste — incompatible avec rampants</div></div></div></div>
     <div class="geste-choice" data-val="ITE 25%" data-grp="ite" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🧱</div><div><div class="geste-lbl">ITE — Isolation par l'Extérieur 25%</div><div class="geste-sub">1 geste CEE</div></div></div></div>
     <div class="geste-choice" data-val="Garage/Sous-sol/Cave" data-grp="garage" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🚗</div><div><div class="geste-lbl">Garage / Sous-sol / Cave</div><div class="geste-sub">1 geste CEE</div></div></div></div>
   </div>
   <div id="gestesCount" style="font-size:12px;color:#94a3b8;margin-bottom:14px;"></div>
-  <label class="flabel">Surface à isoler (m²) <span>*</span></label>
+  <label class="flabel">Surface à isoler (m²)</label>
   <input type="number" id="surfIso" placeholder="Ex: 120" oninput="chkSurfIso()"/>
   <div class="hint" style="margin-top:-12px;margin-bottom:10px;">Minimum 110 m² pour éligibilité pleine</div>
   <div id="surfIsoAlert"></div>
@@ -248,28 +260,42 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="ssub">Coordonnées et adresse du chantier</div>
   <div class="slabel">Identité</div>
   <div class="row2">
-    <div><label class="flabel">Nom <span>*</span></label><input type="text" id="nom" placeholder="Dupont"/></div>
-    <div><label class="flabel">Prénom <span>*</span></label><input type="text" id="prenom" placeholder="Jean"/></div>
+    <div><label class="flabel">Nom</label><input type="text" id="nom" placeholder="Dupont"/></div>
+    <div><label class="flabel">Prénom</label><input type="text" id="prenom" placeholder="Jean"/></div>
   </div>
   <div class="row2">
-    <div><label class="flabel">Date de naissance <span>*</span></label><input type="date" id="dateNaissance"/></div>
-    <div><label class="flabel">Téléphone <span>*</span></label><input type="tel" id="telephone" placeholder="06 00 00 00 00"/></div>
+    <div><label class="flabel">Date de naissance</label><input type="text" id="dateNaissance" placeholder="JJ/MM/AAAA"/></div>
+    <div><label class="flabel">Téléphone</label><input type="tel" id="telephone" placeholder="06 00 00 00 00"/></div>
   </div>
   <label class="flabel">Email</label>
   <input type="email" id="email" placeholder="jean@exemple.fr"/>
   <div class="slabel">Adresse du chantier</div>
-  <label class="flabel">Adresse <span>*</span></label>
-  <input type="text" id="adresse" placeholder="12 rue de la Paix"/>
+  <label class="flabel">Adresse</label>
+  <input type="text" id="adresse" placeholder="12 rue de la Paix" oninput="updMapsLink()"/>
   <div class="row2">
-    <div><label class="flabel">Code postal <span>*</span></label><input type="text" id="cp" placeholder="75001"/></div>
-    <div><label class="flabel">Ville <span>*</span></label><input type="text" id="ville" placeholder="Paris"/></div>
+    <div><label class="flabel">Code postal</label><input type="text" id="cp" placeholder="75001" oninput="updMapsLink()"/></div>
+    <div><label class="flabel">Ville</label><input type="text" id="ville" placeholder="Paris" oninput="updMapsLink()"/></div>
   </div>
+  <div id="mapEmbed" style="margin-bottom:10px;"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+    <button type="button" id="btnMaps" onclick="openMaps()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📍 Street View</button>
+    <button type="button" id="btnGeo" onclick="openGeo()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">🗺️ Géoportail</button>
+  </div>
+  <label class="flabel">Année de construction</label>
+  <input type="number" id="anneeConstruction" placeholder="Ex: 1998" min="1800" max="2099" oninput="chkAnnee()"/>
+  <div id="anneeAlert"></div>
   <div class="slabel">Déclaration fiscale</div>
-  <label class="flabel">N° déclarant fiscal <span>*</span></label>
+  <label class="flabel">N° déclarant fiscal</label>
   <input type="text" id="numDeclarant" placeholder="1234567890123"/>
   <div class="hint" style="margin-top:-12px;margin-bottom:14px;">13 chiffres sur l'avis d'imposition</div>
   <label class="flabel">RFR (copie fiche client)</label>
   <input type="number" id="rfr2" placeholder="Ex: 18000"/>
+  <div class="slabel">Téléprospecteur</div>
+  <label class="flabel">Nom du téléprospecteur</label>
+  <div class="hint" style="margin-top:-4px;margin-bottom:10px;">Le nom avec lequel vous vous présentez au client</div>
+  <input type="text" id="teleproNom" placeholder="Ex: Sophie, Thomas…"/>
+  <label class="flabel">Code référent (facultatif)</label>
+  <input type="text" id="codeReferent" placeholder="Ex: REF-001"/>
   <div class="err" id="e6">⚠ Veuillez remplir tous les champs obligatoires.</div>
   <div class="brow"><button class="btn bs" onclick="pv(6)">← Retour</button><button class="btn bp" onclick="nx(6)">Voir les résultats →</button></div>
 </div>
@@ -288,13 +314,15 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <hr/>
   <button class="btn-pdf" onclick="genPDF()">📄 Télécharger la fiche PDF</button>
   <button class="btn-email" onclick="sendEmail()">📧 Envoyer par email</button>
+  <button class="btn-new" id="btnEditIso" onclick="editIso()" style="display:none;border-color:#1a56db;color:#1a56db;">🏠 Modifier l'isolation →</button>
   <button class="btn-new" onclick="restart()">↺ Nouveau dossier</button>
 </div>
 
 </div></div>
 
 <script>
-var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true};
+emailjs.init('ikg4K9rtN8zThodmu');
+var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
@@ -323,8 +351,8 @@ function calcCouleur(rfr,parts,isIDF){
 function racC(c){return{Bleu:0,Jaune:5000,Violet:6194,Rose:9194}[c]||0;}
 function racZ(z){return{H1:0,H2:1508,H3:3768}[z]||0;}
 function previewCouleur(){
-  var rfr=Number(g('rfr').value),parts=S.parts,dept=S.dept;
-  if(!rfr||!parts||!dept){g('couleurBloc').innerHTML='';g('plafondTable').innerHTML='';return;}
+  var rfr=Number(g('rfr').value),parts=S.parts;
+  if(!rfr||!parts){g('couleurBloc').innerHTML='';g('plafondTable').innerHTML='';return;}
   S.rfr=rfr;
   var c=calcCouleur(rfr,parts,S.isIDF);S.couleur=c;
   var cfg={Bleu:{cls:'cb-bleu',dot:'🔵',lbl:'BLEU — Ménage très modeste'},Jaune:{cls:'cb-jaune',dot:'🟡',lbl:'JAUNE — Ménage modeste'},Violet:{cls:'cb-violet',dot:'🟣',lbl:'VIOLET — Ménage intermédiaire'},Rose:{cls:'cb-rose',dot:'🔴',lbl:'ROSE — Hors plafonds'}};
@@ -336,12 +364,16 @@ function previewCouleur(){
   var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
     var plaf=col==='Violet'?(S.isIDF?90000:70000):col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
     var dot={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'}[col];
-    return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
+    return'<tr'+(c===col?' class="hl"':'')+'>'+
+      '<td>'+dot+' '+col+'</td>'+
+      '<td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td>'+
+      '<td>'+(c===col?fmt(rfr):'—')+'</td>'+
+      '<td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
   }).join('');
   g('plafondTable').innerHTML='<div style="font-size:11px;color:#94a3b8;margin:8px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
 }
-function chkChauf(){var el=document.querySelector('#cChauf .sel');if(!el)return;var ok=el.getAttribute('data-ok')==='1';g('chaufAlert').innerHTML=ok?'<div class="alert ag">✅ Éligible — Chauffage remplaçable par PAC Air/Eau</div>':'<div class="alert ar">❌ Non éligible — Chauffage électrique incompatible</div>';}
-function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ar">❌ Surface < 70 m² — Non éligible</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–90 m² — RAC : +5 000€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface > 250 m² — RAC : +5 000€</div>';}
+function chkChauf(){var el=document.querySelector('#cChauf .sel');if(!el)return;var ok=el.getAttribute('data-ok')==='1';g('chaufAlert').innerHTML=ok?'<div class="alert ag">✅ Éligible — Chauffage remplaçable par PAC Air/Eau</div>':'<div class="alert ar">❌ Voir avec Responsable technique — Chauffage incompatible</div>';}
+function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ar">❌ Surface < 70 m² — Voir avec Responsable technique</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–90 m² — RAC : +5 000€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ar">❌ Surface > 250 m² — Voir avec Responsable technique</div>';}
 function chkVMC(){var v=gSel('cVMC');g('vmcAlert').innerHTML=v==='Oui'?'<div class="alert ab">💧 VMC existante → Ballon thermodynamique à installer</div>':'<div class="alert ab">🌬️ Pas de VMC → VMC à installer</div>';}
 function chkSurfIso(){var s=Number(g('surfIso').value);S.surfIso=s;if(!s){g('surfIsoAlert').innerHTML='';return;}g('surfIsoAlert').innerHTML=s>=110?'<div class="alert ag">✅ Surface suffisante (≥ 110 m²)</div>':'<div class="alert ao">⚠️ Surface < 110 m² — RAC : +1 800€</div>';}
 function togGeste(el){
@@ -352,59 +384,73 @@ function togGeste(el){
 }
 function calcFinal(){
   var rfr=Number(g('rfr').value),parts=S.parts,zone=S.zone,couleur=calcCouleur(rfr,parts,S.isIDF),chauf=gSel('cChauf'),surfPac=Number(g('surfPac').value)||0,surfIso=Number(g('surfIso').value)||0;
-  S.couleur=couleur;S.rfr=rfr;S.chauffage=chauf;S.surfPac=surfPac;S.surfIso=surfIso;
-  S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.vmc=gSel('cVMC');
-  S.notesPac=gv('notesPac');S.notesIso=gv('notesIso');
-  S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.rfr2=gv('rfr2');
-  var eligChauf=['Gaz','Fioul','Chaudière à bois','Chaudière à charbon'].indexOf(chauf)>-1;
-  S.pacOk=eligChauf;S.racPac=0;S.surfOk=true;
-  if(eligChauf){if(surfPac<70){S.racPac=99999;S.surfOk=false;}else if(surfPac<90)S.racPac+=5000;else if(surfPac>250)S.racPac+=5000;else if(surfPac>190)S.racPac+=3500;S.racPac+=racZ(zone);S.racPac+=racC(couleur);}
+  var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
+  S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;
+  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.rfr2=gv('rfr2');S.anneeConstruction=gv('anneeConstruction');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
+  S.pacOk=true;S.racPac=0;S.surfOk=true;
+  if(hasPAC){
+    S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.vmc=gSel('cVMC');S.notesPac=gv('notesPac');
+    var eligChauf=['Gaz','Fioul','Chaudière à bois','Chaudière à charbon'].indexOf(chauf)>-1;
+    S.pacOk=eligChauf;
+    if(eligChauf){if(surfPac<70||surfPac>250){S.racPac=99999;S.surfOk=false;}else{if(surfPac<90)S.racPac+=5000;else if(surfPac>190)S.racPac+=3500;S.racPac+=racZ(zone);S.racPac+=racC(couleur);}}
+  }
   S.racIso=0;S.isoOk=true;
-  if(S.dossier==='PAC+ISO'){if(['Bleu','Jaune'].indexOf(couleur)<0)S.isoOk=false;else{if(couleur==='Jaune')S.racIso+=5000;if(surfIso<110)S.racIso+=1800;}}
+  if(hasISO){if(['Bleu','Jaune'].indexOf(couleur)<0)S.isoOk=false;else{if(couleur==='Jaune')S.racIso+=5000;if(surfIso<110)S.racIso+=1800;}}
   buildResult();
 }
 function buildResult(){
-  var c=S.couleur,zone=S.zone,isISO=S.dossier==='PAC+ISO',totalRac=S.racPac+S.racIso,hasNon=!S.pacOk||(isISO&&!S.isoOk);
+  var c=S.couleur,zone=S.zone,hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
+  var totalRac=S.racPac+(hasISO?S.racIso:0);
+  var nonPAC=hasPAC&&(!S.pacOk||!S.surfOk),nonISO=hasISO&&!S.isoOk;
   var emo,title,sub;
-  if(!S.pacOk&&!S.surfOk){emo='❌';title='Surface non éligible';sub='Surface < 70 m²';}
-  else if(!S.pacOk){emo='❌';title='Non éligible';sub='Chauffage incompatible';}
-  else if(hasNon){emo='⚠️';title='PAC éligible — ISO non éligible';sub='Revenus trop élevés pour l\'isolation';}
+  if(nonPAC&&nonISO){emo='❌';title='Voir avec Responsable technique';sub='Dossier non éligible';}
+  else if(nonPAC){emo='❌';title='Voir avec Responsable technique';sub=!S.surfOk?'Surface hors critères':'Chauffage incompatible';}
+  else if(nonISO&&!hasPAC){emo='❌';title='Voir avec Responsable technique';sub='Revenus trop élevés pour l\'isolation';}
+  else if(nonISO){emo='⚠️';title='PAC éligible — ISO non éligible';sub='Revenus trop élevés pour l\'isolation';}
   else if(totalRac===0){emo='🎉';title='Éligible à 1€ !';sub='Toutes les aides sont accordées';}
   else{emo='📊';title='Éligible avec reste à charge';sub='Détail ci-dessous';}
   g('rEmo').textContent=emo;g('rTitle').textContent=title;g('rSub').textContent=sub;
   var pm={Bleu:'p-bleu',Jaune:'p-jaune',Violet:'p-violet',Rose:'p-rose'},pd={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'};
   var r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5);
-  g('cpillBox').innerHTML='<div class="cpill '+pm[c]+'">'+pd[c]+' Couleur ANAH : <strong>'+c+'</strong> — Zone <strong>'+zone+'</strong></div><div style="font-size:11px;color:#94a3b8;">RFR : '+fmt(S.rfr)+' · Bleu ≤ '+fmt(PLAF[r].bleu[idx])+' · Jaune ≤ '+fmt(PLAF[r].jaune[idx])+'</div>';
+  g('cpillBox').innerHTML='<div class="cpill '+pm[c]+'">'+pd[c]+' Couleur ANAH : <strong>'+c+'</strong>'+(zone?' — Zone <strong>'+zone+'</strong>':'')+'</div><div style="font-size:11px;color:#94a3b8;">RFR : '+fmt(S.rfr)+' · Bleu ≤ '+fmt(PLAF[r].bleu[idx])+' · Jaune ≤ '+fmt(PLAF[r].jaune[idx])+'</div>';
   var html='';
-  if(!S.pacOk&&!S.surfOk)html+=ri('bad','📏','Surface chauffée','❌ Non éligible — Surface < 70 m²');
-  else if(S.pacOk&&S.racPac===0)html+=ri('good','🔥','Pompe à chaleur Air/Eau','✅ Éligible à 1€');
-  else if(S.pacOk){html+=ri('warn','🔥','Pompe à chaleur Air/Eau','⚠️ RAC : '+fmt(S.racPac));if(S.surfPac>=70&&S.surfPac<90)html+=ri('info','📏','Surface 70–90 m²','+5 000€');if(S.surfPac>190&&S.surfPac<=250)html+=ri('info','📏','Surface 190–250 m²','+3 500€');if(S.surfPac>250)html+=ri('info','📏','Surface > 250 m²','+5 000€');if(zone==='H2')html+=ri('info','🌤️','Zone H2','+1 508€');if(zone==='H3')html+=ri('info','☀️','Zone H3','+3 768€');if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune','+5 000€');if(c==='Violet')html+=ri('info','🟣','Couleur Violet','+6 194€');if(c==='Rose')html+=ri('info','🔴','Couleur Rose','+9 194€');}
-  else html+=ri('bad','🔥','Pompe à chaleur Air/Eau','❌ Non éligible — Chauffage incompatible');
-  if(isISO){if(!S.isoOk)html+=ri('bad','🏠','Isolation','❌ Non éligible — Couleur '+c);else if(S.racIso===0)html+=ri('good','🏠','Isolation','✅ Éligible à 1€');else{html+=ri('warn','🏠','Isolation','⚠️ RAC : '+fmt(S.racIso));if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune (ISO)','+5 000€');if(S.surfIso<110)html+=ri('info','📏','Surface < 110 m²','+1 800€');}html+=ri('info','🏗️','Gestes',S.gestes.join(' + ')||'—');}
+  if(hasPAC){
+    if(!S.surfOk)html+=ri('bad','📏','Surface chauffée','❌ Voir avec Responsable technique');
+    else if(S.pacOk&&S.racPac===0)html+=ri('good','🔥','Pompe à chaleur Air/Eau','✅ Éligible à 1€');
+    else if(S.pacOk){html+=ri('warn','🔥','Pompe à chaleur Air/Eau','⚠️ RAC : '+fmt(S.racPac));if(S.surfPac>=70&&S.surfPac<90)html+=ri('info','📏','Surface 70–90 m²','+5 000€');if(S.surfPac>190&&S.surfPac<=250)html+=ri('info','📏','Surface 190–250 m²','+3 500€');if(zone==='H2')html+=ri('info','🌤️','Zone H2','+1 508€');if(zone==='H3')html+=ri('info','☀️','Zone H3','+3 768€');if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune','+5 000€');if(c==='Violet')html+=ri('info','🟣','Couleur Violet','+6 194€');if(c==='Rose')html+=ri('info','🔴','Couleur Rose','+9 194€');}
+    else html+=ri('bad','🔥','Pompe à chaleur Air/Eau','❌ Voir avec Responsable technique');
+  }
+  if(hasISO){if(!S.isoOk)html+=ri('bad','🏠','Isolation','❌ Voir avec Responsable technique');else if(S.racIso===0)html+=ri('good','🏠','Isolation','✅ Éligible à 1€');else{html+=ri('warn','🏠','Isolation','⚠️ RAC : '+fmt(S.racIso));if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune (ISO)','+5 000€');if(S.surfIso<110)html+=ri('info','📏','Surface < 110 m²','+1 800€');}html+=ri('info','🏗️','Gestes',S.gestes.join(' + ')||'—');}
   g('rGrid').innerHTML=html;
-  var tr2=S.racPac+(isISO?S.racIso:0),racH='';
-  if(!S.pacOk)racH='<div class="rac-box bg-red"><div class="rac-lbl">Résultat</div><div class="rac-amt">Non éligible</div><div class="rac-note">Vérifier les critères</div></div>';
-  else if(tr2===0)racH='<div class="rac-box bg-green"><div class="rac-lbl">Reste à charge total</div><div class="rac-amt">1€</div><div class="rac-note">Totalité des aides</div></div>';
-  else racH='<div class="rac-box bg-blue"><div class="rac-lbl">Reste à charge total estimé</div><div class="rac-amt">'+fmt(tr2)+'</div><div class="rac-note">PAC : '+(S.racPac===0?'1€':fmt(S.racPac))+(isISO?' · ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible'):'')+'</div></div>';
+  var racH='';
+  if((hasPAC&&nonPAC&&!hasISO)||(hasISO&&nonISO&&!hasPAC))racH='<div class="rac-box bg-red"><div class="rac-lbl">Résultat</div><div class="rac-amt" style="font-size:22px;">Voir Resp. technique</div><div class="rac-note">Contacter le responsable</div></div>';
+  else if(totalRac===0)racH='<div class="rac-box bg-green"><div class="rac-lbl">Reste à charge total</div><div class="rac-amt">1€</div><div class="rac-note">Totalité des aides</div></div>';
+  else racH='<div class="rac-box bg-blue"><div class="rac-lbl">Reste à charge total estimé</div><div class="rac-amt">'+fmt(totalRac)+'</div><div class="rac-note">'+(hasPAC?'PAC : '+(nonPAC?'Voir Resp. technique':S.racPac===0?'1€':fmt(S.racPac)):'')+(hasPAC&&hasISO?' · ':'')+(hasISO?'ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Voir Resp. technique'):'')+'</div></div>';
   g('racBox').innerHTML=racH;
-  var dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—';
+  var dob=S.dateNaissance||'—';
   var th='<h4>📋 Récapitulatif du dossier</h4>';
-  th+=trow('Nom / Prénom',S.prenom+' '+S.nom);th+=trow('Date naissance',dob);th+=trow('Téléphone',S.telephone);th+=trow('Email',S.email||'—');th+=trow('Adresse',S.adresse+', '+S.cp+' '+S.ville);th+=trow('N° déclarant',S.numDeclarant);th+=trow('RFR',fmt(S.rfr));th+=trow('Parts fiscales',S.parts+' part(s)');th+=trow('Zone',S.dept+' — Zone '+S.zone+(S.isIDF?' (IDF)':' (Province)'));th+=trow('Couleur ANAH',c);th+=trow('Dossier',S.dossier);th+=trow('Chauffage',S.chauffage);th+=trow('Surface PAC',S.surfPac+' m²');th+=trow('Compteur',S.compteur);th+=trow('Eau chaude',S.ecs);th+=trow('VMC',S.vmc);
-  if(isISO){th+=trow('Gestes',S.gestes.join(', ')||'—');th+=trow('Surface ISO',S.surfIso+' m²');}
-  th+=trow('RAC PAC',S.pacOk?(S.racPac===0?'1€':fmt(S.racPac)):'Non éligible');
-  if(isISO)th+=trow('RAC Isolation',S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible');
-  th+='<div class="trow" style="background:'+(tr2===0?'#e8faf3':!S.pacOk?'#fee2e2':'#fef3c7')+';border-radius:8px;padding:10px;"><span class="tl" style="font-weight:bold;">💶 RESTE À CHARGE TOTAL</span><span class="tv" style="font-size:16px;">'+(!S.pacOk?'Non éligible':tr2===0?'1€':fmt(tr2))+'</span></div>';
+  th+=trow('Téléprospecteur',S.teleproNom||'—');if(S.codeReferent)th+=trow('Code référent',S.codeReferent);th+=trow('Nom / Prénom',S.prenom+' '+S.nom);th+=trow('Date naissance',dob);th+=trow('Téléphone',S.telephone);th+=trow('Email',S.email||'—');th+=trow('Adresse',S.adresse+', '+S.cp+' '+S.ville);if(S.anneeConstruction)th+=trow('Année construction',S.anneeConstruction);th+=trow('N° déclarant',S.numDeclarant);th+=trow('RFR',fmt(S.rfr));th+=trow('Parts fiscales',S.parts+' part(s)');th+=trow('Zone',S.dept+(S.zone?' — Zone '+S.zone:'')+(S.isIDF?' (IDF)':' (Province)'));th+=trow('Couleur ANAH',c);th+=trow('Dossier',S.dossier);
+  if(hasPAC){th+=trow('Chauffage',S.chauffage);th+=trow('Surface PAC',S.surfPac+' m²');th+=trow('Compteur',S.compteur);th+=trow('Eau chaude',S.ecs);th+=trow('VMC',S.vmc);th+=trow('RAC PAC',nonPAC?'Voir Resp. technique':S.racPac===0?'1€':fmt(S.racPac));}
+  if(hasISO){th+=trow('Gestes',S.gestes.join(', ')||'—');th+=trow('Surface ISO',S.surfIso+' m²');th+=trow('RAC Isolation',S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Voir Resp. technique');}
+  var totalBg=((hasPAC&&nonPAC)||(hasISO&&nonISO&&!hasPAC))?'#fee2e2':totalRac===0?'#e8faf3':'#fef3c7';
+  var totalVal=((hasPAC&&nonPAC)&&(!hasISO||nonISO))||(hasISO&&nonISO&&!hasPAC)?'Voir Resp. technique':totalRac===0?'1€':fmt(totalRac);
+  th+='<div class="trow" style="background:'+totalBg+';border-radius:8px;padding:10px;"><span class="tl" style="font-weight:bold;">💶 RESTE À CHARGE TOTAL</span><span class="tv" style="font-size:16px;">'+totalVal+'</span></div>';
   if(S.notesPac)th+=trow('Notes PAC',S.notesPac);if(S.notesIso)th+=trow('Notes ISO',S.notesIso);
   g('tBox').innerHTML=th;
-  var ih='';if(S.pacOk)ih+=S.vmc==='Oui'?'<div class="alert ab">💧 <strong>Ballon thermodynamique</strong> à installer</div>':'<div class="alert ab">🌬️ <strong>VMC</strong> à installer</div>';g('installBox').innerHTML=ih;
+  var ih='';if(hasPAC&&S.pacOk&&S.surfOk)ih+=S.vmc==='Oui'?'<div class="alert ab">💧 <strong>Ballon thermodynamique</strong> à installer</div>':'<div class="alert ab">🌬️ <strong>VMC</strong> à installer</div>';g('installBox').innerHTML=ih;
+  g('btnEditIso').style.display=hasISO?'':'none';
 }
 function ri(cls,ico,lbl,val){return'<div class="ri '+cls+'"><div class="riico">'+ico+'</div><div><div class="rilbl">'+lbl+'</div><div class="rival">'+val+'</div></div></div>';}
 function trow(l,v){return'<div class="trow"><span class="tl">'+l+'</span><span class="tv">'+(v||'—')+'</span></div>';}
-function fmt(n){if(!n||n===0)return'0€';if(n>=99000)return'Non éligible';return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);}
+function fmt(n){if(!n||n===0)return'0€';if(n>=99000)return'Voir Resp. technique';return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);}
 function genPDF(){
-  var totalRac=S.racPac+S.racIso,racStr=!S.pacOk?'NON ÉLIGIBLE':totalRac===0?'1€':fmt(totalRac),dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—',date=new Date().toLocaleDateString('fr-FR'),r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5),isISO=S.dossier==='PAC+ISO';
+  var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
+  var totalRac=S.racPac+(hasISO?S.racIso:0),nonPAC=hasPAC&&(!S.pacOk||!S.surfOk);
+  var racStr=nonPAC?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac);
+  var dob=S.dateNaissance||'—',date=new Date().toLocaleDateString('fr-FR'),r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5);
+  var dateFile=date.replace(/\//g,'-');
   var w=window.open('','_blank');if(!w){alert('Autorisez les popups');return;}
-  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Dossier_'+S.nom+'_'+S.prenom+'_'+S.telephone+'</title>'
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+S.prenom+'_'+S.nom+'_'+dateFile+'_'+S.telephone+'</title>'
   +'<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;font-size:11px;color:#0f172a;padding:16px;}'
   +'h1{background:#1a56db;color:#fff;padding:12px 16px;border-radius:6px;font-size:15px;margin-bottom:4px;}'
   +'.sub{background:#1e293b;color:#fff;padding:5px 16px;border-radius:4px;font-size:10px;margin-bottom:14px;}'
@@ -414,15 +460,17 @@ function genPDF(){
   +'.total{padding:10px 16px;border-radius:8px;display:flex;justify-content:space-between;font-size:14px;font-weight:bold;margin:14px 0;color:#fff;}'
   +'.blue{background:#1a56db;}.green{background:#0ea472;}.red{background:#dc2626;}'
   +'.foot{font-size:9px;color:#94a3b8;text-align:center;margin-top:10px;}</style></head><body>'
-
 +'<h1>🏠 FICHE CLIENT — AIDES ÉNERGÉTIQUES PAC AIR/EAU</h1>'
 +'<div class="sub">Dossier : '+S.dossier+' · Date : '+date+' · RAC : '+racStr+' · Couleur : '+S.couleur+' — Zone '+S.zone+'</div>'
 +'<div class="sec">👤 CLIENT</div>'
++'<div class="row"><span class="l">Téléprospecteur</span><span class="v">'+(S.teleproNom||'—')+'</span></div>'
++(S.codeReferent?'<div class="row"><span class="l">Code référent</span><span class="v">'+S.codeReferent+'</span></div>':'')
 +'<div class="row"><span class="l">Nom / Prénom</span><span class="v">'+S.prenom+' '+S.nom+'</span></div>'
 +'<div class="row"><span class="l">Date de naissance</span><span class="v">'+dob+'</span></div>'
 +'<div class="row"><span class="l">Téléphone</span><span class="v">'+S.telephone+'</span></div>'
 +'<div class="row"><span class="l">Email</span><span class="v">'+(S.email||'—')+'</span></div>'
 +'<div class="row"><span class="l">Adresse</span><span class="v">'+S.adresse+', '+S.cp+' '+S.ville+'</span></div>'
++(S.anneeConstruction?'<div class="row"><span class="l">Année construction</span><span class="v">'+S.anneeConstruction+'</span></div>':'')
 +'<div class="sec">💰 DÉCLARATION FISCALE</div>'
 +'<div class="row"><span class="l">N° déclarant</span><span class="v">'+S.numDeclarant+'</span></div>'
 +'<div class="row"><span class="l">RFR</span><span class="v">'+fmt(S.rfr)+'</span></div>'
@@ -432,40 +480,106 @@ function genPDF(){
 +'<div class="row"><span class="l">Plafond Jaune</span><span class="v">'+fmt(PLAF[r].jaune[idx])+'</span></div>'
 +'<div class="row"><span class="l">Couleur ANAH</span><span class="v">'+S.couleur+'</span></div>'
 +'<div class="row"><span class="l">Dpt / Zone</span><span class="v">'+S.dept+' — Zone '+S.zone+'</span></div>'
-+'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'
-+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'
-+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'
-+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'
-+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'
-+'<div class="row"><span class="l">VMC</span><span class="v">'+S.vmc+'</span></div>'
-+'<div class="row"><span class="l">Action</span><span class="v">'+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'</span></div>'
-+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(S.pacOk?(S.racPac===0?'1€':fmt(S.racPac)):'NON ÉLIGIBLE')+'</span></div>'
-+(isISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface</span><span class="v">'+S.surfIso+' m²</span></div><div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'NON ÉLIGIBLE')+'</span></div>':'')
++(hasPAC?'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'+'<div class="row"><span class="l">VMC</span><span class="v">'+S.vmc+'</span></div>'+'<div class="row"><span class="l">Action</span><span class="v">'+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'</span></div>'+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(nonPAC?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</span></div>':'')
++(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface</span><span class="v">'+S.surfIso+' m²</span></div><div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
 +(S.notesPac||S.notesIso?'<div class="sec">📝 NOTES</div>'+(S.notesPac?'<div class="row"><span class="l">Notes PAC</span><span class="v">'+S.notesPac+'</span></div>':'')+(S.notesIso?'<div class="row"><span class="l">Notes ISO</span><span class="v">'+S.notesIso+'</span></div>':''):'')
-+'<div class="total '+(!S.pacOk?'red':totalRac===0?'green':'blue')+'"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
++'<div class="total '+(nonPAC?'red':totalRac===0?'green':'blue')+'"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
 +'<div class="foot">Document généré automatiquement — '+date+'</div>'
 +'<script>window.onload=function(){window.print();};<\/script></body></html>';
   w.document.write(h);w.document.close();
 }
 function sendEmail(){
-var totalRac=S.racPac+S.racIso,racStr=!S.pacOk?'NON ÉLIGIBLE':totalRac===0?'1€':fmt(totalRac),dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—',date=new Date().toLocaleDateString('fr-FR'),r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5),isISO=S.dossier==='PAC+ISO';
-var subj='[Dossier] '+S.prenom+' '+S.nom+' — '+S.dossier+' — RAC: '+racStr;
-var body='FICHE CLIENT — AIDES ÉNERGÉTIQUES\nDate : '+date+'\n========\nNom : '+S.prenom+' '+S.nom+'\nNaissance : '+dob+'\nTél : '+S.telephone+'\nEmail : '+(S.email||'—')+'\nAdresse : '+S.adresse+', '+S.cp+' '+S.ville+'\n\nFISCAL\nN° déclarant : '+S.numDeclarant+'\nRFR : '+fmt(S.rfr)+'\nParts : '+S.parts+'\nRégion : '+(S.isIDF?'IDF':'Province')+'\nCouleur ANAH : '+S.couleur+'\nDpt / Zone : '+S.dept+' — Zone '+S.zone+'\n\nPAC\nChauffage : '+S.chauffage+'\nSurface : '+S.surfPac+' m²\nCompteur : '+S.compteur+'\nECS : '+S.ecs+'\nVMC : '+S.vmc+'\nAction : '+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'\nRAC PAC : '+(S.pacOk?(S.racPac===0?'1€':fmt(S.racPac)):'NON ÉLIGIBLE')+(isISO?'\n\nISOLATION\nGestes : '+S.gestes.join(', ')+'\nSurface : '+S.surfIso+' m²\nRAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'NON ÉLIGIBLE'):'')+'\n\n========\nRAC TOTAL : '+racStr+'\n========';
-window.location.href='mailto:lriad0595@gmail.com?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+var btn=document.querySelector('.btn-email');
+btn.textContent='⏳ Envoi en cours…';btn.disabled=true;
+var hasPAC2=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO2=S.dossier==='ISO'||S.dossier==='PAC+ISO';
+var totalRac=S.racPac+(hasISO2?S.racIso:0),nonPAC2=hasPAC2&&(!S.pacOk||!S.surfOk);
+var racStr=nonPAC2?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac);
+var dob=S.dateNaissance||'—',date=new Date().toLocaleDateString('fr-FR');
+var racColor=nonPAC2?'#dc2626':totalRac===0?'#0ea472':'#1a56db';
+var r2=S.isIDF?'idf':'prov',idx2=Math.min(Math.max(S.parts-1,0),5);
+var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
++'<div style="background:#1a56db;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🏠 FICHE CLIENT — AIDES ÉNERGÉTIQUES PAC AIR/EAU</div>'
++'<div style="background:#1e293b;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Dossier : '+S.dossier+' · Date : '+date+' · RAC : '+racStr+' · Couleur : '+S.couleur+(S.zone?' — Zone '+S.zone:'')+'</div>'
++(S.teleproNom?'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">👤 TÉLÉPROSPECTEUR</div>'+'<table style="width:100%;border-collapse:collapse;"><tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Nom</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+(S.teleproNom||'—')+'</td></tr>'+(S.codeReferent?'<tr><td style="padding:5px 8px;color:#475569;">Code référent</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.codeReferent+'</td></tr>':'')+'</table>':'')
++'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">👤 CLIENT</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Nom / Prénom</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.prenom+' '+S.nom+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Date de naissance</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+dob+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Téléphone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.telephone+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Email</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.email||'—')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+'">' +'Adresse</td><td style="padding:5px 8px;font-weight:bold;text-align:right;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+'">'+S.adresse+', '+S.cp+' '+S.ville+'</td></tr>'
++(S.anneeConstruction?'<tr><td style="padding:5px 8px;color:#475569;">Année construction</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.anneeConstruction+'</td></tr>':'')
++'</table>'
++'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">💰 DÉCLARATION FISCALE</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">N° déclarant</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.numDeclarant+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">RFR</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(S.rfr)+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Parts fiscales</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.parts+' part(s)</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Région</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.isIDF?'IDF':'Province')+'</td></tr>'
++(S.parts?'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Bleu</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(PLAF[r2].bleu[idx2])+'</td></tr>'+'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Jaune</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(PLAF[r2].jaune[idx2])+'</td></tr>':'')
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Couleur ANAH</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.couleur+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">Dpt / Zone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.dept+(S.zone?' — Zone '+S.zone:'')+'</td></tr>'
++'</table>'
++(hasPAC2?'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">🔥 POMPE À CHALEUR AIR/EAU</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Chauffage actuel</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.chauffage+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Surface chauffée</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.surfPac+' m²</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Compteur</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.compteur+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Eau chaude</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.ecs+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">VMC</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.vmc+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Action</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">RAC PAC</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+(nonPAC2?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</td></tr>'
++'</table>':'')
++(hasISO2?'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">🏠 ISOLATION</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Gestes</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.gestes.join(', ')||'—')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Surface</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.surfIso+' m²</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">RAC ISO</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</td></tr>'
++'</table>':'')
++'<div style="background:'+racColor+';color:#fff;padding:12px 18px;border-radius:8px;display:flex;justify-content:space-between;font-size:15px;font-weight:bold;margin:14px 0;"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
++'<div style="font-size:10px;color:#94a3b8;text-align:center;">Document généré automatiquement — '+date+'</div>'
++'</div>';
+emailjs.send('service_leads','template_2komt8b',{
+  to_email:'maxime.paciso1@gmail.com',
+  name:S.prenom+' '+S.nom,
+  nom_client:S.prenom+' '+S.nom,
+  subject:'Dossier '+S.prenom+' '+S.nom+' — RAC '+racStr+' — '+S.telephone,
+  time:new Date().toLocaleString('fr-FR'),
+  dossier:S.dossier,
+  rac_total:racStr,
+  message:message,
+  telephone:S.telephone,
+  adresse:S.adresse+', '+S.cp+' '+S.ville,
+  couleur_anah:S.couleur,
+  zone:S.zone,
+  date:date
+}).then(function(){
+  btn.textContent='✅ Email envoyé !';btn.style.background='#059669';
+  setTimeout(function(){btn.textContent='📧 Envoyer par email';btn.disabled=false;btn.style.background='';},3000);
+},function(err){
+  btn.textContent='❌ Erreur — Réessayer';btn.disabled=false;
+  console.error('EmailJS:',err);
+});
 }
-var cur=1;
-function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='PAC'&&next===5)next=6;if(next===7)calcFinal();show(next);}
-function pv(s){var prev=s-1;if(S.dossier==='PAC'&&prev===5)prev=4;show(prev);}
-function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;updProg();window.scrollTo(0,0);}
-function updProg(){var tot=S.dossier==='PAC+ISO'?7:6,pct=Math.round(((cur-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+cur+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<cur?' done':i===cur?' on':'')+'"></div>';g('dots').innerHTML=h;}
-function valid(s){hideE(s);if(s===1&&!gSel('cDossier')){showE(1);return false;}if(s===2){if(!gSel('cChauf')||!gSel('cCompt')||!gSel('cECS')||!gSel('cVMC')||!gv('surfPac')){showE(2);return false;}}if(s===3&&!g('dept').value){showE(3);return false;}if(s===4){if(!S.parts||!gv('rfr')){showE(4);return false;}}if(s===5){if(S.gestes.length<2||!gv('surfIso')){showE(5);return false;}}if(s===6){if(!gv('nom')||!gv('prenom')||!gv('dateNaissance')||!gv('telephone')||!gv('adresse')||!gv('cp')||!gv('ville')||!gv('numDeclarant')){showE(6);return false;}}return true;}
+var cur=1,fromResult=false;
+function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'&&next===5)next=6;if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
+function pv(s){var prev=s-1;if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)prev=5;else if(s===6)prev=4;}else{if(S.dossier==='PAC'&&prev===5)prev=4;}if(fromResult&&s===5){fromResult=false;show(7);return;}show(prev);}
+function editIso(){fromResult=true;show(5);}
+function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;if(n===5){var isISO=S.dossier==='ISO';g('regionToggleISO').style.display=isISO?'block':'none';if(!isISO){var rEls=document.querySelectorAll('#cRegion .choice');for(var j=0;j<rEls.length;j++)rEls[j].classList.remove('sel');if(S.isIDF){var idfEl=document.querySelector('#cRegion .choice[data-val="idf"]');if(idfEl)idfEl.classList.add('sel');}else{var provEl=document.querySelector('#cRegion .choice[data-val="prov"]');if(provEl)provEl.classList.add('sel');}}}updProg();window.scrollTo(0,0);}
+function pickRegion(el){pick(el,'cRegion');S.isIDF=el.getAttribute('data-val')==='idf';previewCouleur();}
+function chkAnnee(){var v=Number(g('anneeConstruction').value);if(!v){g('anneeAlert').innerHTML='';return;}var limite=new Date().getFullYear()-15;if(v>limite)g('anneeAlert').innerHTML='<div class="alert ar">❌ Maison de moins de 15 ans — Non éligible aux aides</div>';else g('anneeAlert').innerHTML='<div class="alert ag">✅ Maison de plus de 15 ans — Éligible</div>';}
+function updMapsLink(){var a=gv('adresse'),cp=gv('cp'),v=gv('ville');var full=(a+' '+cp+' '+v).trim();var btn=g('btnMaps'),btnG=g('btnGeo'),embed=g('mapEmbed');if(a&&cp&&v&&full.length>5){var enc=encodeURIComponent(full);btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&output=embed" width="100%" height="200" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';}else{btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';embed.innerHTML='';}}
+function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://maps.google.com/maps?q='+encodeURIComponent(addr)+'&layer=c','_blank');}
+function openGeo(){var addr=g('btnGeo').getAttribute('data-addr')||'';if(addr)window.open('https://www.geoportail.gouv.fr/?q='+encodeURIComponent(addr)+'&l0=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2::GEOPORTAIL:OGC:WMTS(1)&permalink=yes','_blank');}
+function updProg(){var flow=S.dossier==='ISO'?[1,5,4,6,7]:S.dossier==='PAC'?[1,2,3,4,6,7]:[1,2,3,4,5,6,7];var pos=flow.indexOf(cur)+1,tot=flow.length;var pct=Math.round(((pos-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+pos+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<pos?' done':i===pos?' on':'')+'"></div>';g('dots').innerHTML=h;}
+function valid(s){hideE(s);if(s===1&&!gSel('cDossier')){showE(1);return false;}return true;}
 function showE(n){g('e'+n).classList.add('show');}
 function hideE(n){g('e'+n).classList.remove('show');}
 function pickFoyer(el){var all=document.querySelectorAll('#cFoyer .choice,#cFoyer2 .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');S.parts=Number(el.getAttribute('data-val'));previewCouleur();}
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
-function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}  
 function g(id){return document.getElementById(id);}
-function gv(id){var el=g(id);return el?(el.value||'').trim():'';}
+function gv(id){var el=g(id);return el?(el.value||'').trim():'';}  
 function restart(){location.reload();}
 updProg();
 </script>
