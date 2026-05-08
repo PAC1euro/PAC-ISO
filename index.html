@@ -466,8 +466,51 @@ var hasPAC2=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO2=S.dossier==='ISO'||
 var totalRac=S.racPac+(hasISO2?S.racIso:0),nonPAC2=hasPAC2&&(!S.pacOk||!S.surfOk);
 var racStr=nonPAC2?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac);
 var dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—',date=new Date().toLocaleDateString('fr-FR');
-var message='FICHE CLIENT — AIDES ÉNERGÉTIQUES\nDate : '+date+'\n========\nNom : '+S.prenom+' '+S.nom+'\nNaissance : '+dob+'\nTél : '+S.telephone+'\nEmail : '+(S.email||'—')+'\nAdresse : '+S.adresse+', '+S.cp+' '+S.ville+'\n\nFISCAL\nN° déclarant : '+S.numDeclarant+'\nRFR : '+fmt(S.rfr)+'\nParts : '+S.parts+'\nRégion : '+(S.isIDF?'IDF':'Province')+'\nCouleur ANAH : '+S.couleur+'\nDpt / Zone : '+S.dept+' — Zone '+S.zone+(hasPAC2?'\n\nPAC\nChauffage : '+S.chauffage+'\nSurface : '+S.surfPac+' m²\nCompteur : '+S.compteur+'\nECS : '+S.ecs+'\nVMC : '+S.vmc+'\nAction : '+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'\nRAC PAC : '+(nonPAC2?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac)):'')+  (hasISO2?'\n\nISOLATION\nGestes : '+S.gestes.join(', ')+'\nSurface : '+S.surfIso+' m²\nRAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE'):'')+'\n\n========\nRAC TOTAL : '+racStr+'\n========';
+var racColor=nonPAC2?'#dc2626':totalRac===0?'#0ea472':'#1a56db';
+var r2=S.isIDF?'idf':'prov',idx2=Math.min(S.parts-1,5);
+var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
++'<div style="background:#1a56db;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🏠 FICHE CLIENT — AIDES ÉNERGÉTIQUES PAC AIR/EAU</div>'
++'<div style="background:#1e293b;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Dossier : '+S.dossier+' · Date : '+date+' · RAC : '+racStr+' · Couleur : '+S.couleur+' — Zone '+S.zone+'</div>'
++'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">👤 CLIENT</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Nom / Prénom</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.prenom+' '+S.nom+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Date de naissance</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+dob+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Téléphone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.telephone+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Email</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.email||'—')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">Adresse</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.adresse+', '+S.cp+' '+S.ville+'</td></tr>'
++'</table>'
++'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">💰 DÉCLARATION FISCALE</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">N° déclarant</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.numDeclarant+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">RFR</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(S.rfr)+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Parts fiscales</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.parts+' part(s)</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Région</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.isIDF?'IDF':'Province')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Bleu</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(PLAF[r2].bleu[idx2])+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Jaune</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(PLAF[r2].jaune[idx2])+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Couleur ANAH</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.couleur+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">Dpt / Zone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.dept+' — Zone '+S.zone+'</td></tr>'
++'</table>'
++(hasPAC2?'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">🔥 POMPE À CHALEUR AIR/EAU</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Chauffage actuel</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.chauffage+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Surface chauffée</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.surfPac+' m²</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Compteur</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.compteur+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Eau chaude</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.ecs+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">VMC</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.vmc+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Action</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">RAC PAC</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+(nonPAC2?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</td></tr>'
++'</table>':'')
++(hasISO2?'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">🏠 ISOLATION</div>'
++'<table style="width:100%;border-collapse:collapse;">'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Gestes</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.gestes.join(', ')||'—')+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Surface</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.surfIso+' m²</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;">RAC ISO</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</td></tr>'
++'</table>':'')
++'<div style="background:'+racColor+';color:#fff;padding:12px 18px;border-radius:8px;display:flex;justify-content:space-between;font-size:15px;font-weight:bold;margin:14px 0;"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
++'<div style="font-size:10px;color:#94a3b8;text-align:center;">Document généré automatiquement — '+date+'</div>'
++'</div>';
 emailjs.send('service_leads','template_2komt8b',{
+  to_email:'maxime.paciso1@gmail.com',
   name:S.prenom+' '+S.nom,
   nom_client:S.prenom+' '+S.nom,
   time:new Date().toLocaleString('fr-FR'),
