@@ -5,6 +5,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Fiche Client — PAC Air/Eau</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#f0f4f8;font-family:Arial,sans-serif;color:#0f172a;padding:20px 14px 60px;min-height:100vh;}
@@ -294,6 +295,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 </div></div>
 
 <script>
+emailjs.init('ikg4K9rtN8zThodmu');
 var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
@@ -449,10 +451,27 @@ function genPDF(){
   w.document.write(h);w.document.close();
 }
 function sendEmail(){
-var totalRac=S.racPac+S.racIso,racStr=(!S.pacOk||!S.surfOk)?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac),dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—',date=new Date().toLocaleDateString('fr-FR'),r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5),isISO=S.dossier==='PAC+ISO';
-var subj='[Dossier] '+S.prenom+' '+S.nom+' — '+S.dossier+' — RAC: '+racStr;
-var body='FICHE CLIENT — AIDES ÉNERGÉTIQUES\nDate : '+date+'\n========\nNom : '+S.prenom+' '+S.nom+'\nNaissance : '+dob+'\nTél : '+S.telephone+'\nEmail : '+(S.email||'—')+'\nAdresse : '+S.adresse+', '+S.cp+' '+S.ville+'\n\nFISCAL\nN° déclarant : '+S.numDeclarant+'\nRFR : '+fmt(S.rfr)+'\nParts : '+S.parts+'\nRégion : '+(S.isIDF?'IDF':'Province')+'\nCouleur ANAH : '+S.couleur+'\nDpt / Zone : '+S.dept+' — Zone '+S.zone+'\n\nPAC\nChauffage : '+S.chauffage+'\nSurface : '+S.surfPac+' m²\nCompteur : '+S.compteur+'\nECS : '+S.ecs+'\nVMC : '+S.vmc+'\nAction : '+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'\nRAC PAC : '+((S.pacOk&&S.surfOk)?(S.racPac===0?'1€':fmt(S.racPac)):'VOIR RESPONSABLE TECHNIQUE')+(isISO?'\n\nISOLATION\nGestes : '+S.gestes.join(', ')+'\nSurface : '+S.surfIso+' m²\nRAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE'):'')+'\n\n========\nRAC TOTAL : '+racStr+'\n========';
-window.location.href='mailto:lriad0595@gmail.com?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+var btn=document.querySelector('.btn-email');
+btn.textContent='⏳ Envoi en cours…';btn.disabled=true;
+var totalRac=S.racPac+S.racIso,racStr=(!S.pacOk||!S.surfOk)?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac),dob=S.dateNaissance?new Date(S.dateNaissance).toLocaleDateString('fr-FR'):'—',date=new Date().toLocaleDateString('fr-FR'),isISO=S.dossier==='PAC+ISO';
+var message='FICHE CLIENT — AIDES ÉNERGÉTIQUES\nDate : '+date+'\n========\nNom : '+S.prenom+' '+S.nom+'\nNaissance : '+dob+'\nTél : '+S.telephone+'\nEmail : '+(S.email||'—')+'\nAdresse : '+S.adresse+', '+S.cp+' '+S.ville+'\n\nFISCAL\nN° déclarant : '+S.numDeclarant+'\nRFR : '+fmt(S.rfr)+'\nParts : '+S.parts+'\nRégion : '+(S.isIDF?'IDF':'Province')+'\nCouleur ANAH : '+S.couleur+'\nDpt / Zone : '+S.dept+' — Zone '+S.zone+'\n\nPAC\nChauffage : '+S.chauffage+'\nSurface : '+S.surfPac+' m²\nCompteur : '+S.compteur+'\nECS : '+S.ecs+'\nVMC : '+S.vmc+'\nAction : '+(S.vmc==='Oui'?'Ballon thermodynamique':'VMC à installer')+'\nRAC PAC : '+((S.pacOk&&S.surfOk)?(S.racPac===0?'1€':fmt(S.racPac)):'VOIR RESPONSABLE TECHNIQUE')+(isISO?'\n\nISOLATION\nGestes : '+S.gestes.join(', ')+'\nSurface : '+S.surfIso+' m²\nRAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE'):'')+'\n\n========\nRAC TOTAL : '+racStr+'\n========';
+emailjs.send('service_leads','template_2komt8b',{
+  subject:'[Dossier] '+S.prenom+' '+S.nom+' — '+S.dossier+' — RAC: '+racStr,
+  message:message,
+  nom_client:S.prenom+' '+S.nom,
+  telephone:S.telephone,
+  adresse:S.adresse+', '+S.cp+' '+S.ville,
+  rac_total:racStr,
+  couleur_anah:S.couleur,
+  zone:S.zone,
+  date:date
+}).then(function(){
+  btn.textContent='✅ Email envoyé !';btn.style.background='#059669';
+  setTimeout(function(){btn.textContent='📧 Envoyer par email';btn.disabled=false;btn.style.background='';},3000);
+},function(err){
+  btn.textContent='❌ Erreur — Réessayer';btn.disabled=false;
+  console.error('EmailJS:',err);
+});
 }
 var cur=1;
 function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='PAC'&&next===5)next=6;if(next===7)calcFinal();show(next);}
