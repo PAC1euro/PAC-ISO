@@ -289,6 +289,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <hr/>
   <button class="btn-pdf" onclick="genPDF()">📄 Télécharger la fiche PDF</button>
   <button class="btn-email" onclick="sendEmail()">📧 Envoyer par email</button>
+  <button class="btn-new" id="btnEditIso" onclick="editIso()" style="display:none;border-color:#1a56db;color:#1a56db;">🏠 Modifier l'isolation →</button>
   <button class="btn-new" onclick="restart()">↺ Nouveau dossier</button>
 </div>
 
@@ -399,6 +400,7 @@ function buildResult(){
   if(S.notesPac)th+=trow('Notes PAC',S.notesPac);if(S.notesIso)th+=trow('Notes ISO',S.notesIso);
   g('tBox').innerHTML=th;
   var ih='';if(S.pacOk)ih+=S.vmc==='Oui'?'<div class="alert ab">💧 <strong>Ballon thermodynamique</strong> à installer</div>':'<div class="alert ab">🌬️ <strong>VMC</strong> à installer</div>';g('installBox').innerHTML=ih;
+  g('btnEditIso').style.display=isISO?'':'none';
 }
 function ri(cls,ico,lbl,val){return'<div class="ri '+cls+'"><div class="riico">'+ico+'</div><div><div class="rilbl">'+lbl+'</div><div class="rival">'+val+'</div></div></div>';}
 function trow(l,v){return'<div class="trow"><span class="tl">'+l+'</span><span class="tv">'+(v||'—')+'</span></div>';}
@@ -475,9 +477,10 @@ emailjs.send('service_leads','template_2komt8b',{
   console.error('EmailJS:',err);
 });
 }
-var cur=1;
-function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='PAC'&&next===5)next=6;if(next===7)calcFinal();show(next);}
-function pv(s){var prev=s-1;if(S.dossier==='PAC'&&prev===5)prev=4;show(prev);}
+var cur=1,fromResult=false;
+function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='PAC'&&next===5)next=6;if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
+function pv(s){var prev=s-1;if(S.dossier==='PAC'&&prev===5)prev=4;if(fromResult&&s===5){fromResult=false;show(7);return;}show(prev);}
+function editIso(){fromResult=true;show(5);}
 function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;updProg();window.scrollTo(0,0);}
 function updProg(){var tot=S.dossier==='PAC+ISO'?7:6,pct=Math.round(((cur-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+cur+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<cur?' done':i===cur?' on':'')+'"></div>';g('dots').innerHTML=h;}
 function valid(s){hideE(s);if(s===1&&!gSel('cDossier')){showE(1);return false;}if(s===2){if(!gSel('cChauf')||!gSel('cCompt')||!gSel('cECS')||!gSel('cVMC')||!gv('surfPac')){showE(2);return false;}}if(s===3&&!g('dept').value){showE(3);return false;}if(s===4){if(!S.parts||!gv('rfr')){showE(4);return false;}}if(s===5){if(S.gestes.length<2||!gv('surfIso')){showE(5);return false;}}if(s===6){if(!gv('nom')||!gv('prenom')||!gv('dateNaissance')||!gv('telephone')||!gv('adresse')||!gv('cp')||!gv('ville')||!gv('numDeclarant')){showE(6);return false;}}return true;}
