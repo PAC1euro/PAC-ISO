@@ -444,7 +444,7 @@ function genPDF(){
 +(S.notesPac||S.notesIso?’<div class="sec">📝 NOTES</div>’+(S.notesPac?’<div class="row"><span class="l">Notes PAC</span><span class="v">’+S.notesPac+’</span></div>’:’’)+(S.notesIso?’<div class="row"><span class="l">Notes ISO</span><span class="v">’+S.notesIso+’</span></div>’:’’):’’)
 +’<div class="total '+(!S.pacOk?'red':totalRac===0?'green':'blue')+'"><span>💶 RESTE À CHARGE TOTAL</span><span>’+racStr+’</span></div>’
 +’<div class="foot">Document généré automatiquement — ‘+date+’</div>’
-+’<script>window.onload=function(){window.print();};</script></body></html>’;
++’<script>window.onload=function(){window.print();};<\/script></body></html>’;
 w.document.write(h);w.document.close();
 }
 function sendEmail(){
