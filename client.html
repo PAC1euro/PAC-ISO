@@ -124,8 +124,8 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 <script>emailjs.init('ikg4K9rtN8zThodmu');</script>
 
 <!-- HERO BANNER -->
-<div class="hero-wrap">
-  <div class="hero" onclick="document.getElementById('prog').scrollIntoView({behavior:'smooth'})">
+<div class="hero-wrap" id="heroWrap">
+  <div class="hero" onclick="goToForm()">
     <div class="hero-badge">🌿 MaPrimeRénov' 2025</div>
     <h1>Votre PAC installée<br/>à <span>1€ seulement</span></h1>
     <p>Pompe à chaleur · Isolation · MaPrimeRénov' + CEE<br/>Financé jusqu'à <strong style="color:#fbbf24;">100%</strong> par l'État · Sans avance de frais</p>
@@ -143,6 +143,9 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
     <div class="hero-url">pac1euro.github.io/PAC-ISO/client.html</div>
   </div>
 </div>
+
+<!-- FORMULAIRE -->
+<div id="formWrap" style="display:none;">
 
 <!-- PROGRESS -->
 <div class="prog-wrap" id="prog">
@@ -308,8 +311,10 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 
 </div><!-- /card -->
 
+</div><!-- /formWrap -->
+
 <!-- TRUST -->
-<div class="trust">
+<div class="trust" id="trustBar" style="display:none;">
   <div class="trust-item">🏛️ Agréé MaPrimeRénov'</div>
   <div class="trust-item">🇫🇷 Entreprise française</div>
   <div class="trust-item">🔒 100% gratuit</div>
@@ -317,20 +322,29 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 </div>
 
 <!-- FOOTER -->
-<div class="footer">
+<div class="footer" id="footerBar" style="display:none;">
   <p>Ce simulateur est fourni à titre indicatif. Les montants d'aides définitifs sont déterminés après étude complète de votre dossier par un conseiller agréé.</p>
   <p style="margin-top:6px;">© 2025 · Aides Énergétiques · Tous droits réservés</p>
 </div>
 
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
+
+function goToForm(){
+  document.getElementById('heroWrap').style.display='none';
+  document.getElementById('formWrap').style.display='block';
+  document.getElementById('trustBar').style.display='flex';
+  document.getElementById('footerBar').style.display='block';
+  window.scrollTo(0,0);
+}
+
 var L={projet:'',chauffage:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
 var cur=1;
 
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
-function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):''}
 function g(id){return document.getElementById(id);}
-function gv(id){var el=g(id);return el?(el.value||'').trim():'';}
+function gv(id){var el=g(id);return el?(el.value||'').trim():''}
 
 function updProg(){
   var pcts=[0,25,50,75,100];
