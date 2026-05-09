@@ -10,17 +10,22 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;min-height:100vh;}
 
-/* HERO */
-.hero{background:linear-gradient(135deg,#166534 0%,#15803d 40%,#0d9488 100%);color:#fff;padding:32px 20px 28px;text-align:center;}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
-.hero h1{font-size:26px;font-weight:900;line-height:1.2;margin-bottom:10px;text-shadow:0 1px 4px rgba(0,0,0,.2);}
+/* HERO BANNER */
+.hero{background:linear-gradient(145deg,#14532d 0%,#166534 35%,#15803d 60%,#0d9488 100%);color:#fff;padding:36px 24px 30px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.04);top:-80px;right:-80px;pointer-events:none;}
+.hero::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-60px;left:-60px;pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:50px;padding:7px 18px;font-size:12px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;color:#fbbf24;}
+.hero h1{font-size:30px;font-weight:900;line-height:1.15;margin-bottom:6px;text-shadow:0 2px 10px rgba(0,0,0,.3);}
 .hero h1 span{color:#fbbf24;}
-.hero p{font-size:14px;opacity:.92;margin-bottom:20px;line-height:1.6;}
-.hero-stats{display:flex;justify-content:center;gap:0;background:rgba(0,0,0,.15);border-radius:14px;overflow:hidden;max-width:340px;margin:0 auto;}
+.hero p{font-size:13px;opacity:.9;margin-bottom:22px;line-height:1.6;}
+.hero-cta{display:inline-block;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f172a;font-size:16px;font-weight:900;padding:14px 32px;border-radius:100px;box-shadow:0 6px 20px rgba(251,191,36,.4);letter-spacing:.5px;margin-bottom:22px;}
+.hero-stats{display:flex;justify-content:center;gap:0;background:rgba(0,0,0,.2);border-radius:14px;overflow:hidden;max-width:340px;margin:0 auto;}
 .stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.15);}
 .stat:last-child{border-right:none;}
 .stat-n{font-size:18px;font-weight:900;color:#fbbf24;}
 .stat-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.hero-trust{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:16px;}
+.hero-trust span{font-size:11px;color:rgba(255,255,255,.8);font-weight:600;}
 
 /* PROGRESS */
 .prog-wrap{background:#fff;padding:14px 20px 0;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -122,15 +127,21 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 <!-- URGENCY -->
 <div class="urgency">⚡ Aides 2025 disponibles — Délai limité — Testez votre éligibilité maintenant</div>
 
-<!-- HERO -->
+<!-- HERO BANNER -->
 <div class="hero">
   <div class="hero-badge">🌿 MaPrimeRénov' 2025</div>
-  <h1>Votre installation financée<br/>jusqu'à <span>100%</span> par l'État</h1>
-  <p>Pompe à chaleur · Isolation · Sans avance de frais<br/>Vérifiez votre éligibilité en <strong>2 minutes</strong> · 100% gratuit</p>
+  <h1>Votre PAC installée<br/>à <span>1€ seulement</span></h1>
+  <p>Pompe à chaleur · Isolation · MaPrimeRénov' + CEE<br/>Financé jusqu'à <strong style="color:#fbbf24;">100%</strong> par l'État · Sans avance de frais</p>
+  <div class="hero-cta">✅ Vérifier mon éligibilité →</div>
   <div class="hero-stats">
     <div class="stat"><div class="stat-n">1€</div><div class="stat-l">PAC installée</div></div>
-    <div class="stat"><div class="stat-n">MPR + CEE</div><div class="stat-l">Cumulables</div></div>
-    <div class="stat"><div class="stat-n">Gratuit</div><div class="stat-l">Sans engagement</div></div>
+    <div class="stat"><div class="stat-n">MPR+CEE</div><div class="stat-l">Cumulables</div></div>
+    <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Gratuit</div></div>
+  </div>
+  <div class="hero-trust">
+    <span>🏛️ Agréé MaPrimeRénov'</span>
+    <span>🇫🇷 Entreprise française</span>
+    <span>🔒 Sans engagement</span>
   </div>
 </div>
 
@@ -199,9 +210,10 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
   <div id="anneeAlert"></div>
 
   <div class="slabel">Statut d'occupation</div>
-  <div class="choices c2" id="cStatut">
-    <div class="choice" data-val="Propriétaire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏠</div><div class="chl">Propriétaire</div></div>
-    <div class="choice" data-val="Locataire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🔑</div><div class="chl">Locataire</div></div>
+  <div class="choices c3" id="cStatut">
+    <div class="choice" data-val="Propriétaire maison" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏠</div><div class="chl">Propriétaire</div><div class="chs">Maison</div></div>
+    <div class="choice" data-val="Propriétaire appartement" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏢</div><div class="chl">Propriétaire</div><div class="chs">Appartement</div></div>
+    <div class="choice" data-val="Locataire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🔑</div><div class="chl">Locataire</div><div class="chs"></div></div>
   </div>
   <div id="statutAlert"></div>
 
@@ -373,9 +385,9 @@ function chkAnnee(){
 
 function chkStatut(){
   var s=gSel('cStatut');
-  g('statutAlert').innerHTML=s==='Locataire'
-    ?'<div class="alert ar">❌ Les aides MaPrimeRénov\' et CEE sont réservées aux <strong>propriétaires occupants</strong>. Les locataires ne sont pas éligibles.</div>'
-    :'<div class="alert ag">✅ Propriétaire — vous êtes éligible aux aides</div>';
+  if(s==='Locataire')g('statutAlert').innerHTML='<div class="alert ar">❌ Les aides MaPrimeRénov\' et CEE sont réservées aux <strong>propriétaires occupants</strong>. Les locataires ne sont pas éligibles.</div>';
+  else if(s==='Propriétaire appartement')g('statutAlert').innerHTML='<div class="alert ar">❌ Les aides PAC Air/Eau nécessitent une <strong>maison individuelle</strong>. Les appartements ne sont pas éligibles.</div>';
+  else if(s)g('statutAlert').innerHTML='<div class="alert ag">✅ Propriétaire maison — vous êtes éligible aux aides</div>';
 }
 
 function goNext(s){
@@ -393,6 +405,7 @@ function goNext(s){
     if(!gv('annee')){g('e2').classList.add('show');return;}
     if(!gSel('cStatut')){g('e2').classList.add('show');return;}
     if(gSel('cStatut')==='Locataire'){g('e2').classList.add('show');g('e2').textContent='❌ Les locataires ne sont pas éligibles aux aides MaPrimeRénov\' et CEE.';return;}
+    if(gSel('cStatut')==='Propriétaire appartement'){g('e2').classList.add('show');g('e2').textContent='❌ Les propriétaires d\'appartement ne sont pas éligibles à la PAC Air/Eau.';return;}
     L.chauffage=gSel('cChauf')||'—';
     L.surface=gv('surface');
     L.annee=gv('annee');
