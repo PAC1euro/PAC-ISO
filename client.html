@@ -18,7 +18,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .hero h1{font-size:30px;font-weight:900;line-height:1.15;margin-bottom:6px;text-shadow:0 2px 10px rgba(0,0,0,.3);}
 .hero h1 span{color:#fbbf24;}
 .hero p{font-size:13px;opacity:.9;margin-bottom:22px;line-height:1.6;}
-.hero-cta{display:inline-block;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f172a;font-size:16px;font-weight:900;padding:14px 32px;border-radius:100px;box-shadow:0 6px 20px rgba(251,191,36,.4);letter-spacing:.5px;margin-bottom:22px;}
+.hero-cta{display:inline-block;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f172a;font-size:16px;font-weight:900;padding:14px 32px;border-radius:100px;box-shadow:0 6px 20px rgba(251,191,36,.4);letter-spacing:.5px;margin-bottom:22px;cursor:pointer;}
+.hero-cta:active{opacity:.9;transform:scale(.98);}
 .hero-stats{display:flex;justify-content:center;gap:0;background:rgba(0,0,0,.2);border-radius:14px;overflow:hidden;max-width:340px;margin:0 auto;}
 .stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.15);}
 .stat:last-child{border-right:none;}
@@ -132,7 +133,7 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
   <div class="hero-badge">🌿 MaPrimeRénov' 2025</div>
   <h1>Votre PAC installée<br/>à <span>1€ seulement</span></h1>
   <p>Pompe à chaleur · Isolation · MaPrimeRénov' + CEE<br/>Financé jusqu'à <strong style="color:#fbbf24;">100%</strong> par l'État · Sans avance de frais</p>
-  <div class="hero-cta">✅ Vérifier mon éligibilité →</div>
+  <div class="hero-cta" onclick="document.getElementById('prog').scrollIntoView({behavior:'smooth'})">✅ Vérifier mon éligibilité →</div>
   <div class="hero-stats">
     <div class="stat"><div class="stat-n">1€</div><div class="stat-l">PAC installée</div></div>
     <div class="stat"><div class="stat-n">MPR+CEE</div><div class="stat-l">Cumulables</div></div>
@@ -146,7 +147,7 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 </div>
 
 <!-- PROGRESS -->
-<div class="prog-wrap">
+<div class="prog-wrap" id="prog">
   <div class="prog-row"><span id="pLbl">Étape 1 sur 4</span><span id="pPct" style="font-weight:bold;color:#16a34a;">0%</span></div>
   <div class="prog-track"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
   <div class="steps-row">
