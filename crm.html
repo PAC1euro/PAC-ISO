@@ -83,6 +83,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .cb-detail{background:#f0fdf4;color:#166534;}
 .cb-call{background:#dcfce7;color:#166534;}
 .cb-transfer{background:#dbeafe;color:#1e3a8a;}
+.cb-inelig{background:#fee2e2;color:#991b1b;}
 .reason-badge{margin:0 13px 8px;background:#fee2e2;color:#991b1b;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;}
 
 .dos-card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
@@ -313,12 +314,14 @@ function setSync(t){document.getElementById('hdrSync').textContent=t;}
 
 function isEligible(l){
   if(l.transferred==='oui')return true;
+  if(l.manualInelig===true||l.manualInelig==='true')return false;
   if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)return false;
   if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)return false;
   return true;
 }
 function ineligReason(l){
   var r=[];
+  if(l.manualInelig===true||l.manualInelig==='true')r.push('Déplacé manuellement');
   if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)r.push('Locataire');
   if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)r.push('Chauffage électrique + PAC');
   return r.join(' · ')||'Non éligible';
@@ -427,6 +430,7 @@ function leadCard(l){
     +'<div class="card-bot">'
     +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
+    +'<button class="cb-btn cb-inelig" onclick=\'moveToInelig("'+esc(l._fbKey)+'")\'>↙ Non élig.</button>'
     +'</div>'
     +'</div>';
 }
@@ -480,11 +484,20 @@ function saveStatus(fbKey,uid){
 function transferLead(fbKey){
   var url=getFbUrl();
   if(!url)return;
-  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({transferred:'oui',status:'nouveau'})}).catch(function(){});
+  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({transferred:'oui',status:'nouveau',manualInelig:false})}).catch(function(){});
   var l=allLeads.find(function(x){return x._fbKey===fbKey;});
-  if(l){l.transferred='oui';l.status='nouveau';}
+  if(l){l.transferred='oui';l.status='nouveau';l.manualInelig=false;}
   renderStats();renderLeads();renderInelig();
   showToast('Lead transféré dans Leads ✅');
+}
+function moveToInelig(fbKey){
+  var url=getFbUrl();
+  if(!url)return;
+  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({manualInelig:true,transferred:''})}).catch(function(){});
+  var l=allLeads.find(function(x){return x._fbKey===fbKey;});
+  if(l){l.manualInelig=true;l.transferred='';}
+  renderStats();renderLeads();renderInelig();
+  showToast('Lead déplacé vers Non éligible');
 }
 
 function renderDossiers(){
