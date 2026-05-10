@@ -369,6 +369,7 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
+var FIREBASE_URL='';
 
 function goToForm(){
   document.getElementById('heroWrap').style.display='none';
@@ -381,8 +382,6 @@ function goToForm(){
 var L={projet:'',chauffage:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',devis:'',devisAge:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
 var cur=1;
 
-// Plafonds ANAH 2025 (revenus fiscaux de référence, €/an)
-// Index : 0=1pers, 1=2pers, 2=3pers, 3=4pers, 4=5pers, 5=6pers+
 var ANAH={
   IDF:{
     bleu:  [23541,34551,41493,48447,55427,62397],
@@ -396,7 +395,6 @@ var ANAH={
   }
 };
 
-// Valeur représentative (médiane) de chaque tranche de revenus
 var INC={
   'Moins de 15 000€/an':10000,
   '15 000 – 22 000€/an':18500,
@@ -420,9 +418,11 @@ function getAnahColor(){
 }
 
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
-function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';
+}
 function g(id){return document.getElementById(id);}
-function gv(id){var el=g(id);return el?(el.value||'').trim():'';}
+function gv(id){var el=g(id);return el?(el.value||'').trim():'';
+}
 
 function updProg(){
   var pcts=[0,25,50,75,100];
@@ -540,8 +540,10 @@ function submit(){
   var date=new Date().toLocaleString('fr-FR');
   var zone=getZone(L.cp);
   var anah=getAnahColor();
-  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac};
-  var adminLink='https://pac1euro.github.io/PAC-ISO/admin.html?lead='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
+  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,status:'nouveau',comment:''};
+  var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');
+  if(_fb){fetch(_fb.replace(/\/$/,'')+'/leads.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(leadObj)}).catch(function(){});}
+  var adminLink='https://pac1euro.github.io/PAC-ISO/crm.html?import='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
   var anahBg=anah.c==='bleu'?'#2563eb':anah.c==='jaune'?'#d97706':anah.c==='violet'?'#9333ea':'#ea580c';
   var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
   +'<div style="background:#16a34a;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🌿 NOUVEAU LEAD — AIDES ÉNERGÉTIQUES</div>'
