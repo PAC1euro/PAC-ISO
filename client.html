@@ -313,7 +313,6 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
-var LEADS_URL='VOTRE_URL_GOOGLE_APPS_SCRIPT';
 var L={projet:'',chauffage:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
 var cur=1;
 
@@ -435,8 +434,7 @@ function submit(){
   var anah=getAnahColor();
   var score=getScore();
   var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,eligibilite:score.label};
-  if(LEADS_URL&&LEADS_URL!=='VOTRE_URL_GOOGLE_APPS_SCRIPT'){var _b64=btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));fetch(LEADS_URL+'?action=addLead&data='+encodeURIComponent(_b64),{mode:'no-cors'}).catch(function(){});}
-  var adminLink='https://pac1euro.github.io/PAC-ISO/admin.html?lead='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
+  var adminLink='https://pac1euro.github.io/PAC-ISO/crm.html?import='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
   var anahBg=anah.c==='bleu'?'#2563eb':anah.c==='jaune'?'#d97706':anah.c==='violet'?'#9333ea':'#ea580c';
   var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
   +'<div style="background:#16a34a;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🌿 NOUVEAU LEAD — AIDES ÉNERGÉTIQUES</div>'
