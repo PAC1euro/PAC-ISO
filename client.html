@@ -430,10 +430,26 @@ function submit(){
   var btn=g('btnSubmit');
   btn.textContent='⏳ Envoi en cours…';btn.disabled=true;
   var date=new Date().toLocaleString('fr-FR');
-  var score=getScore();
+  var zone=getZone(L.cp);
+  var anah=getAnahColor();
+  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac};
+  var adminLink='https://pac1euro.github.io/PAC-ISO/admin.html?lead='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
+  var anahBg=anah.c==='bleu'?'#2563eb':anah.c==='jaune'?'#d97706':anah.c==='violet'?'#9333ea':'#ea580c';
   var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
   +'<div style="background:#16a34a;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🌿 NOUVEAU LEAD — AIDES ÉNERGÉTIQUES</div>'
-  +'<div style="background:#166534;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Reçu le : '+date+' · Projet : '+L.projet+' · Éligibilité : '+score.label+'</div>'
+  +'<div style="background:#166534;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Reçu le : '+date+' · Projet : '+L.projet+' · Zone : '+zone+'</div>'
+  +'<div style="background:#0f172a;color:#fff;padding:14px 18px;border-radius:8px;margin-bottom:14px;text-align:center;">'
+  +'<div style="font-size:11px;opacity:.7;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">📥 Importer dans le CRM</div>'
+  +'<a href="'+adminLink+'" style="display:inline-block;background:#16a34a;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:13px;">Cliquer pour importer ce lead →</a>'
+  +'</div>'
+  +'<div style="background:'+anahBg+';color:#fff;padding:14px 18px;border-radius:8px;margin-bottom:14px;">'
+  +'<div style="font-size:17px;font-weight:bold;margin-bottom:8px;">'+anah.em+' CATÉGORIE ANAH : '+anah.lab.toUpperCase()+'</div>'
+  +'<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">'
+  +'<span>MaPrimeRénov\' : <strong>'+anah.mpr+'</strong></span>'
+  +'<span>Reste à charge estimé : <strong>'+anah.rac+'</strong></span>'
+  +'</div>'
+  +'<div style="font-size:11px;opacity:.9;">'+anah.note+'</div>'
+  +'</div>'
   +'<div style="background:#dcfce7;color:#166534;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">📞 CONTACT</div>'
   +'<table style="width:100%;border-collapse:collapse;">'
   +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Prénom / Nom</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.prenom+' '+L.nom+'</td></tr>'

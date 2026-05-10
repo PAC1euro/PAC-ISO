@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRM — PAC à 1€</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;min-height:100vh;}
+
+.login-bg{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f172a;padding:20px;}
+.login-box{background:#fff;border-radius:20px;padding:40px 28px;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.login-ico{font-size:46px;margin-bottom:14px;}
+.login-box h2{font-size:22px;font-weight:900;margin-bottom:6px;}
+.login-box p{font-size:13px;color:#64748b;margin-bottom:22px;}
+.pin-input{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:22px;padding:14px;text-align:center;letter-spacing:6px;font-family:inherit;margin-bottom:12px;color:#0f172a;}
+.pin-input:focus{outline:none;border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+.login-btn{width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
+.login-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:18px;}
+
+.app-header{background:#0f172a;padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.app-logo{color:#fff;font-size:15px;font-weight:900;white-space:nowrap;}
+.search-wrap{flex:1;}
+.search-wrap input{width:100%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;font-size:13px;padding:8px 12px;font-family:inherit;}
+.search-wrap input::placeholder{color:rgba(255,255,255,.45);}
+.search-wrap input:focus{outline:none;background:rgba(255,255,255,.18);}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:rgba(255,255,255,.8);font-size:11px;padding:7px 10px;cursor:pointer;white-space:nowrap;font-family:inherit;}
+
+.stats-row{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;background:#fff;border-bottom:1px solid #e2e8f0;-webkit-overflow-scrolling:touch;}
+.sc{flex-shrink:0;border-radius:10px;padding:8px 12px;text-align:center;min-width:62px;border:1.5px solid #e2e8f0;background:#f8fafc;}
+.sc .n{font-size:19px;font-weight:900;line-height:1;}
+.sc .l{font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;margin-top:2px;letter-spacing:.5px;}
+.sc-bleu{background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;}
+.sc-jaune{background:#fef9c3;border-color:#eab308;color:#713f12;}
+.sc-violet{background:#f3e8ff;border-color:#a855f7;color:#581c87;}
+.sc-orange{background:#fff7ed;border-color:#f97316;color:#7c2d12;}
+
+.tabs-bar{display:flex;background:#fff;border-bottom:2px solid #e2e8f0;}
+.tb{flex:1;padding:11px 6px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;font-size:11px;font-weight:700;color:#94a3b8;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;}
+.tb.on{color:#16a34a;border-bottom-color:#16a34a;}
+
+.sec-hdr{padding:10px 14px 4px;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;}
+
+.card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;transition:box-shadow .2s;}
+.card-top{padding:11px 13px 7px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.ct-left .name{font-size:15px;font-weight:900;}
+.ct-left .phone{font-size:13px;color:#16a34a;font-weight:700;margin-top:2px;}
+.ct-left .meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.anah-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;flex-shrink:0;white-space:nowrap;}
+.pill-bleu{background:#dbeafe;color:#1e3a8a;}
+.pill-jaune{background:#fef9c3;color:#713f12;}
+.pill-violet{background:#f3e8ff;color:#581c87;}
+.pill-hors{background:#fff7ed;color:#7c2d12;}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 13px 7px;}
+.ctag{font-size:10px;font-weight:700;background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;}
+.ctag-pac{background:#dcfce7;color:#166534;}
+.ctag-elec{background:#fef3c7;color:#92400e;}
+.card-status{display:flex;flex-wrap:wrap;gap:5px;padding:7px 13px;border-top:1px solid #f1f5f9;}
+.sb{font-size:11px;font-weight:700;padding:5px 9px;border-radius:7px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;font-family:inherit;transition:all .15s;}
+.sb.on{border-color:#16a34a;background:#dcfce7;color:#166534;}
+.sb-ra.on{background:#fef9c3;border-color:#eab308;color:#713f12;}
+.sb-me.on{background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;}
+.sb-rv.on{background:#dcfce7;border-color:#16a34a;color:#166534;}
+.sb-pi.on{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
+.sb-rc.on{background:#fff7ed;border-color:#f97316;color:#7c2d12;}
+.card-comment{padding:5px 13px 8px;}
+.card-comment input{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;padding:7px 10px;font-family:inherit;color:#0f172a;}
+.card-comment input:focus{outline:none;border-color:#16a34a;}
+.card-btns{display:flex;gap:6px;padding:5px 13px 10px;}
+.cb{flex:1;font-size:11px;font-weight:700;padding:7px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-family:inherit;color:#475569;}
+.cb-ne{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+.cb-back{background:#f3e8ff;border-color:#d8b4fe;color:#581c87;}
+.cb-del{color:#94a3b8;max-width:44px;}
+
+.fiche{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;padding:13px;}
+.fiche-name{font-size:15px;font-weight:900;margin-bottom:8px;}
+.frow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:12px;gap:8px;}
+.frow:last-child{border:none;}
+.fl{color:#64748b;flex-shrink:0;}
+.fv{font-weight:700;text-align:right;word-break:break-word;}
+
+.empty-state{text-align:center;padding:40px 20px;}
+.empty-state .ei{font-size:38px;margin-bottom:12px;}
+.empty-state p{font-size:14px;color:#94a3b8;line-height:1.6;}
+
+.toast-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(70px);background:#0f172a;color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:700;z-index:100;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.toast-bar.show{transform:translateX(-50%) translateY(0);}
+
+.info-box{background:#dbeafe;border:1.5px solid #93c5fd;border-radius:12px;padding:12px 14px;margin:12px 12px 0;font-size:12px;color:#1e40af;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div id="loginBg" class="login-bg">
+  <div class="login-box">
+    <div class="login-ico">🌿</div>
+    <h2>CRM PAC à 1€</h2>
+    <p>Accès réservé — saisissez votre code</p>
+    <input class="pin-input" type="password" id="pinInput" placeholder="••••" maxlength="10"/>
+    <button class="login-btn" onclick="doLogin()">Accéder →</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+  <div class="app-header">
+    <div class="app-logo">🌿 CRM PAC</div>
+    <div class="search-wrap">
+      <input id="sInput" type="search" placeholder="🔍 Nom, téléphone, CP…" oninput="renderAll()"/>
+    </div>
+    <button class="hdr-btn" onclick="doLogout()">🔒 Sortir</button>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="tabs-bar">
+    <button class="tb on" id="t-actifs" onclick="switchTab('actifs')">Leads actifs</button>
+    <button class="tb" id="t-ne" onclick="switchTab('ne')">Non éligibles</button>
+    <button class="tb" id="t-clients" onclick="switchTab('clients')">Fichiers clients</button>
+  </div>
+  <div id="vActifs"></div>
+  <div id="vNe" style="display:none;"></div>
+  <div id="vClients" style="display:none;"></div>
+</div>
+
+<div class="toast-bar" id="toastBar"></div>
+
+<script>
+var PIN='1234';
+var SK='crm_sess';
+var LK='crm_leads';
+var activeTab='actifs';
+
+var PILL_CLS={bleu:'pill-bleu',jaune:'pill-jaune',violet:'pill-violet',hors:'pill-hors'};
+var PILL_LBL={bleu:'🔵 Très modeste',jaune:'🟡 Modeste',violet:'🟣 Intermédiaire',hors:'🟠 Supérieur'};
+
+function doLogin(){
+  var v=document.getElementById('pinInput').value;
+  if(v===PIN){
+    localStorage.setItem(SK,Date.now().toString());
+    document.getElementById('loginBg').style.display='none';
+    document.getElementById('appRoot').style.display='block';
+    importFromURL();
+    renderAll();
+  }else{
+    document.getElementById('loginErr').textContent='❌ Code incorrect';
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem(SK);
+  location.reload();
+}
+
+function checkSession(){
+  var s=localStorage.getItem(SK);
+  if(s&&(Date.now()-parseInt(s,10))<28800000){
+    document.getElementById('loginBg').style.display='none';
+    document.getElementById('appRoot').style.display='block';
+    return true;
+  }
+  return false;
+}
+
+function importFromURL(){
+  var p=new URLSearchParams(window.location.search);
+  var enc=p.get('lead');
+  if(!enc)return;
+  try{
+    var data=JSON.parse(decodeURIComponent(escape(atob(enc))));
+    var leads=getLeads();
+    var dup=leads.find(function(x){
+      return x.telephone===data.telephone&&Math.abs(new Date(x.formDate)-new Date(data.formDate))<120000;
+    });
+    if(!dup){
+      data.crmStatus='nouveau';
+      data.crmComment='';
+      data.crmSection='actif';
+      leads.push(data);
+      saveLeads(leads);
+      toast('✅ Lead importé : '+data.prenom+' '+data.nom);
+    }else{
+      toast('ℹ️ Lead déjà présent dans le CRM');
+    }
+    window.history.replaceState({},'',window.location.pathname);
+  }catch(e){
+    toast('⚠️ Erreur lors de l\'import');
+  }
+}
+
+function getLeads(){
+  try{return JSON.parse(localStorage.getItem(LK))||[];}catch(e){return[];}
+}
+function saveLeads(l){
+  localStorage.setItem(LK,JSON.stringify(l));
+}
+
+function score(l){
+  var s=0;
+  if(l.anahColor==='bleu')s+=400;
+  else if(l.anahColor==='jaune')s+=300;
+  else if(l.anahColor==='violet')s+=200;
+  else s+=100;
+  if((l.projet||'').indexOf('PAC')>-1)s+=50;
+  if(l.crmStatus==='nouveau')s+=20;
+  else if(l.crmStatus==='rappeler')s+=10;
+  return s;
+}
+
+function getQ(){
+  var el=document.getElementById('sInput');
+  return el?el.value.toLowerCase().trim():'';
+}
+
+function match(l,q){
+  if(!q)return true;
+  var s=((l.prenom||'')+' '+(l.nom||'')+' '+(l.telephone||'')+' '+(l.cp||'')+' '+(l.email||'')).toLowerCase();
+  return s.indexOf(q)>-1;
+}
+
+function renderAll(){
+  renderStats();
+  if(activeTab==='actifs')renderActifs();
+  else if(activeTab==='ne')renderNE();
+  else renderClients();
+}
+
+function renderStats(){
+  var all=getLeads();
+  var actifs=all.filter(function(l){return l.crmSection!=='ne';});
+  var ne=all.filter(function(l){return l.crmSection==='ne';});
+  var cnt=function(c){return actifs.filter(function(l){return l.anahColor===c;}).length;};
+  document.getElementById('statsRow').innerHTML=
+    '<div class="sc"><div class="n">'+actifs.length+'</div><div class="l">Total</div></div>'
+    +'<div class="sc sc-bleu"><div class="n">'+cnt('bleu')+'</div><div class="l">🔵 Bleu</div></div>'
+    +'<div class="sc sc-jaune"><div class="n">'+cnt('jaune')+'</div><div class="l">🟡 Jaune</div></div>'
+    +'<div class="sc sc-violet"><div class="n">'+cnt('violet')+'</div><div class="l">🟣 Violet</div></div>'
+    +'<div class="sc sc-orange"><div class="n">'+cnt('hors')+'</div><div class="l">🟠 Hors</div></div>'
+    +'<div class="sc"><div class="n">'+ne.length+'</div><div class="l">❌ Non élig.</div></div>';
+}
+
+function renderActifs(){
+  var q=getQ();
+  var leads=getLeads().filter(function(l){return l.crmSection!=='ne'&&match(l,q);});
+  leads.sort(function(a,b){return score(b)-score(a);});
+  var h='';
+  if(!leads.length){
+    h='<div class="empty-state"><div class="ei">📭</div><p>Aucun lead actif.<br/>Importez vos leads depuis les emails reçus.</p></div>';
+  }else{
+    h+='<div class="sec-hdr">'+leads.length+' lead(s) — triés par priorité (PAC + catégorie ANAH)</div>';
+    for(var i=0;i<leads.length;i++)h+=cardHTML(leads[i],false);
+  }
+  document.getElementById('vActifs').innerHTML=h;
+}
+
+function renderNE(){
+  var q=getQ();
+  var leads=getLeads().filter(function(l){return l.crmSection==='ne'&&match(l,q);});
+  var h='';
+  if(!leads.length){
+    h='<div class="empty-state"><div class="ei">✅</div><p>Aucun lead non éligible.<br/>Vous pouvez déplacer des leads ici depuis les leads actifs.</p></div>';
+  }else{
+    h+='<div class="sec-hdr">'+leads.length+' lead(s) non éligible(s)</div>';
+    for(var i=0;i<leads.length;i++)h+=cardHTML(leads[i],true);
+  }
+  document.getElementById('vNe').innerHTML=h;
+}
+
+function renderClients(){
+  var q=getQ();
+  var leads=getLeads();
+  if(q)leads=leads.filter(function(l){return match(l,q);});
+  else{
+    document.getElementById('vClients').innerHTML='<div class="empty-state"><div class="ei">🔍</div><p>Tapez un nom, téléphone ou code postal<br/>pour retrouver un dossier client.</p></div>';
+    return;
+  }
+  leads.sort(function(a,b){return new Date(b.formDate)-new Date(a.formDate);});
+  var h='';
+  if(!leads.length){
+    h='<div class="empty-state"><div class="ei">🔍</div><p>Aucun résultat pour cette recherche.</p></div>';
+  }else{
+    h+='<div class="sec-hdr">'+leads.length+' fiche(s) client trouvée(s)</div>';
+    for(var i=0;i<leads.length;i++)h+=ficheHTML(leads[i]);
+  }
+  document.getElementById('vClients').innerHTML=h;
+}
+
+function cardHTML(l,isNE){
+  var pc=PILL_CLS[l.anahColor]||'pill-hors';
+  var pl=PILL_LBL[l.anahColor]||'—';
+  var isPac=(l.projet||'').indexOf('PAC')>-1;
+  var isElec=(l.chauffage||'').toLowerCase().indexOf('lectrique')>-1;
+  var tags='';
+  tags+='<span class="ctag '+(isPac?'ctag-pac':'')+'">'+escH(l.projet||'—')+'</span>';
+  if(isElec)tags+='<span class="ctag ctag-elec">⚡ Électrique</span>';
+  tags+='<span class="ctag">'+escH(l.personnes||'—')+'</span>';
+  tags+='<span class="ctag">'+escH(l.revenus||'—')+'</span>';
+  if(l.surface)tags+='<span class="ctag">'+escH(l.surface)+'m²</span>';
+  var sts=[
+    {k:'nouveau',l:'🆕 Nouveau',c:''},
+    {k:'rappeler',l:'📅 À rappeler',c:'sb-ra'},
+    {k:'messagerie',l:'📲 Messagerie',c:'sb-me'},
+    {k:'rdv',l:'✅ RDV pris',c:'sb-rv'},
+    {k:'pasint',l:'🚫 Pas intéressé',c:'sb-pi'},
+    {k:'rac',l:'💸 Trop RAC',c:'sb-rc'}
+  ];
+  var sbH='';
+  for(var i=0;i<sts.length;i++){
+    var on=l.crmStatus===sts[i].k?' on':'';
+    sbH+='<button class="sb '+sts[i].c+on+'" onclick="setStatus(\''+l.id+'\',\''+sts[i].k+'\')">'+sts[i].l+'</button>';
+  }
+  var transferBtn=isNE
+    ?'<button class="cb cb-back" onclick="transfer(\''+l.id+'\',\'actif\')">↩ Remettre actif</button>'
+    :'<button class="cb cb-ne" onclick="transfer(\''+l.id+'\',\'ne\')">❌ Non éligible</button>';
+  var cmt=(l.crmComment||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return '<div class="card" id="c'+l.id+'">'
+    +'<div class="card-top">'
+    +'<div class="ct-left">'
+    +'<div class="name">'+escH(l.prenom+' '+l.nom)+'</div>'
+    +'<div class="phone">📞 '+escH(l.telephone||'—')+'</div>'
+    +'<div class="meta">'+escH(l.cp||'—')+' · '+fmtDate(l.formDate)+'</div>'
+    +'</div>'
+    +'<span class="anah-pill '+pc+'">'+pl+'</span>'
+    +'</div>'
+    +'<div class="card-tags">'+tags+'</div>'
+    +'<div class="card-status">'+sbH+'</div>'
+    +'<div class="card-comment"><input placeholder="💬 Commentaire, heure de rappel…" value="'+cmt+'" onchange="setComment(\''+l.id+'\',this.value)"/></div>'
+    +'<div class="card-btns">'+transferBtn+'<button class="cb cb-del" onclick="delLead(\''+l.id+'\')">🗑</button></div>'
+    +'</div>';
+}
+
+function ficheHTML(l){
+  var rows=[
+    ['Prénom / Nom',l.prenom+' '+l.nom],
+    ['Téléphone',l.telephone||'—'],
+    ['Email',l.email||'—'],
+    ['Code postal',l.cp||'—'],
+    ['Zone climatique',l.zone||'—'],
+    ['Projet',l.projet||'—'],
+    ['Chauffage actuel',l.chauffage||'—'],
+    ['Surface',l.surface?l.surface+' m²':'—'],
+    ['Année construction',l.annee||'—'],
+    ['Statut occupation',l.statut||'—'],
+    ['Personnes foyer',l.personnes||'—'],
+    ['Revenus annuels',l.revenus||'—'],
+    ['Catégorie ANAH',PILL_LBL[l.anahColor]||'—'],
+    ['MaPrimeRénov\'',l.anahMpr||'—'],
+    ['Reste à charge estimé',l.anahRac||'—'],
+    ['Devis antérieur',l.devis||'—'],
+    ['Ancienneté devis',l.devisAge||'—'],
+    ['Date du formulaire',fmtDate(l.formDate)],
+    ['Statut CRM',l.crmStatus||'nouveau'],
+    ['Commentaire',l.crmComment||'—']
+  ];
+  var rh='';
+  for(var i=0;i<rows.length;i++){
+    rh+='<div class="frow"><span class="fl">'+escH(rows[i][0])+'</span><span class="fv">'+escH(rows[i][1])+'</span></div>';
+  }
+  return '<div class="fiche"><div class="fiche-name">'+escH(l.prenom+' '+l.nom)+'</div>'+rh+'</div>';
+}
+
+function setStatus(id,status){
+  var leads=getLeads();
+  var l=leads.find(function(x){return x.id===id;});
+  if(l){l.crmStatus=status;l.crmDate=new Date().toISOString();saveLeads(leads);renderAll();}
+}
+function setComment(id,val){
+  var leads=getLeads();
+  var l=leads.find(function(x){return x.id===id;});
+  if(l){l.crmComment=val;saveLeads(leads);}
+}
+function transfer(id,sec){
+  var leads=getLeads();
+  var l=leads.find(function(x){return x.id===id;});
+  if(l){l.crmSection=sec;saveLeads(leads);renderAll();toast(sec==='ne'?'❌ Déplacé : Non éligible':'✅ Remis actif');}
+}
+function delLead(id){
+  if(!confirm('Supprimer définitivement ce lead ?'))return;
+  saveLeads(getLeads().filter(function(l){return l.id!==id;}));
+  renderAll();
+  toast('🗑 Lead supprimé');
+}
+
+function switchTab(t){
+  activeTab=t;
+  var tabs=['actifs','ne','clients'];
+  for(var i=0;i<tabs.length;i++){
+    document.getElementById('t-'+tabs[i]).classList.toggle('on',tabs[i]===t);
+  }
+  document.getElementById('vActifs').style.display=t==='actifs'?'block':'none';
+  document.getElementById('vNe').style.display=t==='ne'?'block':'none';
+  document.getElementById('vClients').style.display=t==='clients'?'block':'none';
+  renderAll();
+}
+
+function fmtDate(d){
+  if(!d)return '—';
+  try{return new Date(d).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return String(d);}
+}
+function escH(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function toast(msg){
+  var t=document.getElementById('toastBar');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+document.getElementById('pinInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+(function(){
+  if(checkSession()){
+    importFromURL();
+    renderAll();
+  }
+})();
+</script>
+</body>
+</html>
