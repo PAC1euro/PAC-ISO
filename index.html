@@ -322,7 +322,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
-var FIREBASE_URL='';
+var FIREBASE_URL='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
 var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
@@ -504,7 +504,7 @@ var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 a
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Date de naissance</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+dob+'</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Téléphone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.telephone+'</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Email</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.email||'—')+'</td></tr>'
-+'<tr><td style="padding:5px 8px;color:#475569;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+';">Adresse</td><td style="padding:5px 8px;font-weight:bold;text-align:right;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+'">'+S.adresse+', '+S.cp+' '+S.ville+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+';">Adresse</td><td style="padding:5px 8px;font-weight:bold;text-align:right;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+'">' +S.adresse+', '+S.cp+' '+S.ville+'</td></tr>'
 +(S.anneeConstruction?'<tr><td style="padding:5px 8px;color:#475569;">Année construction</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.anneeConstruction+'</td></tr>':'')
 +'</table>'
 +'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">💰 DÉCLARATION FISCALE</div>'
