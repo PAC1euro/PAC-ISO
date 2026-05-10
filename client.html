@@ -103,7 +103,7 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 .anah-bleu{background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;}
 .anah-jaune{background:#fef9c3;border-color:#eab308;color:#713f12;}
 .anah-violet{background:#f3e8ff;border-color:#a855f7;color:#581c87;}
-.anah-hors{background:#fee2e2;border-color:#ef4444;color:#7f1d1d;}
+.anah-hors{background:#fff7ed;border-color:#f97316;color:#7c2d12;}
 .anah-h{font-size:14px;font-weight:800;margin-bottom:8px;}
 .anah-row{display:flex;justify-content:space-between;gap:10px;margin:8px 0;}
 .anah-col{flex:1;}
@@ -207,8 +207,8 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
     <div class="choices c3" id="cChauf">
       <div class="choice" data-val="Gaz" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🔵</div><div class="chl">Gaz</div></div>
       <div class="choice" data-val="Fioul" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🛢️</div><div class="chl">Fioul</div></div>
-      <div class="choice" data-val="Bois" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🪵</div><div class="chl">Bois</div></div>
-      <div class="choice" data-val="Charbon" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚫</div><div class="chl">Charbon</div></div>
+      <div class="choice" data-val="Chaudière à bois" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🪵</div><div class="chl">Chaudière<br/>à bois</div></div>
+      <div class="choice" data-val="Chaudière à charbon" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚫</div><div class="chl">Chaudière<br/>à charbon</div></div>
       <div class="choice" data-val="Électrique" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚡</div><div class="chl">Électrique</div></div>
       <div class="choice" data-val="Autre" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">❓</div><div class="chl">Autre</div></div>
     </div>
@@ -414,8 +414,8 @@ function getAnahColor(){
   var i=PIDX[L.personnes]!==undefined?PIDX[L.personnes]:5;
   if(inc<=t.bleu[i])  return{c:'bleu',  lab:'Très modeste',   em:'🔵',mpr:'70%',rac:'~1€',         note:"PAC installée à 1€ très probable — aide maximale MaPrimeRénov' 70% + CEE.",css:'anah-bleu'};
   if(inc<=t.jaune[i]) return{c:'jaune', lab:'Modeste',        em:'🟡',mpr:'50%',rac:'Faible',       note:"MaPrimeRénov' 50% + CEE — reste à charge réduit, PAC à 1€ possible selon le devis.",css:'anah-jaune'};
-  if(inc<=t.violet[i])return{c:'violet',lab:'Intermédiaire',  em:'🟣',mpr:'30%',rac:'2 000€–5 000€',note:"MaPrimeRénov' 30% + CEE — reste à charge significatif selon le montant des travaux.",css:'anah-violet'};
-  return                     {c:'hors', lab:'Supérieur',       em:'🔴',mpr:'Non éligible MPR',rac:'> 5 000€',note:"Revenus au-dessus des plafonds MaPrimeRénov' — éligible CEE uniquement, reste à charge important.",css:'anah-hors'};
+  if(inc<=t.violet[i])return{c:'violet',lab:'Intermédiaire',  em:'🟣',mpr:'30%',rac:'2 000€–5 000€',note:"Éligible MaPrimeRénov' 30% + CEE — un conseiller cherchera à réduire au maximum votre reste à charge.",css:'anah-violet'};
+  return                     {c:'hors', lab:'Supérieur',       em:'🟠',mpr:'Éligible CEE',rac:'À étudier',note:"Éligible aux aides CEE — un conseiller étudie votre dossier pour trouver la meilleure solution possible.",css:'anah-hors'};
 }
 
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
@@ -539,7 +539,7 @@ function submit(){
   var date=new Date().toLocaleString('fr-FR');
   var zone=getZone(L.cp);
   var anah=getAnahColor();
-  var anahBg=anah.c==='bleu'?'#2563eb':anah.c==='jaune'?'#d97706':anah.c==='violet'?'#9333ea':'#dc2626';
+  var anahBg=anah.c==='bleu'?'#2563eb':anah.c==='jaune'?'#d97706':anah.c==='violet'?'#9333ea':'#ea580c';
   var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
   +'<div style="background:#16a34a;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🌿 NOUVEAU LEAD — AIDES ÉNERGÉTIQUES</div>'
   +'<div style="background:#166534;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Reçu le : '+date+' · Projet : '+L.projet+' · Zone : '+zone+'</div>'
@@ -605,15 +605,15 @@ function showResult(){
     g('rSub').textContent="Catégorie ANAH Modeste — MaPrimeRénov' 50% + CEE. Reste à charge réduit. Un conseiller calcule le montant exact gratuitement.";
     g('rBadge').textContent='🟡 Faible reste à charge — à confirmer avec un conseiller';
   } else if(anah.c==='violet'){
-    g('rIco').textContent='📊';
-    g('rTitle').textContent='Vous êtes éligible aux aides';
-    g('rSub').textContent="Catégorie ANAH Intermédiaire — MaPrimeRénov' 30% + CEE. Un reste à charge est prévu. Un conseiller vous détaille le montant exact gratuitement.";
-    g('rBadge').textContent='🟣 Reste à charge estimé : 2 000€–5 000€';
+    g('rIco').textContent='✅';
+    g('rTitle').textContent='Vous êtes éligible aux aides !';
+    g('rSub').textContent="Catégorie ANAH Intermédiaire — MaPrimeRénov' 30% + CEE. Un conseiller cherchera à optimiser votre dossier pour réduire au maximum votre reste à charge.";
+    g('rBadge').textContent='🟣 Éligible — un conseiller optimise votre dossier';
   } else {
-    g('rIco').textContent='📋';
-    g('rTitle').textContent='Votre demande est bien reçue';
-    g('rSub').textContent="Revenus au-dessus des plafonds MaPrimeRénov'. Vous restez éligible aux CEE. Un conseiller vous présente les meilleures options disponibles.";
-    g('rBadge').textContent='🔴 CEE uniquement — reste à charge important';
+    g('rIco').textContent='✅';
+    g('rTitle').textContent='Vous êtes éligible aux aides !';
+    g('rSub').textContent="Vous bénéficiez des aides CEE. Un conseiller étudie votre dossier gratuitement pour vous présenter les meilleures solutions disponibles.";
+    g('rBadge').textContent='🟠 Éligible CEE — un conseiller étudie votre dossier';
   }
   g('anahBox').className='anah-box '+anah.css;
   g('anahBox').innerHTML=''
@@ -623,7 +623,7 @@ function showResult(){
     +'<div class="anah-col" style="text-align:right;"><div class="anah-lbl">Reste à charge estimé</div><div class="anah-num">'+anah.rac+'</div></div>'
     +'</div>'
     +'<div class="anah-note">'+anah.note+'</div>';
-  var racBg=anah.c==='bleu'?'#dbeafe':anah.c==='jaune'?'#fef9c3':anah.c==='violet'?'#f3e8ff':'#fee2e2';
+  var racBg=anah.c==='bleu'?'#dbeafe':anah.c==='jaune'?'#fef9c3':anah.c==='violet'?'#f3e8ff':'#fff7ed';
   var rows='';
   rows+='<div class="srow"><span class="sl">Projet</span><span class="sv">'+L.projet+'</span></div>';
   if(L.chauffage&&L.chauffage!=='—')rows+='<div class="srow"><span class="sl">Chauffage</span><span class="sv">'+L.chauffage+'</span></div>';
