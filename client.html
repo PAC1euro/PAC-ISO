@@ -419,9 +419,9 @@ function getAnahColor(){
 }
 
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
-function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):';}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}
 function g(id){return document.getElementById(id);}
-function gv(id){var el=g(id);return el?(el.value||'').trim():';}
+function gv(id){var el=g(id);return el?(el.value||'').trim():'';}
 
 function updProg(){
   var pcts=[0,25,50,75,100];
