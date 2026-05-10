@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRM Leads — PAC à 1€</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;min-height:100vh;}
+
+/* LOGIN */
+.login-bg{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f172a;padding:20px;}
+.login-box{background:#fff;border-radius:20px;padding:40px 28px;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.login-ico{font-size:46px;margin-bottom:14px;}
+.login-box h2{font-size:22px;font-weight:900;margin-bottom:6px;}
+.login-box p{font-size:13px;color:#64748b;margin-bottom:22px;}
+.pin-input{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:22px;padding:14px;text-align:center;letter-spacing:6px;font-family:inherit;margin-bottom:12px;color:#0f172a;}
+.pin-input:focus{outline:none;border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.1);}
+.login-btn{width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
+.login-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:18px;}
+
+/* APP */
+.app{display:none;}
+.hdr{background:#0f172a;padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.hdr-logo{color:#fff;font-size:15px;font-weight:900;white-space:nowrap;}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:rgba(255,255,255,.85);font-size:11px;padding:7px 11px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,.18);}
+
+.stats{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;background:#fff;border-bottom:1px solid #e2e8f0;}
+.sc{flex-shrink:0;border-radius:10px;padding:8px 12px;text-align:center;min-width:62px;border:1.5px solid #e2e8f0;background:#f8fafc;cursor:pointer;}
+.sc .n{font-size:19px;font-weight:900;line-height:1;}
+.sc .l{font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;margin-top:2px;letter-spacing:.5px;}
+.sc-all{background:#f0fdf4;border-color:#16a34a;color:#14532d;}
+.sc-bleu{background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;}
+.sc-jaune{background:#fef9c3;border-color:#eab308;color:#713f12;}
+.sc-violet{background:#f3e8ff;border-color:#a855f7;color:#581c87;}
+.sc-orange{background:#fff7ed;border-color:#f97316;color:#7c2d12;}
+.sc-inelig{background:#fee2e2;border-color:#ef4444;color:#991b1b;}
+
+.tabs-bar{display:flex;background:#fff;border-bottom:2px solid #e2e8f0;}
+.tb{flex:1;padding:11px 4px;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;font-size:11px;font-weight:700;color:#94a3b8;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;}
+.tb.on{color:#16a34a;border-bottom-color:#16a34a;}
+.tb-badge{background:#ef4444;color:#fff;border-radius:20px;font-size:9px;padding:1px 5px;margin-left:4px;font-weight:900;}
+
+.filt-row{display:flex;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;}
+.finput{flex:1;min-width:160px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;padding:8px 12px;font-family:inherit;color:#0f172a;}
+.finput:focus{outline:none;border-color:#16a34a;}
+.fsel{border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;padding:8px 10px;font-family:inherit;color:#0f172a;background:#fff;cursor:pointer;}
+
+.list{padding:6px 0 70px;}
+.empty{text-align:center;padding:50px 20px;color:#94a3b8;}
+.empty .ico{font-size:44px;margin-bottom:10px;}
+.empty p{font-size:13px;line-height:1.6;}
+
+.card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
+.card.inelig{border-color:#fca5a5;background:#fff5f5;}
+.card-top{padding:11px 13px 7px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.ct-left .name{font-size:15px;font-weight:900;}
+.ct-left .phone{font-size:13px;color:#16a34a;font-weight:700;margin-top:2px;}
+.ct-left .meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.anah-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;flex-shrink:0;white-space:nowrap;}
+.pill-bleu{background:#dbeafe;color:#1e3a8a;}
+.pill-jaune{background:#fef9c3;color:#713f12;}
+.pill-violet{background:#f3e8ff;color:#581c87;}
+.pill-orange{background:#fff7ed;color:#7c2d12;}
+.pill-ineligible{background:#fee2e2;color:#991b1b;}
+
+.card-tags{padding:0 13px 7px;display:flex;gap:5px;flex-wrap:wrap;}
+.tag{border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;background:#f1f5f9;color:#475569;}
+.tag-pac{background:#dcfce7;color:#166534;}
+.tag-ko{background:#fee2e2;color:#991b1b;}
+
+.card-status{padding:0 13px 9px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.status-sel{border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;padding:6px 10px;font-family:inherit;color:#0f172a;background:#fff;cursor:pointer;flex:1;min-width:160px;}
+.comment-in{border:1.5px solid #d8b4fe;border-radius:8px;font-size:12px;padding:6px 10px;font-family:inherit;color:#0f172a;flex:1;min-width:140px;display:none;}
+.comment-in.show{display:block;}
+.save-badge{font-size:10px;color:#16a34a;font-weight:700;display:none;}
+.save-badge.show{display:inline;}
+
+.card-bot{border-top:1px solid #f1f5f9;padding:8px 13px;display:flex;gap:8px;}
+.cb-btn{flex:1;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-align:center;text-decoration:none;display:block;}
+.cb-detail{background:#f0fdf4;color:#166534;}
+.cb-call{background:#dcfce7;color:#166534;}
+.cb-transfer{background:#dbeafe;color:#1e3a8a;}
+
+.reason-badge{margin:0 13px 8px;background:#fee2e2;color:#991b1b;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;}
+
+/* Dossiers */
+.dos-search{padding:12px 14px;background:#fff;border-bottom:1px solid #e2e8f0;}
+.dos-search input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;padding:10px 14px;font-family:inherit;color:#0f172a;}
+.dos-search input:focus{outline:none;border-color:#1a56db;}
+.dos-card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
+.dos-top{padding:11px 13px 8px;display:flex;justify-content:space-between;align-items:flex-start;}
+.dos-top .name{font-size:15px;font-weight:900;}
+.dos-top .phone{font-size:13px;color:#1a56db;font-weight:700;margin-top:2px;}
+.dos-top .meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.dos-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;flex-shrink:0;}
+.dos-tags{padding:0 13px 8px;display:flex;gap:5px;flex-wrap:wrap;}
+.dos-bot{border-top:1px solid #f1f5f9;padding:8px 13px;display:flex;gap:8px;}
+.cb-bleu{background:#dbeafe;color:#1e3a8a;}
+.cb-jaune{background:#fef9c3;color:#713f12;}
+.cb-violet{background:#f3e8ff;color:#581c87;}
+.cb-rose{background:#fce7f3;color:#9d174d;}
+
+/* Detail modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;}
+.modal-hdr{background:#0f172a;color:#fff;padding:14px 16px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;}
+.modal-hdr h3{font-size:15px;font-weight:900;}
+.modal-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;line-height:1;}
+.modal-body{padding:16px;}
+.mrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px;}
+.mrow:last-child{border-bottom:none;}
+.mrow .ml{color:#64748b;flex-shrink:0;}
+.mrow .mr{font-weight:700;text-align:right;word-break:break-word;}
+.msec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin:12px 0 4px;padding-top:4px;border-top:1px solid #f1f5f9;}
+.msec:first-child{border-top:none;margin-top:0;}
+
+/* Config modal */
+.cfg-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:60;align-items:center;justify-content:center;padding:20px;}
+.cfg-bg.show{display:flex;}
+.cfg-box{background:#fff;border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:24px;}
+.cfg-box h2{font-size:18px;font-weight:900;margin-bottom:12px;}
+.cfg-step{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;margin-bottom:10px;}
+.cfg-step strong{display:block;font-size:11px;color:#166534;font-weight:900;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.cfg-step p{font-size:12px;color:#374151;line-height:1.5;}
+.cfg-step code{background:#1e293b;color:#86efac;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;}
+.cfg-input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;padding:10px 14px;font-family:monospace;margin:10px 0;}
+.cfg-input:focus{outline:none;border-color:#16a34a;}
+.cfg-actions{display:flex;gap:8px;margin-top:4px;}
+.cfg-save{flex:1;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;padding:12px;cursor:pointer;font-family:inherit;font-weight:700;}
+.cfg-cancel{background:#f1f5f9;color:#64748b;border:none;border-radius:10px;font-size:13px;padding:12px 16px;cursor:pointer;font-family:inherit;font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-bg" id="loginBg">
+  <div class="login-box">
+    <div class="login-ico">🌿</div>
+    <h2>CRM Leads</h2>
+    <p>PAC à 1€ — Accès réservé</p>
+    <input class="pin-input" type="password" id="pinInput" placeholder="••••" maxlength="10"/>
+    <button class="login-btn" onclick="doLogin()">Accéder</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="appDiv">
+  <div class="hdr">
+    <div class="hdr-logo">🌿 CRM Leads</div>
+    <div class="hdr-right">
+      <span id="hdrSync" style="color:rgba(255,255,255,.4);font-size:11px;"></span>
+      <button class="hdr-btn" onclick="openCfg()">⚙️</button>
+      <button class="hdr-btn" onclick="loadAll()">🔄</button>
+    </div>
+  </div>
+
+  <div class="stats" id="statsRow">
+    <div class="sc sc-all" onclick="filterTab('leads','')"><div class="n" id="sTotal">—</div><div class="l">Leads</div></div>
+    <div class="sc sc-bleu" onclick="filterTab('leads','bleu')"><div class="n" id="sBleu">—</div><div class="l">Bleu</div></div>
+    <div class="sc sc-jaune" onclick="filterTab('leads','jaune')"><div class="n" id="sJaune">—</div><div class="l">Jaune</div></div>
+    <div class="sc sc-violet" onclick="filterTab('leads','violet')"><div class="n" id="sViolet">—</div><div class="l">Violet</div></div>
+    <div class="sc sc-orange" onclick="filterTab('leads','orange')"><div class="n" id="sOrange">—</div><div class="l">Orange</div></div>
+    <div class="sc sc-inelig" onclick="setTab('inelig')"><div class="n" id="sInelig">—</div><div class="l">❌ N.elig.</div></div>
+  </div>
+
+  <div class="tabs-bar">
+    <button class="tb on" id="tb-leads" onclick="setTab('leads')">🎯 Leads <span class="tb-badge" id="badgeLeads" style="display:none"></span></button>
+    <button class="tb" id="tb-inelig" onclick="setTab('inelig')">❌ Pas éligible <span class="tb-badge" id="badgeInelig" style="display:none"></span></button>
+    <button class="tb" id="tb-dos" onclick="setTab('dos')">📁 Dossiers <span class="tb-badge" id="badgeDos" style="display:none"></span></button>
+  </div>
+
+  <!-- LEADS TAB -->
+  <div id="secLeads">
+    <div class="filt-row">
+      <input class="finput" id="leadsSearch" placeholder="Rechercher nom, tél, CP…" oninput="renderLeads()"/>
+      <select class="fsel" id="fltAnah" onchange="renderLeads()">
+        <option value="">Toutes catégories</option>
+        <option value="bleu">🔵 Bleu</option>
+        <option value="jaune">🟡 Jaune</option>
+        <option value="violet">🟣 Violet</option>
+        <option value="orange">🟠 Orange</option>
+      </select>
+      <select class="fsel" id="fltStatus" onchange="renderLeads()">
+        <option value="">Tous statuts</option>
+        <option value="nouveau">🆕 Nouveau</option>
+        <option value="appele">✅ Appelé</option>
+        <option value="messagerie">📩 Messagerie</option>
+        <option value="rac">💰 Trop RAC</option>
+        <option value="pasinteresse">❌ Pas intéressé</option>
+        <option value="rappeler">🔄 À rappeler</option>
+      </select>
+    </div>
+    <div id="leadsList" class="list"><div class="empty"><div class="ico">⏳</div><p>Chargement…</p></div></div>
+  </div>
+
+  <!-- INELIGIBLE TAB -->
+  <div id="secInelig" style="display:none;">
+    <div class="filt-row">
+      <input class="finput" id="ineligSearch" placeholder="Rechercher…" oninput="renderInelig()"/>
+    </div>
+    <div id="ineligList" class="list"><div class="empty"><div class="ico">⏳</div><p>Chargement…</p></div></div>
+  </div>
+
+  <!-- DOSSIERS TAB -->
+  <div id="secDos" style="display:none;">
+    <div class="dos-search">
+      <input id="dosSearch" placeholder="🔍 Rechercher par nom ou téléphone…" oninput="renderDossiers()"/>
+    </div>
+    <div id="dosList" class="list"><div class="empty"><div class="ico">⏳</div><p>Chargement…</p></div></div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modalTitle">Détail</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="cfg-bg" id="cfgModal">
+  <div class="cfg-box">
+    <h2>⚙️ Configuration Google Apps Script</h2>
+    <div class="cfg-step">
+      <strong>Étape 1 — Créer un Google Sheet</strong>
+      <p>Allez sur <strong>sheets.google.com</strong> et créez un nouveau classeur. Notez son ID dans l'URL.</p>
+    </div>
+    <div class="cfg-step">
+      <strong>Étape 2 — Ouvrir Apps Script</strong>
+      <p>Dans le Sheet : <strong>Extensions → Apps Script</strong>. Collez le contenu du fichier <code>google-apps-script.gs</code> fourni dans ce repo.</p>
+    </div>
+    <div class="cfg-step">
+      <strong>Étape 3 — Déployer</strong>
+      <p>Cliquez <strong>Déployer → Nouveau déploiement</strong>. Type : <em>Application Web</em>. Exécuter en tant que : <em>Moi</em>. Accès : <em>Tout le monde</em>. Copiez l'URL.</p>
+    </div>
+    <div class="cfg-step">
+      <strong>Étape 4 — Coller l'URL + mettre à jour client.html & index.html</strong>
+      <p>Collez l'URL ici ET remplacez <code>VOTRE_URL_GOOGLE_APPS_SCRIPT</code> dans <code>client.html</code> et <code>index.html</code> par cette URL.</p>
+    </div>
+    <input class="cfg-input" id="cfgUrl" placeholder="https://script.google.com/macros/s/.../exec" type="text"/>
+    <div class="cfg-actions">
+      <button class="cfg-cancel" onclick="closeCfg()">Annuler</button>
+      <button class="cfg-save" onclick="saveCfg()">💾 Enregistrer et actualiser</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var PIN='1234';
+var URL_KEY='pac_crm_url';
+var allLeads=[], allDossiers=[], currentTab='leads';
+var saveTimers={};
+
+/* ── AUTH ── */
+function doLogin(){
+  var v=document.getElementById('pinInput').value;
+  if(v===PIN){
+    document.getElementById('loginBg').style.display='none';
+    document.getElementById('appDiv').style.display='block';
+    loadAll();
+  } else {
+    document.getElementById('loginErr').textContent='Code incorrect.';
+  }
+}
+document.getElementById('pinInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+/* ── CONFIG ── */
+function getUrl(){return localStorage.getItem(URL_KEY)||'';}
+function openCfg(){document.getElementById('cfgUrl').value=getUrl();document.getElementById('cfgModal').classList.add('show');}
+function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
+function saveCfg(){
+  var v=document.getElementById('cfgUrl').value.trim();
+  if(v)localStorage.setItem(URL_KEY,v);
+  closeCfg();
+  loadAll();
+}
+
+/* ── DATA LOAD ── */
+function loadAll(){
+  var url=getUrl();
+  setSync('⏳');
+  if(!url){
+    document.getElementById('leadsList').innerHTML='<div class="empty"><div class="ico">⚙️</div><p>Configurez d\'abord l\'URL<br>en cliquant sur ⚙️</p></div>';
+    document.getElementById('ineligList').innerHTML=document.getElementById('leadsList').innerHTML;
+    document.getElementById('dosList').innerHTML=document.getElementById('leadsList').innerHTML;
+    openCfg();
+    return;
+  }
+  Promise.all([
+    fetch(url+'?action=getLeads').then(function(r){return r.json();}).catch(function(){return [];}),
+    fetch(url+'?action=getDossiers').then(function(r){return r.json();}).catch(function(){return [];})
+  ]).then(function(res){
+    allLeads=Array.isArray(res[0])?res[0]:[];
+    allDossiers=Array.isArray(res[1])?res[1]:[];
+    renderStats();
+    renderLeads();
+    renderInelig();
+    renderDossiers();
+    setSync('✅ '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+  }).catch(function(){
+    setSync('❌ Erreur réseau');
+  });
+}
+function setSync(txt){document.getElementById('hdrSync').textContent=txt;}
+
+/* ── ELIGIBILITY ── */
+function isEligible(l){
+  if(l.transferred==='oui')return true;
+  var statut=String(l.statut||'').toLowerCase();
+  var chauf=String(l.chauffage||'');
+  var proj=String(l.projet||'');
+  if(statut.indexOf('locataire')>-1)return false;
+  if(chauf==='Électrique'&&proj.indexOf('PAC')>-1)return false;
+  return true;
+}
+function ineligReason(l){
+  var statut=String(l.statut||'').toLowerCase();
+  var chauf=String(l.chauffage||'');
+  var proj=String(l.projet||'');
+  var r=[];
+  if(statut.indexOf('locataire')>-1)r.push('Locataire');
+  if(chauf==='Électrique'&&proj.indexOf('PAC')>-1)r.push('Chauffage électrique');
+  return r.join(' + ')||'Non éligible';
+}
+
+/* ── PRIORITY SCORE ── */
+function leadScore(l){
+  var ps={PAC:4,'PAC Air/Eau':4,'PAC + Isolation':4,'PAC Air/Air':3,Isolation:2}[l.projet]||1;
+  var as={bleu:4,jaune:3,violet:2,orange:1}[l.anahColor]||1;
+  return ps*10+as;
+}
+
+/* ── STATS ── */
+function renderStats(){
+  var eligible=allLeads.filter(isEligible);
+  var ineligible=allLeads.filter(function(l){return !isEligible(l);});
+  var b=eligible.filter(function(l){return l.anahColor==='bleu';}).length;
+  var j=eligible.filter(function(l){return l.anahColor==='jaune';}).length;
+  var v=eligible.filter(function(l){return l.anahColor==='violet';}).length;
+  var o=eligible.filter(function(l){return l.anahColor==='orange';}).length;
+  document.getElementById('sTotal').textContent=eligible.length;
+  document.getElementById('sBleu').textContent=b;
+  document.getElementById('sJaune').textContent=j;
+  document.getElementById('sViolet').textContent=v;
+  document.getElementById('sOrange').textContent=o;
+  document.getElementById('sInelig').textContent=ineligible.length;
+  var bn=document.getElementById('badgeLeads');
+  var newCount=eligible.filter(function(l){return(l.status||'nouveau')==='nouveau';}).length;
+  if(newCount>0){bn.textContent=newCount;bn.style.display='';}else{bn.style.display='none';}
+  var bi=document.getElementById('badgeInelig');
+  if(ineligible.length>0){bi.textContent=ineligible.length;bi.style.display='';}else{bi.style.display='none';}
+  var bd=document.getElementById('badgeDos');
+  if(allDossiers.length>0){bd.textContent=allDossiers.length;bd.style.display='';}else{bd.style.display='none';}
+}
+
+/* ── LEADS TAB ── */
+function renderLeads(){
+  var q=(document.getElementById('leadsSearch').value||'').toLowerCase();
+  var fa=document.getElementById('fltAnah').value;
+  var fs=document.getElementById('fltStatus').value;
+  var eligible=allLeads.filter(isEligible);
+  var filtered=eligible.filter(function(l){
+    if(fa&&l.anahColor!==fa)return false;
+    if(fs&&(l.status||'nouveau')!==fs)return false;
+    if(q){var h=(l.prenom+' '+l.nom+' '+l.telephone+' '+l.cp).toLowerCase();if(h.indexOf(q)===-1)return false;}
+    return true;
+  });
+  filtered.sort(function(a,b){return leadScore(b)-leadScore(a);});
+  var el=document.getElementById('leadsList');
+  if(filtered.length===0){el.innerHTML='<div class="empty"><div class="ico">🔍</div><p>Aucun lead trouvé</p></div>';return;}
+  el.innerHTML=filtered.map(function(l,i){return leadCard(l,i,'elig');}).join('');
+}
+
+/* ── INELIG TAB ── */
+function renderInelig(){
+  var q=(document.getElementById('ineligSearch').value||'').toLowerCase();
+  var inelig=allLeads.filter(function(l){return !isEligible(l);});
+  if(q)inelig=inelig.filter(function(l){var h=(l.prenom+' '+l.nom+' '+l.telephone+' '+l.cp).toLowerCase();return h.indexOf(q)>-1;});
+  var el=document.getElementById('ineligList');
+  if(inelig.length===0){el.innerHTML='<div class="empty"><div class="ico">✅</div><p>Aucun lead non éligible</p></div>';return;}
+  el.innerHTML=inelig.map(function(l,i){return leadCard(l,i,'inelig');}).join('');
+}
+
+/* ── LEAD CARD ── */
+var STATUS_LBL={nouveau:'🆕 Nouveau',appele:'✅ Appelé',messagerie:'📩 Messagerie laissée',rac:'💰 Trop de RAC',pasinteresse:'❌ Pas intéressé',rappeler:'🔄 À rappeler'};
+
+function leadCard(l,i,mode){
+  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var pill=l.transferred==='oui'?'pill-bleu':'pill-'+(l.anahColor||'orange');
+  var anah=esc(l.anahLab||l.anahColor||'—');
+  if(l.transferred==='oui')anah='↗ Transféré';
+  var isPAC=(l.projet||'').indexOf('PAC')>-1;
+  var status=l.status||'nouveau';
+  var uid='l_'+l.id;
+  var ineligStr=mode==='inelig'?'<div class="reason-badge">❌ '+esc(ineligReason(l))+'</div>':'';
+  var transferBtn=mode==='inelig'?'<button class="cb-btn cb-transfer" onclick=\'transferLead("'+esc(l.id)+'")\'>↗ Transférer dans Leads</button>':'';
+  return '<div class="card'+(mode==='inelig'?' inelig':'')+'" id="card_'+esc(l.id)+'">'
+    +'<div class="card-top">'
+    +'<div class="ct-left">'
+    +'<div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
+    +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
+    +'<div class="meta">'+date+' · CP '+esc(l.cp)+' · Zone '+esc(l.zone)+'</div>'
+    +'</div>'
+    +'<span class="anah-pill '+pill+'">'+anah+'</span>'
+    +'</div>'
+    +ineligStr
+    +'<div class="card-tags">'
+    +'<span class="tag '+(isPAC?'tag-pac':'')+'">'+esc(l.projet)+'</span>'
+    +(l.chauffage&&l.chauffage!=='—'?'<span class="tag '+(l.chauffage==='Électrique'?'tag-ko':'')+'">'+esc(l.chauffage)+'</span>':'')
+    +'<span class="tag">'+esc(l.surface)+' m²</span>'
+    +'<span class="tag">'+esc(l.statut)+'</span>'
+    +'<span class="tag">MPR: '+esc(l.anahMpr)+'</span>'
+    +'</div>'
+    +(mode==='elig'?
+      '<div class="card-status">'
+      +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l.id)+'","'+uid+'")\'>'
+      +Object.keys(STATUS_LBL).map(function(k){return'<option value="'+k+'"'+(status===k?' selected':'')+'>'+STATUS_LBL[k]+'</option>';}).join('')
+      +'</select>'
+      +'<input class="comment-in'+(status==='rappeler'?' show':'')+'" id="com_'+uid+'" placeholder="Note / rappel…" value="'+esc(l.comment||'')+'" oninput=\'schedSave("'+esc(l.id)+'","'+uid+'")\'/>'
+      +'<span class="save-badge" id="sav_'+uid+'">✅ sauvegardé</span>'
+      +'</div>'
+    :'')
+    +'<div class="card-bot">'
+    +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l.id)+'")\'> 📋 Fiche</button>'
+    +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
+    +transferBtn
+    +'</div>'
+    +'</div>';
+}
+
+function onStatusChange(id,uid){
+  var sel=document.getElementById('sel_'+uid);
+  var comIn=document.getElementById('com_'+uid);
+  var status=sel.value;
+  if(comIn){comIn.classList.toggle('show',status==='rappeler');}
+  schedSave(id,uid);
+}
+
+function schedSave(id,uid){
+  clearTimeout(saveTimers[uid]);
+  saveTimers[uid]=setTimeout(function(){saveLead(id,uid);},800);
+}
+
+function saveLead(id,uid){
+  var sel=document.getElementById('sel_'+uid);
+  var comIn=document.getElementById('com_'+uid);
+  if(!sel)return;
+  var status=sel.value;
+  var comment=comIn?comIn.value:'';
+  var url=getUrl();
+  if(!url)return;
+  var badge=document.getElementById('sav_'+uid);
+  fetch(url+'?action=updateLead&id='+encodeURIComponent(id)+'&status='+encodeURIComponent(status)+'&comment='+encodeURIComponent(comment))
+    .then(function(){
+      var l=allLeads.find(function(x){return x.id===id;});
+      if(l){l.status=status;l.comment=comment;}
+      if(badge){badge.classList.add('show');setTimeout(function(){badge.classList.remove('show');},2000);}
+      renderStats();
+    }).catch(function(){});
+}
+
+function transferLead(id){
+  var url=getUrl();
+  if(!url)return;
+  fetch(url+'?action=updateLead&id='+encodeURIComponent(id)+'&transferred=oui&status=nouveau')
+    .then(function(){
+      var l=allLeads.find(function(x){return x.id===id;});
+      if(l){l.transferred='oui';l.status='nouveau';}
+      renderStats();
+      renderLeads();
+      renderInelig();
+    }).catch(function(){});
+}
+
+/* ── DOSSIERS TAB ── */
+function renderDossiers(){
+  var q=(document.getElementById('dosSearch').value||'').toLowerCase();
+  var list=q?allDossiers.filter(function(d){
+    var h=(d.prenom+' '+d.nom+' '+d.telephone).toLowerCase();
+    return h.indexOf(q)>-1;
+  }):allDossiers;
+  list=list.slice().reverse();
+  var el=document.getElementById('dosList');
+  if(list.length===0){
+    el.innerHTML='<div class="empty"><div class="ico">'+(q?'🔍':'📁')+'</div><p>'+(q?'Aucun résultat':'Aucun dossier — les dossiers apparaissent ici<br>automatiquement à chaque envoi email depuis<br><strong>pac1euro.github.io/PAC-ISO</strong>')+'</p></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(d,i){return dosCard(d,i);}).join('');
+}
+
+function dosCard(d,i){
+  var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var coul=String(d.couleur||'').toLowerCase();
+  var pillCls='dos-pill cb-'+coul;
+  var rac=d.totalRac===0||d.totalRac==='0'?'1€':d.totalRac?esc(String(d.totalRac))+'€ RAC':'—';
+  return '<div class="dos-card">'
+    +'<div class="dos-top">'
+    +'<div class="ct-left">'
+    +'<div class="name">'+esc(d.prenom)+' '+esc(d.nom)+'</div>'
+    +'<div class="phone" style="font-size:15px;margin-top:3px;">📞 '+esc(d.telephone)+'</div>'
+    +'<div style="font-size:14px;font-weight:700;color:#dc2626;margin-top:3px;">💶 '+rac+'</div>'
+    +'<div class="meta">'+date+' · '+esc(d.dossier)+'</div>'
+    +'</div>'
+    +'<span class="'+pillCls+'">'+esc(d.couleur||'—')+'</span>'
+    +'</div>'
+    +'<div class="dos-bot">'
+    +'<button class="cb-btn cb-detail" onclick=\'openDosDetail('+i+')\' style="background:#e0f2fe;color:#0369a1;">📋 Voir dossier complet</button>'
+    +'<a class="cb-btn cb-call" href="tel:'+esc(d.telephone)+'">📞 Appeler</a>'
+    +'</div>'
+    +'</div>';
+}
+
+var _dosIdx=[];
+function openDosDetail(i){
+  var q=(document.getElementById('dosSearch').value||'').toLowerCase();
+  var list=q?allDossiers.filter(function(d){var h=(d.prenom+' '+d.nom+' '+d.telephone).toLowerCase();return h.indexOf(q)>-1;}):allDossiers;
+  list=list.slice().reverse();
+  var d=list[i];
+  if(!d)return;
+  document.getElementById('modalTitle').textContent=d.prenom+' '+d.nom;
+  var rac=d.totalRac===0||d.totalRac==='0'?'1€':String(d.totalRac||'—');
+  var body='<div class="msec">👤 Client</div>'
+    +row('Nom / Prénom',d.prenom+' '+d.nom)
+    +row('Date de naissance',d.dateNaissance)
+    +row('Téléphone','<a href="tel:'+esc(d.telephone)+'">'+esc(d.telephone)+'</a>')
+    +row('Email',d.email)
+    +row('Adresse',d.adresse+', '+d.cp+' '+d.ville)
+    +(d.anneeConstruction?row('Année construction',d.anneeConstruction):'')
+    +'<div class="msec">💰 Fiscal</div>'
+    +row('N° déclarant',d.numDeclarant)
+    +row('RFR',d.rfr?Number(d.rfr).toLocaleString('fr-FR')+'€':'—')
+    +row('Parts fiscales',d.parts)
+    +row('Région',d.isIDF?'IDF':'Province')
+    +row('Couleur ANAH',d.couleur)
+    +row('Zone',d.zone)
+    +row('Département',d.dept)
+    +(d.dossier==='PAC'||d.dossier==='PAC+ISO'?
+      '<div class="msec">🔥 PAC</div>'
+      +row('Chauffage actuel',d.chauffage)
+      +row('Surface chauffée',d.surfPac?d.surfPac+' m²':'—')
+      +row('Compteur',d.compteur)
+      +row('ECS',d.ecs)
+      +row('VMC',d.vmc)
+      +row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'—'))
+    :'')
+    +(d.dossier==='ISO'||d.dossier==='PAC+ISO'?
+      '<div class="msec">🏠 Isolation</div>'
+      +row('Gestes',d.gestes)
+      +row('Surface ISO',d.surfIso?d.surfIso+' m²':'—')
+      +row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'—'))
+    :'')
+    +'<div class="msec">📊 Résumé</div>'
+    +row('Dossier',d.dossier)
+    +row('RAC total',rac)
+    +(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')
+    +(d.codeReferent?row('Code référent',d.codeReferent):'')
+    +row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
+  document.getElementById('modalBody').innerHTML=body;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function openLeadDetail(id){
+  var l=allLeads.find(function(x){return x.id===id;});
+  if(!l)return;
+  document.getElementById('modalTitle').textContent=l.prenom+' '+l.nom;
+  var body='<div class="msec">📞 Contact</div>'
+    +row('Nom / Prénom',l.prenom+' '+l.nom)
+    +row('Téléphone','<a href="tel:'+esc(l.telephone)+'">'+esc(l.telephone)+'</a>')
+    +row('Email',l.email||'—')
+    +row('Code postal',l.cp)
+    +row('Zone',l.zone)
+    +'<div class="msec">🏡 Logement</div>'
+    +row('Projet',l.projet)
+    +row('Chauffage',l.chauffage)
+    +row('Surface',l.surface?l.surface+' m²':'—')
+    +row('Année',l.annee)
+    +row('Statut',l.statut)
+    +'<div class="msec">💰 Foyer</div>'
+    +row('Personnes',l.personnes)
+    +row('Revenus',l.revenus)
+    +'<div class="msec">🎯 ANAH</div>'
+    +row('Catégorie',l.anahLab||l.anahColor)
+    +row('MaPrimeRénov\'',l.anahMpr)
+    +row('Reste à charge',l.anahRac)
+    +row('Éligibilité',l.eligibilite||'—')
+    +(l.transferred==='oui'?row('Transféré','Oui (non éligible → éligible)'):'')
+    +'<div class="msec">📋 Suivi</div>'
+    +row('Statut',STATUS_LBL[l.status||'nouveau']||l.status)
+    +(l.comment?row('Note',l.comment):'')
+    +row('Date',l.formDate?new Date(l.formDate).toLocaleString('fr-FR'):'—');
+  document.getElementById('modalBody').innerHTML=body;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+/* ── TABS ── */
+function setTab(tab){
+  currentTab=tab;
+  ['leads','inelig','dos'].forEach(function(t){
+    document.getElementById('tb-'+t).classList.toggle('on',t===tab);
+    document.getElementById('sec'+(t==='leads'?'Leads':t==='inelig'?'Inelig':'Dos')).style.display=t===tab?'':'none';
+  });
+}
+function filterTab(tab,anah){
+  setTab(tab);
+  document.getElementById('fltAnah').value=anah;
+  renderLeads();
+}
+
+/* ── UTILS ── */
+function row(label,val){return '<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'—')+'</span></div>';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>

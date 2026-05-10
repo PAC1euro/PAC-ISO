@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Leads — PAC à 1€</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;min-height:100vh;}
+
+.hdr{background:#0f172a;padding:11px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.hdr-logo{color:#fff;font-size:15px;font-weight:900;white-space:nowrap;}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:rgba(255,255,255,.85);font-size:11px;padding:7px 11px;cursor:pointer;font-family:inherit;}
+.hdr-btn:hover{background:rgba(255,255,255,.18);}
+.hdr-count{color:rgba(255,255,255,.5);font-size:12px;}
+
+.setup-bar{background:#1e293b;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.setup-bar label{font-size:12px;color:rgba(255,255,255,.6);white-space:nowrap;}
+.setup-bar input{flex:1;min-width:200px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:12px;padding:8px 12px;font-family:monospace;}
+.setup-bar input::placeholder{color:rgba(255,255,255,.3);}
+.setup-bar input:focus{outline:none;border-color:#16a34a;}
+.setup-btn{background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:12px;padding:8px 14px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;}
+
+.stats{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;background:#fff;border-bottom:1px solid #e2e8f0;}
+.sc{flex-shrink:0;border-radius:10px;padding:8px 14px;text-align:center;min-width:68px;border:1.5px solid #e2e8f0;background:#f8fafc;}
+.sc .n{font-size:20px;font-weight:900;line-height:1;}
+.sc .l{font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;margin-top:2px;letter-spacing:.5px;}
+.sc-all{background:#f0fdf4;border-color:#16a34a;color:#14532d;}
+.sc-bleu{background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;}
+.sc-jaune{background:#fef9c3;border-color:#eab308;color:#713f12;}
+.sc-violet{background:#f3e8ff;border-color:#a855f7;color:#581c87;}
+.sc-orange{background:#fff7ed;border-color:#f97316;color:#7c2d12;}
+
+.toolbar{display:flex;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;}
+.search{flex:1;min-width:180px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;padding:8px 12px;font-family:inherit;color:#0f172a;}
+.search:focus{outline:none;border-color:#16a34a;}
+.flt{border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;padding:8px 10px;font-family:inherit;color:#0f172a;background:#fff;cursor:pointer;}
+.flt:focus{outline:none;border-color:#16a34a;}
+
+.list{padding:8px 0 60px;}
+.empty{text-align:center;padding:60px 20px;color:#94a3b8;}
+.empty .ico{font-size:48px;margin-bottom:12px;}
+.empty p{font-size:14px;}
+
+.card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
+.card-top{padding:11px 13px 8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.ct-left .name{font-size:15px;font-weight:900;}
+.ct-left .phone{font-size:13px;color:#16a34a;font-weight:700;margin-top:2px;}
+.ct-left .meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.anah-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;flex-shrink:0;white-space:nowrap;}
+.pill-bleu{background:#dbeafe;color:#1e3a8a;}
+.pill-jaune{background:#fef9c3;color:#713f12;}
+.pill-violet{background:#f3e8ff;color:#581c87;}
+.pill-orange{background:#fff7ed;color:#7c2d12;}
+.card-mid{padding:0 13px 8px;display:flex;gap:6px;flex-wrap:wrap;}
+.tag{border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;background:#f1f5f9;color:#475569;}
+.card-bot{border-top:1px solid #f1f5f9;padding:8px 13px;display:flex;gap:8px;}
+.cb-btn{flex:1;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-align:center;}
+.cb-call{background:#dcfce7;color:#166534;}
+.cb-del{background:#fee2e2;color:#991b1b;}
+
+.loading{text-align:center;padding:40px;color:#94a3b8;font-size:14px;}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;}
+.modal-hdr{background:#0f172a;color:#fff;padding:14px 16px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;}
+.modal-hdr h3{font-size:15px;font-weight:900;}
+.modal-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;line-height:1;}
+.modal-body{padding:16px;}
+.mrow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px;}
+.mrow:last-child{border-bottom:none;}
+.mrow .ml{color:#64748b;}
+.mrow .mr{font-weight:700;text-align:right;}
+.msec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin:12px 0 4px;}
+
+/* Setup modal */
+.setup-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:60;align-items:center;justify-content:center;padding:20px;}
+.setup-modal-bg.show{display:flex;}
+.setup-modal{background:#fff;border-radius:20px;width:100%;max-width:480px;padding:28px 24px;}
+.setup-modal h2{font-size:20px;font-weight:900;margin-bottom:8px;}
+.setup-modal p{font-size:13px;color:#475569;line-height:1.6;margin-bottom:16px;}
+.setup-modal .step{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+.setup-modal .step strong{display:block;font-size:12px;color:#166534;margin-bottom:4px;}
+.setup-modal .step p{font-size:12px;color:#374151;margin:0;}
+.setup-modal code{background:#1e293b;color:#86efac;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;}
+.setup-modal input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;padding:10px 14px;font-family:monospace;margin:10px 0;}
+.setup-modal input:focus{outline:none;border-color:#16a34a;}
+.setup-modal .actions{display:flex;gap:8px;margin-top:6px;}
+.setup-modal .btn-save{flex:1;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;padding:12px;cursor:pointer;font-family:inherit;font-weight:700;}
+.setup-modal .btn-skip{background:#f1f5f9;color:#64748b;border:none;border-radius:10px;font-size:14px;padding:12px;cursor:pointer;font-family:inherit;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">🌿 PAC à 1€ — Leads</div>
+  <div class="hdr-right">
+    <span class="hdr-count" id="hdrCount"></span>
+    <button class="hdr-btn" onclick="openSetup()">⚙️ Configurer</button>
+    <button class="hdr-btn" onclick="loadLeads()">🔄 Actualiser</button>
+  </div>
+</div>
+
+<div class="stats" id="statsRow">
+  <div class="sc sc-all"><div class="n" id="sTotal">—</div><div class="l">Total</div></div>
+  <div class="sc sc-bleu"><div class="n" id="sBleu">—</div><div class="l">Bleu</div></div>
+  <div class="sc sc-jaune"><div class="n" id="sJaune">—</div><div class="l">Jaune</div></div>
+  <div class="sc sc-violet"><div class="n" id="sViolet">—</div><div class="l">Violet</div></div>
+  <div class="sc sc-orange"><div class="n" id="sOrange">—</div><div class="l">Orange</div></div>
+</div>
+
+<div class="toolbar">
+  <input class="search" id="searchInput" placeholder="Rechercher nom, téléphone, CP…" oninput="renderList()"/>
+  <select class="flt" id="fltAnah" onchange="renderList()">
+    <option value="">Toutes catégories</option>
+    <option value="bleu">Bleu</option>
+    <option value="jaune">Jaune</option>
+    <option value="violet">Violet</option>
+    <option value="orange">Orange</option>
+  </select>
+  <select class="flt" id="fltProjet" onchange="renderList()">
+    <option value="">Tous projets</option>
+    <option value="PAC Air/Eau">PAC Air/Eau</option>
+    <option value="PAC Air/Air">PAC Air/Air</option>
+    <option value="Isolation">Isolation</option>
+    <option value="PAC + Isolation">PAC + Isolation</option>
+  </select>
+</div>
+
+<div id="listEl" class="list"><div class="loading">⏳ Chargement des leads…</div></div>
+
+<!-- Lead detail modal -->
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modalTitle">Détail lead</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Setup modal -->
+<div class="setup-modal-bg" id="setupModal">
+  <div class="setup-modal">
+    <h2>⚙️ Configuration</h2>
+    <p>Pour que les leads s'enregistrent automatiquement, vous devez déployer un Google Apps Script et coller son URL ici.</p>
+    <div class="step">
+      <strong>Étape 1 — Créer le Google Apps Script</strong>
+      <p>Allez sur <strong>script.google.com</strong>, créez un nouveau projet, et collez le code du fichier <code>google-apps-script.gs</code> fourni dans ce repo.</p>
+    </div>
+    <div class="step">
+      <strong>Étape 2 — Déployer comme application Web</strong>
+      <p>Cliquez <strong>Déployer → Nouvelle déployé</strong>, choisissez <em>Application Web</em>, accès <em>Tout le monde</em>. Copiez l'URL générée.</p>
+    </div>
+    <div class="step">
+      <strong>Étape 3 — Coller l'URL ci-dessous</strong>
+      <p>L'URL ressemble à : <code>https://script.google.com/macros/s/AKfy.../exec</code></p>
+    </div>
+    <input type="text" id="urlInput" placeholder="https://script.google.com/macros/s/.../exec"/>
+    <div class="actions">
+      <button class="btn-skip" onclick="closeSetup()">Annuler</button>
+      <button class="btn-save" onclick="saveUrl()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var allLeads=[];
+var STORAGE_KEY='pac_leads_url';
+
+function getUrl(){return localStorage.getItem(STORAGE_KEY)||'';}
+
+function openSetup(){
+  document.getElementById('urlInput').value=getUrl();
+  document.getElementById('setupModal').classList.add('show');
+}
+function closeSetup(){document.getElementById('setupModal').classList.remove('show');}
+function saveUrl(){
+  var v=document.getElementById('urlInput').value.trim();
+  if(v)localStorage.setItem(STORAGE_KEY,v);
+  closeSetup();
+  loadLeads();
+}
+
+function loadLeads(){
+  var url=getUrl();
+  var listEl=document.getElementById('listEl');
+  if(!url){
+    listEl.innerHTML='<div class="empty"><div class="ico">⚙️</div><p>Configurez d\'abord l\'URL Google Apps Script<br>en cliquant sur <strong>Configurer</strong></p></div>';
+    openSetup();
+    return;
+  }
+  listEl.innerHTML='<div class="loading">⏳ Chargement…</div>';
+  fetch(url+'?action=get')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      allLeads=(Array.isArray(data)?data:[]).reverse();
+      renderStats();
+      renderList();
+    })
+    .catch(function(){
+      listEl.innerHTML='<div class="empty"><div class="ico">❌</div><p>Impossible de charger les leads.<br>Vérifiez l\'URL dans <strong>Configurer</strong>.</p></div>';
+    });
+}
+
+function renderStats(){
+  var t=allLeads.length;
+  var b=allLeads.filter(function(l){return l.anahColor==='bleu';}).length;
+  var j=allLeads.filter(function(l){return l.anahColor==='jaune';}).length;
+  var v=allLeads.filter(function(l){return l.anahColor==='violet';}).length;
+  var o=allLeads.filter(function(l){return l.anahColor==='orange';}).length;
+  document.getElementById('sTotal').textContent=t;
+  document.getElementById('sBleu').textContent=b;
+  document.getElementById('sJaune').textContent=j;
+  document.getElementById('sViolet').textContent=v;
+  document.getElementById('sOrange').textContent=o;
+  document.getElementById('hdrCount').textContent=t+' lead'+(t>1?'s':'');
+}
+
+function renderList(){
+  var q=(document.getElementById('searchInput').value||'').toLowerCase();
+  var fa=document.getElementById('fltAnah').value;
+  var fp=document.getElementById('fltProjet').value;
+  var filtered=allLeads.filter(function(l){
+    if(fa&&l.anahColor!==fa)return false;
+    if(fp&&l.projet!==fp)return false;
+    if(q){
+      var hay=(l.prenom+' '+l.nom+' '+l.telephone+' '+l.cp+' '+l.email).toLowerCase();
+      if(hay.indexOf(q)===-1)return false;
+    }
+    return true;
+  });
+  var listEl=document.getElementById('listEl');
+  if(filtered.length===0){
+    listEl.innerHTML='<div class="empty"><div class="ico">🔍</div><p>Aucun lead trouvé</p></div>';
+    return;
+  }
+  listEl.innerHTML=filtered.map(function(l,i){return cardHTML(l,i);}).join('');
+}
+
+function pillClass(c){return 'pill-'+(c||'orange');}
+
+function cardHTML(l,i){
+  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var pill=pillClass(l.anahColor);
+  return '<div class="card">'
+    +'<div class="card-top">'
+    +'<div class="ct-left">'
+    +'<div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
+    +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
+    +'<div class="meta">'+date+' · '+esc(l.cp)+' · Zone '+esc(l.zone)+'</div>'
+    +'</div>'
+    +'<span class="anah-pill '+pill+'">'+esc(l.anahLab||l.anahColor)+'</span>'
+    +'</div>'
+    +'<div class="card-mid">'
+    +'<span class="tag">'+esc(l.projet)+'</span>'
+    +(l.chauffage&&l.chauffage!=='—'?'<span class="tag">'+esc(l.chauffage)+'</span>':'')
+    +'<span class="tag">'+esc(l.surface)+' m²</span>'
+    +'<span class="tag">'+esc(l.statut)+'</span>'
+    +'<span class="tag">MPR: '+esc(l.anahMpr)+'</span>'
+    +'</div>'
+    +'<div class="card-bot">'
+    +'<button class="cb-btn cb-call" onclick=\'openDetail('+i+')\'>📋 Voir fiche</button>'
+    +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'" style="text-decoration:none;">📞 Appeler</a>'
+    +'</div>'
+    +'</div>';
+}
+
+var currentIdx=-1;
+function openDetail(i){
+  var l=document.getElementById('fltAnah').value||document.getElementById('fltProjet').value||document.getElementById('searchInput').value
+    ?document.getElementById('listEl').querySelectorAll('.card')
+    :null;
+  var filtered=allLeads.filter(function(x){
+    var q=(document.getElementById('searchInput').value||'').toLowerCase();
+    var fa=document.getElementById('fltAnah').value;
+    var fp=document.getElementById('fltProjet').value;
+    if(fa&&x.anahColor!==fa)return false;
+    if(fp&&x.projet!==fp)return false;
+    if(q){var hay=(x.prenom+' '+x.nom+' '+x.telephone+' '+x.cp+' '+x.email).toLowerCase();if(hay.indexOf(q)===-1)return false;}
+    return true;
+  });
+  var l2=filtered[i];
+  if(!l2)return;
+  document.getElementById('modalTitle').textContent=l2.prenom+' '+l2.nom;
+  var date=l2.formDate?new Date(l2.formDate).toLocaleString('fr-FR'):'—';
+  var body='<div class="msec">📞 Contact</div>'
+    +row('Prénom / Nom',l2.prenom+' '+l2.nom)
+    +row('Téléphone','<a href="tel:'+esc(l2.telephone)+'">'+esc(l2.telephone)+'</a>')
+    +row('Email',l2.email||'—')
+    +row('Code postal',l2.cp)
+    +'<div class="msec">🏡 Logement</div>'
+    +row('Projet',l2.projet)
+    +(l2.chauffage&&l2.chauffage!=='—'?row('Chauffage actuel',l2.chauffage):'')
+    +row('Surface',l2.surface+' m²')
+    +row('Année construction',l2.annee)
+    +row('Statut',l2.statut)
+    +'<div class="msec">💰 Foyer</div>'
+    +row('Personnes',l2.personnes)
+    +row('Revenus',l2.revenus)
+    +'<div class="msec">🎯 ANAH</div>'
+    +row('Catégorie',l2.anahLab||l2.anahColor)
+    +row('Zone',l2.zone)
+    +row('MaPrimeRénov\'',l2.anahMpr)
+    +row('Reste à charge',l2.anahRac)
+    +row('Éligibilité',l2.eligibilite||'—')
+    +'<div class="msec">📅 Infos</div>'
+    +row('Date',date)
+    +row('ID',l2.id);
+  document.getElementById('modalBody').innerHTML=body;
+  document.getElementById('detailModal').classList.add('show');
+}
+function closeModal(){document.getElementById('detailModal').classList.remove('show');}
+function row(label,val){return '<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'—')+'</span></div>';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+window.onload=function(){loadLeads();};
+</script>
+</body>
+</html>
