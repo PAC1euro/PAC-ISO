@@ -190,7 +190,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 
 <div class="step" id="step3">
   <div class="stag">📍 Localisation</div>
-  <div class="stitle">Département & Zone</div>
+  <div class="stitle">Département &amp; Zone</div>
   <div class="ssub">Zone H1/H2/H3 détectée automatiquement</div>
   <label class="flabel">Département</label>
   <input type="text" id="dept" placeholder="Ex: 95, 75, 13…" maxlength="3" oninput="this.value=this.value.replace(/[^0-9]/g,'');detectZone()"/>
@@ -201,7 +201,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 
 <div class="step" id="step4">
   <div class="stag">💰 Revenus</div>
-  <div class="stitle">Déclaration fiscale & Couleur ANAH</div>
+  <div class="stitle">Déclaration fiscale &amp; Couleur ANAH</div>
   <div class="ssub">Calcul automatique selon RFR et parts fiscales</div>
   <label class="flabel">Parts fiscales</label>
   <div class="hint" style="margin-top:-4px;margin-bottom:10px;">Quotient familial sur l'avis d'imposition</div>
@@ -238,7 +238,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   </div>
   <div class="slabel">Gestes d'isolation</div>
   <div style="display:grid;gap:10px;margin-bottom:10px;" id="cGestes">
-    <div class="geste-choice" data-val="Isolation rampants" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏚️</div><div><div class="geste-lbl">Isolation rampants</div><div class="geste-sub">1 geste — incompatible avec combles perdus</div></div></div></div>
+    <div class="geste-choice" data-val="Isolation rampants" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏖️</div><div><div class="geste-lbl">Isolation rampants</div><div class="geste-sub">1 geste — incompatible avec combles perdus</div></div></div></div>
     <div class="geste-choice" data-val="Combles perdus" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏠</div><div><div class="geste-lbl">Combles perdus</div><div class="geste-sub">1 geste — incompatible avec rampants</div></div></div></div>
     <div class="geste-choice" data-val="ITE 25%" data-grp="ite" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🧱</div><div><div class="geste-lbl">ITE — Isolation par l'Extérieur 25%</div><div class="geste-sub">1 geste CEE</div></div></div></div>
     <div class="geste-choice" data-val="Garage/Sous-sol/Cave" data-grp="garage" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🚗</div><div><div class="geste-lbl">Garage / Sous-sol / Cave</div><div class="geste-sub">1 geste CEE</div></div></div></div>
@@ -322,6 +322,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
+var FIREBASE_URL='';
 var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
@@ -503,7 +504,7 @@ var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 a
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Date de naissance</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+dob+'</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Téléphone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.telephone+'</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Email</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.email||'—')+'</td></tr>'
-+'<tr><td style="padding:5px 8px;color:#475569;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+';">Adresse</td><td style="padding:5px 8px;font-weight:bold;text-align:right;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+'>">'+S.adresse+', '+S.cp+' '+S.ville+'</td></tr>'
++'<tr><td style="padding:5px 8px;color:#475569;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+';">Adresse</td><td style="padding:5px 8px;font-weight:bold;text-align:right;'+(S.anneeConstruction?'border-bottom:1px solid #e2e8f0;':'')+'">'+S.adresse+', '+S.cp+' '+S.ville+'</td></tr>'
 +(S.anneeConstruction?'<tr><td style="padding:5px 8px;color:#475569;">Année construction</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.anneeConstruction+'</td></tr>':'')
 +'</table>'
 +'<div style="background:#ebf0fe;color:#1a56db;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">💰 DÉCLARATION FISCALE</div>'
@@ -556,6 +557,7 @@ emailjs.send('service_leads','template_2komt8b',{
   btn.textContent='❌ Erreur — Réessayer';btn.disabled=false;
   console.error('EmailJS:',err);
 });
+try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _dos={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),dossier:S.dossier,nom:S.nom,prenom:S.prenom,dateNaissance:S.dateNaissance,telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,dept:S.dept,zone:S.zone,isIDF:S.isIDF,parts:S.parts,numDeclarant:S.numDeclarant,rfr:S.rfr,couleur:S.couleur,chauffage:S.chauffage,surfPac:S.surfPac,ecs:S.ecs,vmc:S.vmc,compteur:S.compteur,gestes:S.gestes.join(', '),surfIso:S.surfIso,racPac:S.racPac,racIso:S.racIso,teleproNom:S.teleproNom,codeReferent:S.codeReferent,totalRac:totalRac,anneeConstruction:S.anneeConstruction};fetch(_fb.replace(/\/$/,'')+'/dossiers.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}}catch(e){}
 }
 var cur=1,fromResult=false;
 function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'&&next===5)next=6;if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
@@ -567,16 +569,18 @@ function chkAnnee(){var v=Number(g('anneeConstruction').value);if(!v){g('anneeAl
 function updMapsLink(){var a=gv('adresse'),cp=gv('cp'),v=gv('ville');var full=(a+' '+cp+' '+v).trim();var btn=g('btnMaps'),btnG=g('btnGeo'),embed=g('mapEmbed');if(a&&cp&&v&&full.length>5){var enc=encodeURIComponent(full);btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&output=embed" width="100%" height="200" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';}else{btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';embed.innerHTML='';}}
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://maps.google.com/maps?q='+encodeURIComponent(addr)+'&layer=c','_blank');}
 function openGeo(){var addr=g('btnGeo').getAttribute('data-addr')||'';if(addr)window.open('https://www.geoportail.gouv.fr/?q='+encodeURIComponent(addr)+'&l0=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2::GEOPORTAIL:OGC:WMTS(1)&permalink=yes','_blank');}
-function updProg(){var flow=S.dossier==='ISO'?[1,5,4,6,7]:S.dossier==='PAC'?[1,2,3,4,6,7]:[1,2,3,4,5,6,7];var pos=flow.indexOf(cur)+1,tot=flow.length;var pct=Math.round(((pos-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+pos+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<pos?' done':i===pos?' on':'')+'"></div>';g('dots').innerHTML=h;}
+function updProg(){var flow=S.dossier==='ISO'?[1,5,4,6,7]:S.dossier==='PAC'?[1,2,3,4,6,7]:[1,2,3,4,5,6,7];var pos=flow.indexOf(cur)+1,tot=flow.length;var pct=Math.round(((pos-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+pos+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<pos?' done':i===pos?' on':'')+'" ></div>';g('dots').innerHTML=h;}
 function fmtDOB(el){var v=el.value.replace(/\D/g,'');if(v.length>4)v=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);else if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);el.value=v;}
 function valid(s){hideE(s);if(s===1&&!gSel('cDossier')){showE(1);return false;}return true;}
 function showE(n){g('e'+n).classList.add('show');}
 function hideE(n){g('e'+n).classList.remove('show');}
 function pickFoyer(el){var all=document.querySelectorAll('#cFoyer .choice,#cFoyer2 .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');S.parts=Number(el.getAttribute('data-val'));previewCouleur();}
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
-function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';
+}
 function g(id){return document.getElementById(id);}
-function gv(id){var el=g(id);return el?(el.value||'').trim():'';}
+function gv(id){var el=g(id);return el?(el.value||'').trim():'';
+}
 function restart(){location.reload();}
 updProg();
 </script>
