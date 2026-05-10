@@ -24,7 +24,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
 .hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:rgba(255,255,255,.85);font-size:11px;padding:7px 11px;cursor:pointer;font-family:inherit;}
 .hdr-btn:hover{background:rgba(255,255,255,.2);}
-.hdr-info{color:rgba(255,255,255,.4);font-size:11px;}
+.hdr-sync{color:rgba(255,255,255,.45);font-size:11px;white-space:nowrap;}
+
+.setup-bar{background:#1e3a8a;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.setup-bar p{color:#bfdbfe;font-size:12px;flex:1;}
+.setup-bar button{background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:12px;padding:8px 14px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;}
 
 .stats{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;background:#fff;border-bottom:1px solid #e2e8f0;}
 .sc{flex-shrink:0;border-radius:10px;padding:8px 12px;text-align:center;min-width:62px;border:1.5px solid #e2e8f0;background:#f8fafc;cursor:pointer;}
@@ -79,17 +83,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .cb-detail{background:#f0fdf4;color:#166534;}
 .cb-call{background:#dcfce7;color:#166534;}
 .cb-transfer{background:#dbeafe;color:#1e3a8a;}
-
 .reason-badge{margin:0 13px 8px;background:#fee2e2;color:#991b1b;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;}
 
-.dos-search{padding:12px 14px;background:#fff;border-bottom:1px solid #e2e8f0;}
-.dos-search input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;padding:10px 14px;font-family:inherit;}
-.dos-search input:focus{outline:none;border-color:#1a56db;}
 .dos-card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
-.dos-top{padding:12px 13px 8px;display:flex;justify-content:space-between;align-items:flex-start;}
-.dos-meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.dos-top{padding:12px 13px 8px;}
 .dos-rac{font-size:15px;font-weight:900;color:#dc2626;margin-top:3px;}
-.dos-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;flex-shrink:0;}
+.dos-meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.dos-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;}
 .cb-bleu{background:#dbeafe;color:#1e3a8a;}
 .cb-jaune{background:#fef9c3;color:#713f12;}
 .cb-violet{background:#f3e8ff;color:#581c87;}
@@ -108,6 +108,21 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .mrow .mr{font-weight:700;text-align:right;word-break:break-word;margin-left:8px;}
 .msec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin:12px 0 4px;border-top:1px solid #f1f5f9;padding-top:8px;}
 .msec:first-child{border-top:none;padding-top:0;margin-top:0;}
+
+.cfg-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:60;align-items:center;justify-content:center;padding:20px;}
+.cfg-bg.show{display:flex;}
+.cfg-box{background:#fff;border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:24px;}
+.cfg-box h2{font-size:18px;font-weight:900;margin-bottom:6px;}
+.cfg-box p{font-size:13px;color:#475569;line-height:1.6;margin-bottom:14px;}
+.cfg-step{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px;margin-bottom:10px;}
+.cfg-step strong{display:block;font-size:11px;color:#166534;font-weight:900;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.cfg-step p{font-size:12px;color:#374151;margin:0;line-height:1.5;}
+.cfg-step code{background:#1e293b;color:#86efac;padding:2px 5px;border-radius:4px;font-size:11px;font-family:monospace;}
+.cfg-input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;padding:10px 14px;font-family:monospace;margin:10px 0;}
+.cfg-input:focus{outline:none;border-color:#16a34a;}
+.cfg-actions{display:flex;gap:8px;}
+.cfg-save{flex:1;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;padding:12px;cursor:pointer;font-family:inherit;font-weight:700;}
+.cfg-cancel{background:#f1f5f9;color:#64748b;border:none;border-radius:10px;font-size:13px;padding:12px 16px;cursor:pointer;font-family:inherit;}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:100;transition:opacity .3s;pointer-events:none;}
 .toast.hide{opacity:0;}
@@ -130,13 +145,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
   <div class="hdr">
     <div class="hdr-logo">🌿 CRM Leads</div>
     <div class="hdr-right">
-      <span class="hdr-info" id="hdrInfo"></span>
-      <button class="hdr-btn" onclick="exportData()">📥 Export</button>
-      <button class="hdr-btn" onclick="clearConfirm()">🗑️</button>
+      <span class="hdr-sync" id="hdrSync"></span>
+      <button class="hdr-btn" onclick="loadAll()">🔄</button>
+      <button class="hdr-btn" onclick="openCfg()">⚙️ Config</button>
     </div>
   </div>
 
-  <div class="stats" id="statsRow">
+  <div class="setup-bar" id="setupBar" style="display:none">
+    <p>⚠️ Firebase non configuré — les leads ne se sauvegardent pas encore automatiquement.</p>
+    <button onclick="openCfg()">Configurer maintenant</button>
+  </div>
+
+  <div class="stats">
     <div class="sc sc-all" onclick="filterTab('leads','')"><div class="n" id="sTotal">0</div><div class="l">Leads</div></div>
     <div class="sc sc-bleu" onclick="filterTab('leads','bleu')"><div class="n" id="sBleu">0</div><div class="l">Bleu</div></div>
     <div class="sc sc-jaune" onclick="filterTab('leads','jaune')"><div class="n" id="sJaune">0</div><div class="l">Jaune</div></div>
@@ -171,7 +191,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
         <option value="rappeler">🔄 À rappeler</option>
       </select>
     </div>
-    <div id="leadsList" class="list"></div>
+    <div id="leadsList" class="list"><div class="empty"><div class="ico">⏳</div><p>Chargement…</p></div></div>
   </div>
 
   <div id="secInelig" style="display:none">
@@ -182,8 +202,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
   </div>
 
   <div id="secDos" style="display:none">
-    <div class="dos-search">
-      <input id="dosSearch" placeholder="🔍 Nom ou téléphone…" oninput="renderDossiers()"/>
+    <div class="filt-row">
+      <input class="finput" id="dosSearch" placeholder="🔍 Nom ou téléphone…" oninput="renderDossiers()"/>
     </div>
     <div id="dosList" class="list"></div>
   </div>
@@ -199,61 +219,96 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
   </div>
 </div>
 
+<div class="cfg-bg" id="cfgModal">
+  <div class="cfg-box">
+    <h2>⚙️ Configuration Firebase</h2>
+    <p>Créez un projet Firebase gratuit en 3 étapes — aucune carte bancaire requise.</p>
+    <div class="cfg-step">
+      <strong>Étape 1 — Créer un projet</strong>
+      <p>Allez sur <strong>console.firebase.google.com</strong> → "Ajouter un projet" → donnez un nom → désactivez Analytics → Créer.</p>
+    </div>
+    <div class="cfg-step">
+      <strong>Étape 2 — Activer la base de données</strong>
+      <p>Dans le menu gauche : <strong>Build → Realtime Database → Create Database</strong> → choisissez un emplacement → <strong>Start in test mode</strong> → Enable.</p>
+    </div>
+    <div class="cfg-step">
+      <strong>Étape 3 — Copier l'URL</strong>
+      <p>L'URL apparaît en haut de la page, format : <code>https://MON-PROJET-default-rtdb.firebaseio.com</code><br>Collez-la ici :</p>
+    </div>
+    <input class="cfg-input" id="cfgUrl" placeholder="https://mon-projet-default-rtdb.firebaseio.com"/>
+    <p style="font-size:11px;color:#94a3b8;margin:-4px 0 12px;">Cette URL doit aussi être ajoutée dans <strong>client.html</strong> et <strong>index.html</strong> (variable <code>FIREBASE_URL</code>) pour que les leads s'enregistrent automatiquement.</p>
+    <div class="cfg-actions">
+      <button class="cfg-cancel" onclick="closeCfg()">Annuler</button>
+      <button class="cfg-save" onclick="saveCfg()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast hide" id="toast"></div>
 
 <script>
 var PIN='1234';
-var LEADS_KEY='pac_crm_leads_v2';
-var DOS_KEY='pac_crm_dossiers_v2';
+var FB_KEY='pac_firebase_url';
 var STATUS_LBL={nouveau:'🆕 Nouveau',appele:'✅ Appelé',messagerie:'📩 Messagerie laissée',rac:'💰 Trop de RAC',pasinteresse:'❌ Pas intéressé',rappeler:'🔄 À rappeler'};
+var allLeads=[], allDossiers=[], saveTimers={};
 
-/* ── STORAGE ── */
-function getLeads(){try{return JSON.parse(localStorage.getItem(LEADS_KEY)||'[]');}catch(e){return[];}}
-function savLeads(arr){localStorage.setItem(LEADS_KEY,JSON.stringify(arr));}
-function getDossiers(){try{return JSON.parse(localStorage.getItem(DOS_KEY)||'[]');}catch(e){return[];}}
-function savDossiers(arr){localStorage.setItem(DOS_KEY,JSON.stringify(arr));}
-
-/* ── AUTO-IMPORT depuis URL ── */
-(function(){
-  var params=new URLSearchParams(window.location.search);
-  var raw=params.get('import');
-  if(!raw)return;
-  try{
-    var data=JSON.parse(decodeURIComponent(escape(atob(raw))));
-    var leads=getLeads();
-    var exists=leads.some(function(l){return l.id===data.id;});
-    if(!exists){
-      data.status=data.status||'nouveau';
-      data.comment=data.comment||'';
-      data.transferred=data.transferred||'';
-      leads.push(data);
-      savLeads(leads);
-    }
-  }catch(e){}
-  history.replaceState(null,'',window.location.pathname);
-})();
+/* ── CONFIG ── */
+function getFbUrl(){return localStorage.getItem(FB_KEY)||'';}
+function openCfg(){document.getElementById('cfgUrl').value=getFbUrl();document.getElementById('cfgModal').classList.add('show');}
+function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
+function saveCfg(){
+  var v=document.getElementById('cfgUrl').value.trim().replace(/\/$/,'');
+  if(v){localStorage.setItem(FB_KEY,v);}
+  closeCfg();
+  loadAll();
+}
 
 /* ── AUTH ── */
 function doLogin(){
-  var v=document.getElementById('pinInput').value;
-  if(v===PIN){
+  if(document.getElementById('pinInput').value===PIN){
     document.getElementById('loginBg').style.display='none';
     document.getElementById('appDiv').style.display='block';
-    renderAll();
+    if(!getFbUrl())document.getElementById('setupBar').style.display='flex';
+    loadAll();
   }else{
     document.getElementById('loginErr').textContent='Code incorrect.';
   }
 }
 document.getElementById('pinInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
+/* ── DATA ── */
+function loadAll(){
+  var url=getFbUrl();
+  if(!url){
+    document.getElementById('setupBar').style.display='flex';
+    document.getElementById('leadsList').innerHTML='<div class="empty"><div class="ico">⚙️</div><p>Configurez Firebase pour commencer.<br>Cliquez sur <strong>⚙️ Config</strong> en haut.</p></div>';
+    document.getElementById('dosList').innerHTML=document.getElementById('leadsList').innerHTML;
+    return;
+  }
+  document.getElementById('setupBar').style.display='none';
+  setSync('⏳');
+  Promise.all([
+    fetch(url+'/leads.json').then(function(r){return r.json();}).catch(function(){return null;}),
+    fetch(url+'/dossiers.json').then(function(r){return r.json();}).catch(function(){return null;})
+  ]).then(function(res){
+    allLeads=fbObjToArr(res[0]);
+    allDossiers=fbObjToArr(res[1]);
+    renderStats();renderLeads();renderInelig();renderDossiers();
+    setSync('✅ '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+  }).catch(function(){setSync('❌ Erreur');});
+}
+
+function fbObjToArr(obj){
+  if(!obj||typeof obj!=='object')return[];
+  return Object.keys(obj).map(function(k){var v=obj[k];v._fbKey=k;return v;});
+}
+function setSync(t){document.getElementById('hdrSync').textContent=t;}
+
 /* ── ELIGIBILITY ── */
 function isEligible(l){
   if(l.transferred==='oui')return true;
-  var statut=String(l.statut||'').toLowerCase();
-  var chauf=String(l.chauffage||'');
-  var proj=String(l.projet||'');
-  if(statut.indexOf('locataire')>-1)return false;
-  if(chauf==='Électrique'&&proj.indexOf('PAC')>-1)return false;
+  if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)return false;
+  if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)return false;
   return true;
 }
 function ineligReason(l){
@@ -263,38 +318,28 @@ function ineligReason(l){
   return r.join(' · ')||'Non éligible';
 }
 
-/* ── PRIORITY SCORE ── */
+/* ── SORT ── */
 function leadScore(l){
   var ps={PAC:4,'PAC Air/Eau':4,'PAC + Isolation':4,'PAC Air/Air':3,Isolation:2}[l.projet]||1;
   var as={bleu:4,jaune:3,violet:2,orange:1}[String(l.anahColor||'')]||1;
   return ps*10+as;
 }
 
-/* ── RENDER ALL ── */
-function renderAll(){
-  renderStats();
-  renderLeads();
-  renderInelig();
-  renderDossiers();
-}
-
+/* ── STATS ── */
 function renderStats(){
-  var all=getLeads();
-  var eligible=all.filter(isEligible);
-  var inelig=all.filter(function(l){return!isEligible(l);});
-  document.getElementById('sTotal').textContent=eligible.length;
-  document.getElementById('sBleu').textContent=eligible.filter(function(l){return l.anahColor==='bleu';}).length;
-  document.getElementById('sJaune').textContent=eligible.filter(function(l){return l.anahColor==='jaune';}).length;
-  document.getElementById('sViolet').textContent=eligible.filter(function(l){return l.anahColor==='violet';}).length;
-  document.getElementById('sOrange').textContent=eligible.filter(function(l){return l.anahColor==='orange';}).length;
+  var elig=allLeads.filter(isEligible);
+  var inelig=allLeads.filter(function(l){return!isEligible(l);});
+  document.getElementById('sTotal').textContent=elig.length;
+  document.getElementById('sBleu').textContent=elig.filter(function(l){return l.anahColor==='bleu';}).length;
+  document.getElementById('sJaune').textContent=elig.filter(function(l){return l.anahColor==='jaune';}).length;
+  document.getElementById('sViolet').textContent=elig.filter(function(l){return l.anahColor==='violet';}).length;
+  document.getElementById('sOrange').textContent=elig.filter(function(l){return l.anahColor==='orange';}).length;
   document.getElementById('sInelig').textContent=inelig.length;
-  var newCount=eligible.filter(function(l){return(l.status||'nouveau')==='nouveau';}).length;
+  var newN=elig.filter(function(l){return(l.status||'nouveau')==='nouveau';}).length;
   var bn=document.getElementById('badgeLeads');
-  if(newCount){bn.textContent=newCount;bn.style.display='';}else{bn.style.display='none';}
-  var dos=getDossiers();
+  if(newN){bn.textContent=newN;bn.style.display='';}else{bn.style.display='none';}
   var bd=document.getElementById('badgeDos');
-  if(dos.length){bd.textContent=dos.length;bd.style.display='';}else{bd.style.display='none';}
-  document.getElementById('hdrInfo').textContent=eligible.length+' lead'+(eligible.length>1?'s':'')+' · '+dos.length+' dossier'+(dos.length>1?'s':'');
+  if(allDossiers.length){bd.textContent=allDossiers.length;bd.style.display='';}else{bd.style.display='none';}
 }
 
 /* ── LEADS ── */
@@ -302,37 +347,35 @@ function renderLeads(){
   var q=(document.getElementById('leadsSearch').value||'').toLowerCase();
   var fa=document.getElementById('fltAnah').value;
   var fs=document.getElementById('fltStatus').value;
-  var eligible=getLeads().filter(isEligible).filter(function(l){
+  var list=allLeads.filter(isEligible).filter(function(l){
     if(fa&&l.anahColor!==fa)return false;
     if(fs&&(l.status||'nouveau')!==fs)return false;
     if(q&&(l.prenom+' '+l.nom+' '+l.telephone+' '+l.cp).toLowerCase().indexOf(q)===-1)return false;
     return true;
   });
-  eligible.sort(function(a,b){return leadScore(b)-leadScore(a);});
+  list.sort(function(a,b){return leadScore(b)-leadScore(a);});
   var el=document.getElementById('leadsList');
-  el.innerHTML=eligible.length?eligible.map(leadCard).join(''):
-    '<div class="empty"><div class="ico">🎯</div><p>Aucun lead pour l\'instant.<br><br>Chaque email envoyé depuis <strong>client.html</strong><br>ajoute automatiquement le lead ici.</p></div>';
+  el.innerHTML=list.length?list.map(leadCard).join(''):
+    '<div class="empty"><div class="ico">🎯</div><p>Aucun lead pour l\'instant.<br>Ils apparaissent <strong>automatiquement</strong><br>dès qu\'un formulaire est envoyé.</p></div>';
 }
 
-/* ── INELIGIBLE ── */
 function renderInelig(){
   var q=(document.getElementById('ineligSearch')||{}).value||'';
   q=q.toLowerCase();
-  var inelig=getLeads().filter(function(l){return!isEligible(l);}).filter(function(l){
-    return !q||(l.prenom+' '+l.nom+' '+l.telephone+' '+l.cp).toLowerCase().indexOf(q)>-1;
+  var list=allLeads.filter(function(l){return!isEligible(l);}).filter(function(l){
+    return!q||(l.prenom+' '+l.nom+' '+l.telephone).toLowerCase().indexOf(q)>-1;
   });
-  var el=document.getElementById('ineligList');
-  el.innerHTML=inelig.length?inelig.map(ineligCard).join(''):
+  document.getElementById('ineligList').innerHTML=list.length?list.map(ineligCard).join(''):
     '<div class="empty"><div class="ico">✅</div><p>Aucun lead non éligible</p></div>';
 }
 
-/* ── LEAD CARD ── */
+/* ── CARDS ── */
 function leadCard(l){
   var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
   var status=l.status||'nouveau';
-  var uid='u'+l.id;
+  var uid='u'+String(l._fbKey||l.id).replace(/[^a-z0-9]/gi,'');
   var isPAC=String(l.projet||'').indexOf('PAC')>-1;
-  return '<div class="card" id="card_'+esc(l.id)+'">'
+  return '<div class="card">'
     +'<div class="card-top">'
     +'<div class="ct-left">'
     +'<div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
@@ -349,13 +392,13 @@ function leadCard(l){
     +'<span class="tag">MPR: '+esc(l.anahMpr)+'</span>'
     +'</div>'
     +'<div class="card-status">'
-    +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l.id)+'","'+uid+'")\'>'
+    +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l._fbKey)+'","'+uid+'")\'>'
     +Object.keys(STATUS_LBL).map(function(k){return'<option value="'+k+'"'+(status===k?' selected':'')+'>'+STATUS_LBL[k]+'</option>';}).join('')
     +'</select>'
-    +'<input class="comment-in'+(status==='rappeler'?' show':'')+'" id="com_'+uid+'" placeholder="Note / date de rappel…" value="'+esc(l.comment||'')+'" oninput=\'saveStatus("'+esc(l.id)+'","'+uid+'")\'/>'
+    +'<input class="comment-in'+(status==='rappeler'?' show':'')+'" id="com_'+uid+'" placeholder="Note / date de rappel…" value="'+esc(l.comment||'')+'" oninput=\'schedSave("'+esc(l._fbKey)+'","'+uid+'")\'/>'
     +'</div>'
     +'<div class="card-bot">'
-    +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l.id)+'")\'> 📋 Fiche</button>'
+    +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
     +'</div>'
     +'</div>';
@@ -363,91 +406,95 @@ function leadCard(l){
 
 function ineligCard(l){
   var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-  var isPAC=String(l.projet||'').indexOf('PAC')>-1;
-  return '<div class="card inelig" id="card_'+esc(l.id)+'">'
+  var uid='u'+String(l._fbKey||l.id).replace(/[^a-z0-9]/gi,'');
+  return '<div class="card inelig">'
     +'<div class="card-top">'
-    +'<div class="ct-left">'
-    +'<div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
+    +'<div class="ct-left"><div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
     +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
-    +'<div class="meta">'+date+' · CP '+esc(l.cp)+'</div>'
-    +'</div>'
+    +'<div class="meta">'+date+' · CP '+esc(l.cp)+'</div></div>'
     +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'—')+'</span>'
     +'</div>'
     +'<div class="reason-badge">❌ '+esc(ineligReason(l))+'</div>'
     +'<div class="card-tags">'
-    +'<span class="tag '+(isPAC?'tag-pac':'')+'">'+esc(l.projet)+'</span>'
+    +'<span class="tag">'+esc(l.projet)+'</span>'
     +(l.chauffage?'<span class="tag '+(l.chauffage==='Électrique'?'tag-ko':'')+'">'+esc(l.chauffage)+'</span>':'')
-    +'<span class="tag">'+esc(l.surface)+' m²</span>'
     +'<span class="tag">'+esc(l.statut)+'</span>'
     +'</div>'
     +'<div class="card-bot">'
-    +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l.id)+'")\'> 📋 Fiche</button>'
+    +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
-    +'<button class="cb-btn cb-transfer" onclick=\'transferLead("'+esc(l.id)+'")\'>↗ Transférer</button>'
+    +'<button class="cb-btn cb-transfer" onclick=\'transferLead("'+esc(l._fbKey)+'")\'>↗ Transférer</button>'
     +'</div>'
     +'</div>';
 }
 
-/* ── STATUS ── */
-function onStatusChange(id,uid){
+/* ── STATUS SAVE ── */
+function onStatusChange(fbKey,uid){
   var sel=document.getElementById('sel_'+uid);
-  var comIn=document.getElementById('com_'+uid);
-  if(comIn)comIn.classList.toggle('show',sel.value==='rappeler');
-  saveStatus(id,uid);
+  var com=document.getElementById('com_'+uid);
+  if(com)com.classList.toggle('show',sel.value==='rappeler');
+  schedSave(fbKey,uid);
 }
-function saveStatus(id,uid){
+function schedSave(fbKey,uid){
+  clearTimeout(saveTimers[uid]);
+  saveTimers[uid]=setTimeout(function(){saveStatus(fbKey,uid);},600);
+}
+function saveStatus(fbKey,uid){
   var sel=document.getElementById('sel_'+uid);
-  var comIn=document.getElementById('com_'+uid);
-  var leads=getLeads();
-  var l=leads.find(function(x){return x.id===id;});
-  if(l&&sel){l.status=sel.value;l.comment=comIn?comIn.value:'';}
-  savLeads(leads);
+  var com=document.getElementById('com_'+uid);
+  if(!sel)return;
+  var url=getFbUrl();
+  if(!url)return;
+  var patch={status:sel.value,comment:com?com.value:''};
+  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(){});
+  var l=allLeads.find(function(x){return x._fbKey===fbKey;});
+  if(l){l.status=sel.value;l.comment=com?com.value:'';}
   renderStats();
 }
-function transferLead(id){
-  var leads=getLeads();
-  var l=leads.find(function(x){return x.id===id;});
+function transferLead(fbKey){
+  var url=getFbUrl();
+  if(!url)return;
+  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({transferred:'oui',status:'nouveau'})}).catch(function(){});
+  var l=allLeads.find(function(x){return x._fbKey===fbKey;});
   if(l){l.transferred='oui';l.status='nouveau';}
-  savLeads(leads);
-  renderAll();
+  renderStats();renderLeads();renderInelig();
   showToast('Lead transféré dans Leads ✅');
 }
 
 /* ── DOSSIERS ── */
 function renderDossiers(){
   var q=(document.getElementById('dosSearch').value||'').toLowerCase();
-  var all=getDossiers().slice().reverse();
-  var list=q?all.filter(function(d){return(d.prenom+' '+d.nom+' '+d.telephone).toLowerCase().indexOf(q)>-1;}):all;
+  var list=allDossiers.slice().reverse();
+  if(q)list=list.filter(function(d){return(d.prenom+' '+d.nom+' '+d.telephone).toLowerCase().indexOf(q)>-1;});
   var el=document.getElementById('dosList');
   el.innerHTML=list.length?list.map(dosCard).join(''):
-    '<div class="empty"><div class="ico">📁</div><p>'+(q?'Aucun résultat':'Les dossiers apparaissent ici automatiquement<br>dès qu\'un email est envoyé depuis<br><strong>pac1euro.github.io/PAC-ISO</strong><br>(même appareil)')+'</p></div>';
+    '<div class="empty"><div class="ico">📁</div><p>'+(q?'Aucun résultat':'Les dossiers apparaissent ici automatiquement<br>à chaque envoi depuis <strong>pac1euro.github.io/PAC-ISO</strong>')+'</p></div>';
 }
 
 function dosCard(d){
   var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
   var coul=String(d.couleur||'').toLowerCase();
-  var pillCls='dos-pill cb-'+coul;
   var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€ RAC':'—');
   return '<div class="dos-card">'
-    +'<div class="dos-top">'
-    +'<div class="ct-left">'
-    +'<div class="name">'+esc(d.prenom)+' '+esc(d.nom)+'</div>'
-    +'<div class="phone">📞 '+esc(d.telephone)+'</div>'
+    +'<div class="dos-top" style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div>'
+    +'<div class="name" style="font-size:15px;font-weight:900;">'+esc(d.prenom)+' '+esc(d.nom)+'</div>'
+    +'<div class="phone" style="font-size:13px;color:#1a56db;font-weight:700;margin-top:2px;">📞 '+esc(d.telephone)+'</div>'
     +'<div class="dos-rac">💶 '+esc(rac)+'</div>'
     +'<div class="dos-meta">'+date+' · '+esc(d.dossier)+'</div>'
     +'</div>'
-    +'<span class="'+pillCls+'">'+esc(d.couleur||'—')+'</span>'
+    +'<span class="dos-pill cb-'+esc(coul)+'">'+esc(d.couleur||'—')+'</span>'
     +'</div>'
     +'<div class="card-bot">'
-    +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d.id)+'")\'> 📋 Voir dossier complet</button>'
+    +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d._fbKey)+'")\'> 📋 Voir dossier complet</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(d.telephone)+'">📞 Appeler</a>'
     +'</div>'
     +'</div>';
 }
 
-/* ── MODALS ── */
-function openLeadDetail(id){
-  var l=getLeads().find(function(x){return x.id===id;});
+/* ── DETAIL MODALS ── */
+function openLeadDetail(fbKey){
+  var l=allLeads.find(function(x){return x._fbKey===fbKey;});
   if(!l)return;
   document.getElementById('modalTitle').textContent=l.prenom+' '+l.nom;
   document.getElementById('modalBody').innerHTML=
@@ -461,7 +508,7 @@ function openLeadDetail(id){
     +row('Projet',l.projet)
     +row('Chauffage',l.chauffage)
     +row('Surface',l.surface?l.surface+' m²':'—')
-    +row('Année',l.annee)
+    +row('Année construction',l.annee)
     +row('Statut',l.statut)
     +'<div class="msec">💰 Foyer</div>'
     +row('Personnes',l.personnes)
@@ -469,7 +516,7 @@ function openLeadDetail(id){
     +'<div class="msec">🎯 ANAH</div>'
     +row('Catégorie',l.anahLab||l.anahColor)
     +row('MaPrimeRénov\'',l.anahMpr)
-    +row('Reste à charge',l.anahRac)
+    +row('Reste à charge estimé',l.anahRac)
     +row('Éligibilité',l.eligibilite||'—')
     +'<div class="msec">📋 Suivi</div>'
     +row('Statut',STATUS_LBL[l.status||'nouveau']||l.status)
@@ -478,8 +525,8 @@ function openLeadDetail(id){
   document.getElementById('detailModal').classList.add('show');
 }
 
-function openDosDetail(id){
-  var d=getDossiers().find(function(x){return x.id===id;});
+function openDosDetail(fbKey){
+  var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
   if(!d)return;
   document.getElementById('modalTitle').textContent=d.prenom+' '+d.nom;
   var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€':'—');
@@ -496,28 +543,10 @@ function openDosDetail(id){
     +row('Parts fiscales',d.parts)
     +row('Région',d.isIDF?'IDF':'Province')
     +row('Couleur ANAH',d.couleur)
-    +row('Département / Zone',d.dept+(d.zone?' — Zone '+d.zone:''));
-  if(d.dossier==='PAC'||d.dossier==='PAC+ISO'){
-    body+='<div class="msec">🔥 PAC Air/Eau</div>'
-      +row('Chauffage actuel',d.chauffage)
-      +row('Surface chauffée',d.surfPac?d.surfPac+' m²':'—')
-      +row('Compteur',d.compteur)
-      +row('ECS',d.ecs)
-      +row('VMC',d.vmc)
-      +row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'—'));
-  }
-  if(d.dossier==='ISO'||d.dossier==='PAC+ISO'){
-    body+='<div class="msec">🏠 Isolation</div>'
-      +row('Gestes',d.gestes)
-      +row('Surface ISO',d.surfIso?d.surfIso+' m²':'—')
-      +row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'—'));
-  }
-  body+='<div class="msec">📊 Résumé</div>'
-    +row('Dossier',d.dossier)
-    +row('RAC total',rac)
-    +(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')
-    +(d.codeReferent?row('Code référent',d.codeReferent):'')
-    +row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
+    +row('Dépt / Zone',d.dept+(d.zone?' — Zone '+d.zone:''));
+  if(d.dossier==='PAC'||d.dossier==='PAC+ISO')body+='<div class="msec">🔥 PAC Air/Eau</div>'+row('Chauffage actuel',d.chauffage)+row('Surface chauffée',d.surfPac?d.surfPac+' m²':'—')+row('Compteur',d.compteur)+row('ECS',d.ecs)+row('VMC',d.vmc)+row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'—'));
+  if(d.dossier==='ISO'||d.dossier==='PAC+ISO')body+='<div class="msec">🏠 Isolation</div>'+row('Gestes',d.gestes)+row('Surface ISO',d.surfIso?d.surfIso+' m²':'—')+row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'—'));
+  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
   document.getElementById('modalBody').innerHTML=body;
   document.getElementById('detailModal').classList.add('show');
 }
@@ -528,43 +557,16 @@ function closeModal(){document.getElementById('detailModal').classList.remove('s
 function setTab(tab){
   ['leads','inelig','dos'].forEach(function(t){
     document.getElementById('tb-'+t).classList.toggle('on',t===tab);
-    var sec=document.getElementById('sec'+(t==='leads'?'Leads':t==='inelig'?'Inelig':'Dos'));
-    sec.style.display=t===tab?'':'none';
+    document.getElementById('sec'+(t==='leads'?'Leads':t==='inelig'?'Inelig':'Dos')).style.display=t===tab?'':'none';
   });
-  if(tab==='leads')renderLeads();
   if(tab==='inelig')renderInelig();
   if(tab==='dos')renderDossiers();
+  if(tab==='leads')renderLeads();
 }
-function filterTab(tab,anah){
-  setTab(tab);
-  document.getElementById('fltAnah').value=anah;
-  renderLeads();
-}
-
-/* ── EXPORT ── */
-function exportData(){
-  var data={leads:getLeads(),dossiers:getDossiers(),exportDate:new Date().toISOString()};
-  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='pac-crm-'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
-}
-function clearConfirm(){
-  if(confirm('Supprimer TOUS les leads et dossiers ? Cette action est irréversible.')){
-    localStorage.removeItem(LEADS_KEY);
-    localStorage.removeItem(DOS_KEY);
-    renderAll();
-    showToast('Données effacées');
-  }
-}
+function filterTab(tab,anah){setTab(tab);document.getElementById('fltAnah').value=anah;renderLeads();}
 
 /* ── UTILS ── */
-function showToast(msg){
-  var t=document.getElementById('toast');
-  t.textContent=msg;t.classList.remove('hide');
-  setTimeout(function(){t.classList.add('hide');},2500);
-}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hide');setTimeout(function(){t.classList.add('hide');},2500);}
 function row(label,val){return'<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'—')+'</span></div>';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
