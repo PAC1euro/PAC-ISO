@@ -226,6 +226,15 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
   </div>
 
   <div id="ballonSection" style="display:none;">
+    <div class="slabel">Ancienneté de la VMC</div>
+    <div class="choices c2" id="cVmcAge">
+      <div class="choice" data-val="Ancienne" onclick="pick(this,'cVmcAge')">
+        <div class="chi">🕰️</div><div class="chl">Ancienne</div><div class="chs">+ de 10 ans</div>
+      </div>
+      <div class="choice" data-val="Récente" onclick="pick(this,'cVmcAge')">
+        <div class="chi">✨</div><div class="chl">Récente</div><div class="chs">- de 10 ans</div>
+      </div>
+    </div>
     <div class="slabel">Ballon thermodynamique</div>
     <div class="choices c2" id="cBallon">
       <div class="choice" data-val="Non" onclick="pick(this,'cBallon')">
@@ -253,6 +262,48 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
     <div class="choice" data-val="Locataire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🔑</div><div class="chl">Locataire</div><div class="chs"></div></div>
   </div>
   <div id="statutAlert"></div>
+
+  <div class="slabel">Aides énergétiques déjà perçues</div>
+  <div class="choices c2" id="cAides">
+    <div class="choice" data-val="Non" onclick="pick(this,'cAides');chkAides()">
+      <div class="chi">🙅</div><div class="chl">Non</div><div class="chs">Première demande</div>
+    </div>
+    <div class="choice" data-val="Oui" onclick="pick(this,'cAides');chkAides()">
+      <div class="chi">✅</div><div class="chl">Oui</div><div class="chs">J'en ai déjà bénéficié</div>
+    </div>
+  </div>
+  <div id="aidesDetailSection" style="display:none;">
+    <div class="slabel">Équipement déjà aidé</div>
+    <div class="choices c2" id="cAidesType">
+      <div class="choice" data-val="PAC" onclick="pick(this,'cAidesType')">
+        <div class="chi">🔥</div><div class="chl">PAC</div><div class="chs">Pompe à chaleur</div>
+      </div>
+      <div class="choice" data-val="Isolation" onclick="pick(this,'cAidesType')">
+        <div class="chi">🏠</div><div class="chl">Isolation</div><div class="chs">Combles, murs…</div>
+      </div>
+      <div class="choice" data-val="Chaudière" onclick="pick(this,'cAidesType')">
+        <div class="chi">🔵</div><div class="chl">Chaudière</div><div class="chs">Biomasse, gaz…</div>
+      </div>
+      <div class="choice" data-val="Autre" onclick="pick(this,'cAidesType')">
+        <div class="chi">❓</div><div class="chl">Autre</div><div class="chs">Autre équipement</div>
+      </div>
+    </div>
+    <div class="slabel">Il y a combien de temps ?</div>
+    <div class="choices c2" id="cAidesDelai">
+      <div class="choice" data-val="Moins d'1 an" onclick="pick(this,'cAidesDelai')">
+        <div class="chl" style="font-size:13px;">Moins d'1 an</div>
+      </div>
+      <div class="choice" data-val="1 à 3 ans" onclick="pick(this,'cAidesDelai')">
+        <div class="chl" style="font-size:13px;">1 à 3 ans</div>
+      </div>
+      <div class="choice" data-val="3 à 5 ans" onclick="pick(this,'cAidesDelai')">
+        <div class="chl" style="font-size:13px;">3 à 5 ans</div>
+      </div>
+      <div class="choice" data-val="Plus de 5 ans" onclick="pick(this,'cAidesDelai')">
+        <div class="chl" style="font-size:13px;">Plus de 5 ans</div>
+      </div>
+    </div>
+  </div>
 
   <div class="err" id="e2">⚠ Veuillez remplir toutes les informations.</div>
   <div class="brow">
@@ -401,7 +452,7 @@ function goToForm(){
   window.scrollTo(0,0);
 }
 
-var L={projet:'',chauffage:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',devis:'',devisAge:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
+var L={projet:'',chauffage:'',vmc:'',vmcAge:'',ballon:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',devis:'',devisAge:'',aidesAnterieures:'',aidesType:'',aidesDelai:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
 var cur=1;
 
 var ANAH={
@@ -476,7 +527,20 @@ function chkBallon(){
   var v=gSel('cVmc');
   var sec=document.getElementById('ballonSection');
   sec.style.display=v==='Oui'?'':'none';
-  if(v!=='Oui'){var all=document.querySelectorAll('#cBallon .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');}
+  if(v!=='Oui'){
+    ['#cBallon .choice','#cVmcAge .choice'].forEach(function(sel){
+      var els=document.querySelectorAll(sel);for(var i=0;i<els.length;i++)els[i].classList.remove('sel');
+    });
+  }
+}
+function chkAides(){
+  var v=gSel('cAides');
+  document.getElementById('aidesDetailSection').style.display=v==='Oui'?'':'none';
+  if(v!=='Oui'){
+    ['#cAidesType .choice','#cAidesDelai .choice'].forEach(function(sel){
+      var els=document.querySelectorAll(sel);for(var i=0;i<els.length;i++)els[i].classList.remove('sel');
+    });
+  }
 }
 function chkChauf(){
   var el=document.querySelector('#cChauf .sel');if(!el)return;
@@ -533,7 +597,11 @@ function goNext(s){
     if(gSel('cStatut')==='Propriétaire appartement'){g('e2').classList.add('show');g('e2').textContent='❌ Les propriétaires d\'appartement ne sont pas éligibles à la PAC Air/Eau.';return;}
     L.chauffage=gSel('cChauf')||'—';
     L.vmc=gSel('cVmc')||'Non';
+    L.vmcAge=gSel('cVmc')==='Oui'?(gSel('cVmcAge')||'—'):'—';
     L.ballon=gSel('cVmc')==='Oui'?(gSel('cBallon')||'Non'):'—';
+    L.aidesAnterieures=gSel('cAides')||'Non';
+    L.aidesType=gSel('cAides')==='Oui'?(gSel('cAidesType')||'—'):'—';
+    L.aidesDelai=gSel('cAides')==='Oui'?(gSel('cAidesDelai')||'—'):'—';
     L.surface=gv('surface');
     L.annee=gv('annee');
     L.statut=gSel('cStatut');
@@ -570,7 +638,7 @@ function submit(){
   var date=new Date().toLocaleString('fr-FR');
   var zone=getZone(L.cp);
   var anah=getAnahColor();
-  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,vmc:L.vmc,ballon:L.ballon,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,status:'nouveau',comment:''};
+  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,vmc:L.vmc,vmcAge:L.vmcAge,ballon:L.ballon,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,aidesAnterieures:L.aidesAnterieures,aidesType:L.aidesType,aidesDelai:L.aidesDelai,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,status:'nouveau',comment:''};
   var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');
   if(_fb){fetch(_fb.replace(/\/$/,'')+'/leads.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(leadObj)}).catch(function(){});}
   var adminLink='https://pac1euro.github.io/PAC-ISO/crm.html?import='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
