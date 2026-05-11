@@ -215,6 +215,28 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
     <div id="chaufAlert"></div>
   </div>
 
+  <div class="slabel">VMC (ventilation mécanique)</div>
+  <div class="choices c2" id="cVmc">
+    <div class="choice" data-val="Non" onclick="pick(this,'cVmc');chkBallon()">
+      <div class="chi">🔇</div><div class="chl">Non</div><div class="chs">Pas de VMC</div>
+    </div>
+    <div class="choice" data-val="Oui" onclick="pick(this,'cVmc');chkBallon()">
+      <div class="chi">💨</div><div class="chl">Oui</div><div class="chs">J'ai une VMC</div>
+    </div>
+  </div>
+
+  <div id="ballonSection" style="display:none;">
+    <div class="slabel">Ballon thermodynamique</div>
+    <div class="choices c2" id="cBallon">
+      <div class="choice" data-val="Non" onclick="pick(this,'cBallon')">
+        <div class="chi">❌</div><div class="chl">Non</div><div class="chs">Pas de ballon</div>
+      </div>
+      <div class="choice" data-val="Oui" onclick="pick(this,'cBallon')">
+        <div class="chi">♨️</div><div class="chl">Oui</div><div class="chs">J'en ai un</div>
+      </div>
+    </div>
+  </div>
+
   <div class="slabel">Votre logement</div>
   <label class="flabel">Surface habitable (m²)</label>
   <input type="number" id="surface" placeholder="Ex : 100" min="10" oninput="chkSurf()"/>
@@ -450,6 +472,12 @@ function show(n){
   window.scrollTo(0,0);
 }
 
+function chkBallon(){
+  var v=gSel('cVmc');
+  var sec=document.getElementById('ballonSection');
+  sec.style.display=v==='Oui'?'':'none';
+  if(v!=='Oui'){var all=document.querySelectorAll('#cBallon .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');}
+}
 function chkChauf(){
   var el=document.querySelector('#cChauf .sel');if(!el)return;
   var ok=el.getAttribute('data-ok')==='1';
@@ -504,6 +532,8 @@ function goNext(s){
     if(gSel('cStatut')==='Locataire'){g('e2').classList.add('show');g('e2').textContent='❌ Les locataires ne sont pas éligibles aux aides MaPrimeRénov\' et CEE.';return;}
     if(gSel('cStatut')==='Propriétaire appartement'){g('e2').classList.add('show');g('e2').textContent='❌ Les propriétaires d\'appartement ne sont pas éligibles à la PAC Air/Eau.';return;}
     L.chauffage=gSel('cChauf')||'—';
+    L.vmc=gSel('cVmc')||'Non';
+    L.ballon=gSel('cVmc')==='Oui'?(gSel('cBallon')||'Non'):'—';
     L.surface=gv('surface');
     L.annee=gv('annee');
     L.statut=gSel('cStatut');
@@ -540,7 +570,7 @@ function submit(){
   var date=new Date().toLocaleString('fr-FR');
   var zone=getZone(L.cp);
   var anah=getAnahColor();
-  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,status:'nouveau',comment:''};
+  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,vmc:L.vmc,ballon:L.ballon,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,status:'nouveau',comment:''};
   var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');
   if(_fb){fetch(_fb.replace(/\/$/,'')+'/leads.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(leadObj)}).catch(function(){});}
   var adminLink='https://pac1euro.github.io/PAC-ISO/crm.html?import='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
