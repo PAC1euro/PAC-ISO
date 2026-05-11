@@ -83,12 +83,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .cb-detail{background:#f0fdf4;color:#166534;}
 .cb-call{background:#dcfce7;color:#166534;}
 .cb-transfer{background:#dbeafe;color:#1e3a8a;}
+.cb-inelig{background:#fee2e2;color:#991b1b;}
 .reason-badge{margin:0 13px 8px;background:#fee2e2;color:#991b1b;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;}
 
 .dos-card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
 .dos-top{padding:12px 13px 8px;}
 .dos-rac{font-size:15px;font-weight:900;color:#dc2626;margin-top:3px;}
-.dos-meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.dos-meta{font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.5;}
 .dos-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;}
 .cb-bleu{background:#dbeafe;color:#1e3a8a;}
 .cb-jaune{background:#fef9c3;color:#713f12;}
@@ -126,6 +127,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:100;transition:opacity .3s;pointer-events:none;}
 .toast.hide{opacity:0;}
+
+.leads-section{margin-bottom:2px;}
+.leads-section-rejet{margin-top:20px;border-top:2px dashed #fca5a5;padding-top:6px;}
+.leads-sec-hdr{padding:9px 14px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;display:flex;align-items:center;justify-content:space-between;}
+.sec-count{background:rgba(0,0,0,.12);border-radius:20px;padding:1px 9px;font-size:12px;font-weight:900;}
+.sec-nouveau{background:#dcfce7;color:#166534;}
+.sec-messagerie{background:#ede9fe;color:#4c1d95;}
+.sec-rappeler{background:#fef9c3;color:#713f12;}
+.sec-appele{background:#dbeafe;color:#1e3a8a;}
+.sec-rejet{background:#fee2e2;color:#991b1b;}
+
+.dos-status-sel{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;padding:7px 10px;font-family:inherit;cursor:pointer;margin-bottom:0;}
+.dos-status-sel:focus{outline:none;border-color:#16a34a;}
+select.edit-in{cursor:pointer;background:#f8fafc;}
+.iq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.tag-dos{background:#dcfce7;color:#166534;}
+.cb-dos{background:#f0fdf4;color:#166534;}
+.edit-row{margin-bottom:10px;}
+.edit-row label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+.edit-in{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;padding:8px 10px;font-family:inherit;}
+.edit-in:focus{outline:none;border-color:#16a34a;}
+textarea.edit-in{resize:vertical;min-height:70px;}
 </style>
 </head>
 <body>
@@ -178,7 +201,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
         <option value="">Toutes catégories</option>
         <option value="bleu">🔵 Bleu</option>
         <option value="jaune">🟡 Jaune</option>
-        <option value="violet">🟣 Violet</option>
+        <option value="violet">🟪 Violet</option>
         <option value="orange">🟠 Orange</option>
       </select>
       <select class="fsel" id="fltStatus" onchange="renderLeads()">
@@ -204,8 +227,39 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
   <div id="secDos" style="display:none">
     <div class="filt-row">
       <input class="finput" id="dosSearch" placeholder="🔍 Nom ou téléphone…" oninput="renderDossiers()"/>
+      <select class="fsel" id="fltDosStatus" onchange="renderDossiers()">
+        <option value="">Tous les dossiers</option>
+        <option value="montage">📋 En montage</option>
+        <option value="traitement">📤 En traitement</option>
+        <option value="installe">🏠 Installé</option>
+        <option value="abandonne">❌ Abandonné</option>
+      </select>
     </div>
     <div id="dosList" class="list"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="dosEditModal" onclick="if(event.target===this)closeDosEdit()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="dosEditTitle">Modifier le dossier</h3>
+      <button class="modal-close" onclick="closeDosEdit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msec">💰 Déclaration fiscale</div>
+      <div class="edit-row"><label>RFR (Revenu Fiscal de Référence)</label><input class="edit-in" id="eDosRfr" type="number" placeholder="Ex: 18000"/></div>
+      <div class="edit-row"><label>Parts fiscales</label><input class="edit-in" id="eDosParts" type="text" placeholder="Ex: 2.5"/></div>
+      <div class="edit-row"><label>N° déclarant fiscal</label><input class="edit-in" id="eDosNumDecl" type="text" placeholder="Numéro fiscal"/></div>
+      <div class="msec">📞 Contact</div>
+      <div class="edit-row"><label>Téléphone</label><input class="edit-in" id="eDosTel" type="tel"/></div>
+      <div class="edit-row"><label>Email</label><input class="edit-in" id="eDosEmail" type="email"/></div>
+      <div class="msec">📝 Notes</div>
+      <div class="edit-row"><textarea class="edit-in" id="eDosNotes" placeholder="Infos complémentaires, remarques…"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="cfg-cancel" onclick="closeDosEdit()">Annuler</button>
+        <button class="cfg-save" onclick="saveDosEdit()">💾 Enregistrer</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -250,9 +304,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 var PIN='1234';
 var FB_KEY='pac_firebase_url';
 var STATUS_LBL={nouveau:'🆕 Nouveau',appele:'✅ Appelé',messagerie:'📩 Messagerie laissée',rac:'💰 Trop de RAC',pasinteresse:'❌ Pas intéressé',rappeler:'🔄 À rappeler'};
-var allLeads=[], allDossiers=[], saveTimers={};
+var DOS_STATUS={montage:'📋 En montage',traitement:'📤 En traitement',installe:'🏠 Installé',abandonne:'❌ Abandonné'};
+var allLeads=[], allDossiers=[], saveTimers={}, currentDosEditKey=null;
 
-/* ── CONFIG ── */
 function getFbUrl(){return localStorage.getItem(FB_KEY)||'';}
 function openCfg(){document.getElementById('cfgUrl').value=getFbUrl();document.getElementById('cfgModal').classList.add('show');}
 function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
@@ -263,7 +317,6 @@ function saveCfg(){
   loadAll();
 }
 
-/* ── AUTH ── */
 function doLogin(){
   if(document.getElementById('pinInput').value===PIN){
     document.getElementById('loginBg').style.display='none';
@@ -276,7 +329,6 @@ function doLogin(){
 }
 document.getElementById('pinInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
-/* ── DATA ── */
 function loadAll(){
   var url=getFbUrl();
   if(!url){
@@ -304,28 +356,27 @@ function fbObjToArr(obj){
 }
 function setSync(t){document.getElementById('hdrSync').textContent=t;}
 
-/* ── ELIGIBILITY ── */
 function isEligible(l){
   if(l.transferred==='oui')return true;
+  if(l.manualInelig===true||l.manualInelig==='true')return false;
   if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)return false;
-  if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)return false;
+  if(String(l.chauffage||'')==='Electrique'&&String(l.projet||'').indexOf('PAC')>-1)return false;
   return true;
 }
 function ineligReason(l){
   var r=[];
+  if(l.manualInelig===true||l.manualInelig==='true')r.push('Déplacé manuellement');
   if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)r.push('Locataire');
-  if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)r.push('Chauffage électrique + PAC');
+  if(String(l.chauffage||'')==='Electrique'&&String(l.projet||'').indexOf('PAC')>-1)r.push('Chauffage électrique + PAC');
   return r.join(' · ')||'Non éligible';
 }
 
-/* ── SORT ── */
 function leadScore(l){
   var ps={PAC:4,'PAC Air/Eau':4,'PAC + Isolation':4,'PAC Air/Air':3,Isolation:2}[l.projet]||1;
   var as={bleu:4,jaune:3,violet:2,orange:1}[String(l.anahColor||'')]||1;
   return ps*10+as;
 }
 
-/* ── STATS ── */
 function renderStats(){
   var elig=allLeads.filter(isEligible);
   var inelig=allLeads.filter(function(l){return!isEligible(l);});
@@ -342,21 +393,45 @@ function renderStats(){
   if(allDossiers.length){bd.textContent=allDossiers.length;bd.style.display='';}else{bd.style.display='none';}
 }
 
-/* ── LEADS ── */
 function renderLeads(){
   var q=(document.getElementById('leadsSearch').value||'').toLowerCase();
   var fa=document.getElementById('fltAnah').value;
   var fs=document.getElementById('fltStatus').value;
   var list=allLeads.filter(isEligible).filter(function(l){
     if(fa&&l.anahColor!==fa)return false;
-    if(fs&&(l.status||'nouveau')!==fs)return false;
     if(q&&(l.prenom+' '+l.nom+' '+l.telephone+' '+l.cp).toLowerCase().indexOf(q)===-1)return false;
     return true;
   });
   list.sort(function(a,b){return leadScore(b)-leadScore(a);});
   var el=document.getElementById('leadsList');
-  el.innerHTML=list.length?list.map(leadCard).join(''):
-    '<div class="empty"><div class="ico">🎯</div><p>Aucun lead pour l\'instant.<br>Ils apparaissent <strong>automatiquement</strong><br>dès qu\'un formulaire est envoyé.</p></div>';
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="ico">🎯</div><p>Aucun lead pour l\'instant.<br>Ils apparaissent <strong>automatiquement</strong><br>dès qu\'un formulaire est envoyé.</p></div>';
+    return;
+  }
+  if(fs){
+    var filt=list.filter(function(l){return(l.status||'nouveau')===fs;});
+    el.innerHTML=filt.length?filt.map(leadCard).join(''):'<div class="empty"><div class="ico">🔍</div><p>Aucun lead avec ce statut.</p></div>';
+    return;
+  }
+  var grps=[
+    {key:'nouveau',label:'🆕 Nouveaux',cls:'sec-nouveau'},
+    {key:'messagerie',label:'📩 Messagerie laissée',cls:'sec-messagerie'},
+    {key:'rappeler',label:'🔄 À rappeler',cls:'sec-rappeler'},
+    {key:'appele',label:'✅ Appelés',cls:'sec-appele'},
+    {key:'__rejet',label:'❌ Pas intéressé / 💰 Trop de RAC',cls:'sec-rejet'}
+  ];
+  var gd={nouveau:[],messagerie:[],rappeler:[],appele:[],__rejet:[]};
+  list.forEach(function(l){
+    var s=l.status||'nouveau';
+    if(s==='pasinteresse'||s==='rac')gd.__rejet.push(l);
+    else if(gd[s])gd[s].push(l);
+    else gd.nouveau.push(l);
+  });
+  el.innerHTML=grps.filter(function(g){return gd[g.key].length;}).map(function(g){
+    return '<div class="leads-section'+(g.key==='__rejet'?' leads-section-rejet':'')+'">'
+      +'<div class="leads-sec-hdr '+g.cls+'">'+g.label+'<span class="sec-count">'+gd[g.key].length+'</span></div>'
+      +gd[g.key].map(leadCard).join('')+'</div>';
+  }).join('');
 }
 
 function renderInelig(){
@@ -369,9 +444,8 @@ function renderInelig(){
     '<div class="empty"><div class="ico">✅</div><p>Aucun lead non éligible</p></div>';
 }
 
-/* ── CARDS ── */
 function leadCard(l){
-  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'--';
   var status=l.status||'nouveau';
   var uid='u'+String(l._fbKey||l.id).replace(/[^a-z0-9]/gi,'');
   var isPAC=String(l.projet||'').indexOf('PAC')>-1;
@@ -382,37 +456,42 @@ function leadCard(l){
     +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
     +'<div class="meta">'+date+' · CP '+esc(l.cp)+' · Zone '+esc(l.zone)+'</div>'
     +'</div>'
-    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'—')+'</span>'
+    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'--')+'</span>'
     +'</div>'
     +'<div class="card-tags">'
     +'<span class="tag '+(isPAC?'tag-pac':'')+'">'+esc(l.projet)+'</span>'
-    +(l.chauffage&&l.chauffage!=='—'?'<span class="tag '+(l.chauffage==='Électrique'?'tag-ko':'')+'">'+esc(l.chauffage)+'</span>':'')
+    +(l.chauffage&&l.chauffage!=='--'?'<span class="tag '+(l.chauffage==='Électrique'?'tag-ko':'')+'">'+esc(l.chauffage)+'</span>':'')
     +'<span class="tag">'+esc(l.surface)+' m²</span>'
     +'<span class="tag">'+esc(l.statut)+'</span>'
     +'<span class="tag">MPR: '+esc(l.anahMpr)+'</span>'
+    +(l.hasDossier?'<span class="tag tag-dos">📁 Dossier créé</span>':'')
     +'</div>'
     +'<div class="card-status">'
-    +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l._fbKey)+'","'+uid+'")\'>'
+    +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l._fbKey)+'","'+uid+'")\'>' 
     +Object.keys(STATUS_LBL).map(function(k){return'<option value="'+k+'"'+(status===k?' selected':'')+'>'+STATUS_LBL[k]+'</option>';}).join('')
     +'</select>'
-    +'<input class="comment-in'+(status==='rappeler'?' show':'')+'" id="com_'+uid+'" placeholder="Note / date de rappel…" value="'+esc(l.comment||'')+'" oninput=\'schedSave("'+esc(l._fbKey)+'","'+uid+'")\'/>'
+    +'<input class="comment-in'+(status==='rappeler'?' show':'')+' " id="com_'+uid+'" placeholder="Note / date de rappel…" value="'+esc(l.comment||'')+'" oninput=\'schedSave("'+esc(l._fbKey)+'","'+uid+'")\'/>'
     +'</div>'
     +'<div class="card-bot">'
     +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
+    +'<button class="cb-btn cb-inelig" onclick=\'moveToInelig("'+esc(l._fbKey)+'")\'>↙ Non élig.</button>'
+    +'</div>'
+    +'<div style="padding:0 13px 10px;">'
+    +'<button class="cb-btn cb-dos" style="width:100%;" onclick=\'openIntForm("'+esc(l._fbKey)+'")\'>📁 '+(l.hasDossier?'Créer un autre dossier':'Créer un dossier client →')+'</button>'
     +'</div>'
     +'</div>';
 }
 
 function ineligCard(l){
-  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'--';
   var uid='u'+String(l._fbKey||l.id).replace(/[^a-z0-9]/gi,'');
   return '<div class="card inelig">'
     +'<div class="card-top">'
     +'<div class="ct-left"><div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
     +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
     +'<div class="meta">'+date+' · CP '+esc(l.cp)+'</div></div>'
-    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'—')+'</span>'
+    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'--')+'</span>'
     +'</div>'
     +'<div class="reason-badge">❌ '+esc(ineligReason(l))+'</div>'
     +'<div class="card-tags">'
@@ -423,12 +502,11 @@ function ineligCard(l){
     +'<div class="card-bot">'
     +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
-    +'<button class="cb-btn cb-transfer" onclick=\'transferLead("'+esc(l._fbKey)+'")\'>↗ Transférer</button>'
+    +'<button class="cb-btn cb-transfer" onclick=\'transferLead("'+esc(l._fbKey)+'")\'> ↗ Transférer</button>'
     +'</div>'
     +'</div>';
 }
 
-/* ── STATUS SAVE ── */
 function onStatusChange(fbKey,uid){
   var sel=document.getElementById('sel_'+uid);
   var com=document.getElementById('com_'+uid);
@@ -454,45 +532,113 @@ function saveStatus(fbKey,uid){
 function transferLead(fbKey){
   var url=getFbUrl();
   if(!url)return;
-  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({transferred:'oui',status:'nouveau'})}).catch(function(){});
+  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({transferred:'oui',status:'nouveau',manualInelig:false})}).catch(function(){});
   var l=allLeads.find(function(x){return x._fbKey===fbKey;});
-  if(l){l.transferred='oui';l.status='nouveau';}
+  if(l){l.transferred='oui';l.status='nouveau';l.manualInelig=false;}
   renderStats();renderLeads();renderInelig();
   showToast('Lead transféré dans Leads ✅');
 }
+function moveToInelig(fbKey){
+  var url=getFbUrl();
+  if(!url)return;
+  fetch(url+'/leads/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({manualInelig:true,transferred:''})}).catch(function(){});
+  var l=allLeads.find(function(x){return x._fbKey===fbKey;});
+  if(l){l.manualInelig=true;l.transferred='';}
+  renderStats();renderLeads();renderInelig();
+  showToast('Lead déplacé vers Non éligible');
+}
+function openIntForm(fbKey){
+  var l=allLeads.find(function(x){return x._fbKey===fbKey;});
+  if(!l)return;
+  try{
+    var payload=JSON.parse(JSON.stringify(l));
+    var b64=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    window.open('index.html?lead='+b64,'_blank');
+  }catch(e){window.open('index.html','_blank');}
+}
+function editDossierForm(fbKey){
+  window.open('index.html?edit='+encodeURIComponent(fbKey),'_blank');
+}
 
-/* ── DOSSIERS ── */
+function onDosStatusChange(fbKey,uid){
+  var url=getFbUrl();if(!url)return;
+  var sel=document.getElementById('dss_'+uid);if(!sel)return;
+  fetch(url+'/dossiers/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({dosStatus:sel.value})}).catch(function(){});
+  var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
+  if(d)d.dosStatus=sel.value;
+}
+function openDosEdit(fbKey){
+  var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
+  if(!d)return;
+  currentDosEditKey=fbKey;
+  document.getElementById('dosEditTitle').textContent='✏️ '+d.prenom+' '+d.nom;
+  document.getElementById('eDosRfr').value=d.rfr||'';
+  document.getElementById('eDosParts').value=d.parts||'';
+  document.getElementById('eDosNumDecl').value=d.numDeclarant||'';
+  document.getElementById('eDosTel').value=d.telephone||'';
+  document.getElementById('eDosEmail').value=d.email||'';
+  document.getElementById('eDosNotes').value=d.notes||'';
+  document.getElementById('dosEditModal').classList.add('show');
+}
+function closeDosEdit(){document.getElementById('dosEditModal').classList.remove('show');}
+function saveDosEdit(){
+  var url=getFbUrl();if(!url||!currentDosEditKey)return;
+  var patch={
+    rfr:document.getElementById('eDosRfr').value,
+    parts:document.getElementById('eDosParts').value,
+    numDeclarant:document.getElementById('eDosNumDecl').value,
+    telephone:document.getElementById('eDosTel').value,
+    email:document.getElementById('eDosEmail').value,
+    notes:document.getElementById('eDosNotes').value
+  };
+  fetch(url+'/dossiers/'+currentDosEditKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(){});
+  var d=allDossiers.find(function(x){return x._fbKey===currentDosEditKey;});
+  if(d){d.rfr=patch.rfr;d.parts=patch.parts;d.numDeclarant=patch.numDeclarant;d.telephone=patch.telephone;d.email=patch.email;d.notes=patch.notes;}
+  closeDosEdit();renderDossiers();
+  showToast('Dossier mis à jour ✅');
+}
+
 function renderDossiers(){
   var q=(document.getElementById('dosSearch').value||'').toLowerCase();
+  var fs=document.getElementById('fltDosStatus').value;
   var list=allDossiers.slice().reverse();
   if(q)list=list.filter(function(d){return(d.prenom+' '+d.nom+' '+d.telephone).toLowerCase().indexOf(q)>-1;});
+  if(fs)list=list.filter(function(d){return(d.dosStatus||'montage')===fs;});
   var el=document.getElementById('dosList');
   el.innerHTML=list.length?list.map(dosCard).join(''):
-    '<div class="empty"><div class="ico">📁</div><p>'+(q?'Aucun résultat':'Les dossiers apparaissent ici automatiquement<br>à chaque envoi depuis <strong>pac1euro.github.io/PAC-ISO</strong>')+'</p></div>';
+    '<div class="empty"><div class="ico">📁</div><p>'+(q||fs?'Aucun résultat':'Les dossiers apparaissent ici automatiquement<br>à chaque envoi depuis <strong>pac1euro.github.io/PAC-ISO</strong>')+'</p></div>';
 }
 
 function dosCard(d){
-  var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'--';
   var coul=String(d.couleur||'').toLowerCase();
-  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€ RAC':'—');
-  return '<div class="dos-card">'
+  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€ RAC':'--');
+  var ds=d.dosStatus||'montage';
+  var uid='d'+String(d._fbKey||'').replace(/[^a-z0-9]/gi,'');
+  var borderClr={montage:'#93c5fd',traitement:'#fcd34d',installe:'#86efac',abandonne:'#fca5a5'}[ds]||'#e2e8f0';
+  return '<div class="dos-card" style="border-color:'+borderClr+';">' 
     +'<div class="dos-top" style="display:flex;justify-content:space-between;align-items:flex-start;">'
     +'<div>'
     +'<div class="name" style="font-size:15px;font-weight:900;">'+esc(d.prenom)+' '+esc(d.nom)+'</div>'
     +'<div class="phone" style="font-size:13px;color:#1a56db;font-weight:700;margin-top:2px;">📞 '+esc(d.telephone)+'</div>'
     +'<div class="dos-rac">💶 '+esc(rac)+'</div>'
-    +'<div class="dos-meta">'+date+' · '+esc(d.dossier)+'</div>'
+    +'<div class="dos-meta">'+date+' · '+esc(d.dossier)+(d.notes?'<br>📝 '+esc(d.notes):'')+'</div>'
     +'</div>'
-    +'<span class="dos-pill cb-'+esc(coul)+'">'+esc(d.couleur||'—')+'</span>'
+    +'<span class="dos-pill cb-'+esc(coul)+'">'+esc(d.couleur||'--')+'</span>'
+    +'</div>'
+    +'<div style="padding:0 13px 8px;">'
+    +'<select class="dos-status-sel" id="dss_'+uid+'" onchange=\'onDosStatusChange("'+esc(d._fbKey)+'","'+uid+'")\'>' 
+    +Object.keys(DOS_STATUS).map(function(k){return'<option value="'+k+'"'+(ds===k?' selected':'')+'>'+DOS_STATUS[k]+'</option>';}).join('')
+    +'</select>'
     +'</div>'
     +'<div class="card-bot">'
-    +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d._fbKey)+'")\'> 📋 Voir dossier complet</button>'
+    +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d._fbKey)+'")\'> 📋 Résumé</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(d.telephone)+'">📞 Appeler</a>'
+    +'<button class="cb-btn" style="background:#f0fdf4;color:#166534;" onclick=\'editDossierForm("'+esc(d._fbKey)+'")\'>📝 Fiche complète</button>'
     +'</div>'
     +'</div>';
 }
 
-/* ── DETAIL MODALS ── */
 function openLeadDetail(fbKey){
   var l=allLeads.find(function(x){return x._fbKey===fbKey;});
   if(!l)return;
@@ -501,27 +647,30 @@ function openLeadDetail(fbKey){
     '<div class="msec">📞 Contact</div>'
     +row('Nom / Prénom',l.prenom+' '+l.nom)
     +row('Téléphone','<a href="tel:'+esc(l.telephone)+'">'+esc(l.telephone)+'</a>')
-    +row('Email',l.email||'—')
+    +row('Email',l.email||'--')
     +row('Code postal',l.cp)
     +row('Zone',l.zone)
     +'<div class="msec">🏡 Logement</div>'
     +row('Projet',l.projet)
     +row('Chauffage',l.chauffage)
-    +row('Surface',l.surface?l.surface+' m²':'—')
+    +row('VMC',l.vmc+(l.vmcAge&&l.vmcAge!=='--'?' -- '+l.vmcAge:''))
+    +row('Ballon thermodynamique',l.ballon)
+    +row('Surface',l.surface?l.surface+' m²':'--')
     +row('Année construction',l.annee)
     +row('Statut',l.statut)
     +'<div class="msec">💰 Foyer</div>'
     +row('Personnes',l.personnes)
     +row('Revenus',l.revenus)
+    +(l.aidesAnterieures&&l.aidesAnterieures!=='Non'?'<div class="msec">🎁 Aides antérieures</div>'+row('Déjà aidé',l.aidesAnterieures)+row('Équipement',l.aidesType)+row('Il y a',l.aidesDelai):'')
     +'<div class="msec">🎯 ANAH</div>'
     +row('Catégorie',l.anahLab||l.anahColor)
     +row('MaPrimeRénov\'',l.anahMpr)
     +row('Reste à charge estimé',l.anahRac)
-    +row('Éligibilité',l.eligibilite||'—')
+    +row('Éligibilité',l.eligibilite||'--')
     +'<div class="msec">📋 Suivi</div>'
     +row('Statut',STATUS_LBL[l.status||'nouveau']||l.status)
     +(l.comment?row('Note',l.comment):'')
-    +row('Date',l.formDate?new Date(l.formDate).toLocaleString('fr-FR'):'—');
+    +row('Date',l.formDate?new Date(l.formDate).toLocaleString('fr-FR'):'--');
   document.getElementById('detailModal').classList.add('show');
 }
 
@@ -529,7 +678,7 @@ function openDosDetail(fbKey){
   var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
   if(!d)return;
   document.getElementById('modalTitle').textContent=d.prenom+' '+d.nom;
-  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€':'—');
+  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€':'--');
   var body='<div class="msec">👤 Client</div>'
     +row('Nom / Prénom',d.prenom+' '+d.nom)
     +row('Date de naissance',d.dateNaissance)
@@ -539,21 +688,20 @@ function openDosDetail(fbKey){
     +(d.anneeConstruction?row('Année construction',d.anneeConstruction):'')
     +'<div class="msec">💰 Déclaration fiscale</div>'
     +row('N° déclarant',d.numDeclarant)
-    +row('RFR',d.rfr?Number(d.rfr).toLocaleString('fr-FR')+'€':'—')
+    +row('RFR',d.rfr?Number(d.rfr).toLocaleString('fr-FR')+'€':'--')
     +row('Parts fiscales',d.parts)
     +row('Région',d.isIDF?'IDF':'Province')
     +row('Couleur ANAH',d.couleur)
-    +row('Dépt / Zone',d.dept+(d.zone?' — Zone '+d.zone:''));
-  if(d.dossier==='PAC'||d.dossier==='PAC+ISO')body+='<div class="msec">🔥 PAC Air/Eau</div>'+row('Chauffage actuel',d.chauffage)+row('Surface chauffée',d.surfPac?d.surfPac+' m²':'—')+row('Compteur',d.compteur)+row('ECS',d.ecs)+row('VMC',d.vmc)+row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'—'));
-  if(d.dossier==='ISO'||d.dossier==='PAC+ISO')body+='<div class="msec">🏠 Isolation</div>'+row('Gestes',d.gestes)+row('Surface ISO',d.surfIso?d.surfIso+' m²':'—')+row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'—'));
-  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
+    +row('Dépt / Zone',d.dept+(d.zone?' -- Zone '+d.zone:''));
+  if(d.dossier==='PAC'||d.dossier==='PAC+ISO')body+='<div class="msec">🔥 PAC Air/Eau</div>'+row('Chauffage actuel',d.chauffage)+row('Surface chauffée',d.surfPac?d.surfPac+' m²':'--')+row('Compteur',d.compteur)+row('ECS',d.ecs)+row('VMC',d.vmc)+row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'--'));
+  if(d.dossier==='ISO'||d.dossier==='PAC+ISO')body+='<div class="msec">🏠 Isolation</div>'+row('Gestes',d.gestes)+row('Surface ISO',d.surfIso?d.surfIso+' m²':'--')+row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'--'));
+  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Statut',DOS_STATUS[d.dosStatus||'montage']||d.dosStatus)+(d.notes?row('Notes',d.notes):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'--');
   document.getElementById('modalBody').innerHTML=body;
   document.getElementById('detailModal').classList.add('show');
 }
 
 function closeModal(){document.getElementById('detailModal').classList.remove('show');}
 
-/* ── TABS ── */
 function setTab(tab){
   ['leads','inelig','dos'].forEach(function(t){
     document.getElementById('tb-'+t).classList.toggle('on',t===tab);
@@ -565,9 +713,8 @@ function setTab(tab){
 }
 function filterTab(tab,anah){setTab(tab);document.getElementById('fltAnah').value=anah;renderLeads();}
 
-/* ── UTILS ── */
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hide');setTimeout(function(){t.classList.add('hide');},2500);}
-function row(label,val){return'<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'—')+'</span></div>';}
+function row(label,val){return'<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'--')+'</span></div>';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
