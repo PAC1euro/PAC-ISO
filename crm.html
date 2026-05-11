@@ -89,7 +89,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .dos-card{background:#fff;border:2px solid #e2e8f0;border-radius:14px;margin:8px 12px;overflow:hidden;}
 .dos-top{padding:12px 13px 8px;}
 .dos-rac{font-size:15px;font-weight:900;color:#dc2626;margin-top:3px;}
-.dos-meta{font-size:10px;color:#94a3b8;margin-top:2px;}
+.dos-meta{font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.5;}
 .dos-pill{border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;}
 .cb-bleu{background:#dbeafe;color:#1e3a8a;}
 .cb-jaune{background:#fef9c3;color:#713f12;}
@@ -137,6 +137,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 .sec-rappeler{background:#fef9c3;color:#713f12;}
 .sec-appele{background:#dbeafe;color:#1e3a8a;}
 .sec-rejet{background:#fee2e2;color:#991b1b;}
+
+.dos-status-sel{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;padding:7px 10px;font-family:inherit;cursor:pointer;margin-bottom:0;}
+.dos-status-sel:focus{outline:none;border-color:#16a34a;}
+.edit-row{margin-bottom:10px;}
+.edit-row label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+.edit-in{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;padding:8px 10px;font-family:inherit;}
+.edit-in:focus{outline:none;border-color:#16a34a;}
+textarea.edit-in{resize:vertical;min-height:70px;}
 </style>
 </head>
 <body>
@@ -215,8 +223,39 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
   <div id="secDos" style="display:none">
     <div class="filt-row">
       <input class="finput" id="dosSearch" placeholder="🔍 Nom ou téléphone…" oninput="renderDossiers()"/>
+      <select class="fsel" id="fltDosStatus" onchange="renderDossiers()">
+        <option value="">Tous les dossiers</option>
+        <option value="montage">📋 En montage</option>
+        <option value="traitement">📤 En traitement</option>
+        <option value="installe">🏠 Installé</option>
+        <option value="abandonne">❌ Abandonné</option>
+      </select>
     </div>
     <div id="dosList" class="list"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="dosEditModal" onclick="if(event.target===this)closeDosEdit()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="dosEditTitle">Modifier le dossier</h3>
+      <button class="modal-close" onclick="closeDosEdit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msec">💰 Déclaration fiscale</div>
+      <div class="edit-row"><label>RFR (Revenu Fiscal de Référence)</label><input class="edit-in" id="eDosRfr" type="number" placeholder="Ex: 18000"/></div>
+      <div class="edit-row"><label>Parts fiscales</label><input class="edit-in" id="eDosParts" type="text" placeholder="Ex: 2.5"/></div>
+      <div class="edit-row"><label>N° déclarant fiscal</label><input class="edit-in" id="eDosNumDecl" type="text" placeholder="Numéro fiscal"/></div>
+      <div class="msec">📞 Contact</div>
+      <div class="edit-row"><label>Téléphone</label><input class="edit-in" id="eDosTel" type="tel"/></div>
+      <div class="edit-row"><label>Email</label><input class="edit-in" id="eDosEmail" type="email"/></div>
+      <div class="msec">📝 Notes</div>
+      <div class="edit-row"><textarea class="edit-in" id="eDosNotes" placeholder="Infos complémentaires, remarques…"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="cfg-cancel" onclick="closeDosEdit()">Annuler</button>
+        <button class="cfg-save" onclick="saveDosEdit()">💾 Enregistrer</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -261,7 +300,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;mi
 var PIN='1234';
 var FB_KEY='pac_firebase_url';
 var STATUS_LBL={nouveau:'🆕 Nouveau',appele:'✅ Appelé',messagerie:'📩 Messagerie laissée',rac:'💰 Trop de RAC',pasinteresse:'❌ Pas intéressé',rappeler:'🔄 À rappeler'};
-var allLeads=[], allDossiers=[], saveTimers={};
+var DOS_STATUS={montage:'📋 En montage',traitement:'📤 En traitement',installe:'🏠 Installé',abandonne:'❌ Abandonné'};
+var allLeads=[], allDossiers=[], saveTimers={}, currentDosEditKey=null;
 
 function getFbUrl(){return localStorage.getItem(FB_KEY)||'';}
 function openCfg(){document.getElementById('cfgUrl').value=getFbUrl();document.getElementById('cfgModal').classList.add('show');}
@@ -500,32 +540,81 @@ function moveToInelig(fbKey){
   showToast('Lead déplacé vers Non éligible');
 }
 
+function onDosStatusChange(fbKey,uid){
+  var url=getFbUrl();if(!url)return;
+  var sel=document.getElementById('dss_'+uid);if(!sel)return;
+  fetch(url+'/dossiers/'+fbKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({dosStatus:sel.value})}).catch(function(){});
+  var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
+  if(d)d.dosStatus=sel.value;
+}
+function openDosEdit(fbKey){
+  var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
+  if(!d)return;
+  currentDosEditKey=fbKey;
+  document.getElementById('dosEditTitle').textContent='✏️ '+d.prenom+' '+d.nom;
+  document.getElementById('eDosRfr').value=d.rfr||'';
+  document.getElementById('eDosParts').value=d.parts||'';
+  document.getElementById('eDosNumDecl').value=d.numDeclarant||'';
+  document.getElementById('eDosTel').value=d.telephone||'';
+  document.getElementById('eDosEmail').value=d.email||'';
+  document.getElementById('eDosNotes').value=d.notes||'';
+  document.getElementById('dosEditModal').classList.add('show');
+}
+function closeDosEdit(){document.getElementById('dosEditModal').classList.remove('show');}
+function saveDosEdit(){
+  var url=getFbUrl();if(!url||!currentDosEditKey)return;
+  var patch={
+    rfr:document.getElementById('eDosRfr').value,
+    parts:document.getElementById('eDosParts').value,
+    numDeclarant:document.getElementById('eDosNumDecl').value,
+    telephone:document.getElementById('eDosTel').value,
+    email:document.getElementById('eDosEmail').value,
+    notes:document.getElementById('eDosNotes').value
+  };
+  fetch(url+'/dossiers/'+currentDosEditKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(){});
+  var d=allDossiers.find(function(x){return x._fbKey===currentDosEditKey;});
+  if(d){d.rfr=patch.rfr;d.parts=patch.parts;d.numDeclarant=patch.numDeclarant;d.telephone=patch.telephone;d.email=patch.email;d.notes=patch.notes;}
+  closeDosEdit();renderDossiers();
+  showToast('Dossier mis à jour ✅');
+}
+
 function renderDossiers(){
   var q=(document.getElementById('dosSearch').value||'').toLowerCase();
+  var fs=document.getElementById('fltDosStatus').value;
   var list=allDossiers.slice().reverse();
   if(q)list=list.filter(function(d){return(d.prenom+' '+d.nom+' '+d.telephone).toLowerCase().indexOf(q)>-1;});
+  if(fs)list=list.filter(function(d){return(d.dosStatus||'montage')===fs;});
   var el=document.getElementById('dosList');
   el.innerHTML=list.length?list.map(dosCard).join(''):
-    '<div class="empty"><div class="ico">📁</div><p>'+(q?'Aucun résultat':'Les dossiers apparaissent ici automatiquement<br>à chaque envoi depuis <strong>pac1euro.github.io/PAC-ISO</strong>')+'</p></div>';
+    '<div class="empty"><div class="ico">📁</div><p>'+(q||fs?'Aucun résultat':'Les dossiers apparaissent ici automatiquement<br>à chaque envoi depuis <strong>pac1euro.github.io/PAC-ISO</strong>')+'</p></div>';
 }
 
 function dosCard(d){
   var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
   var coul=String(d.couleur||'').toLowerCase();
   var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€ RAC':'—');
-  return '<div class="dos-card">'
+  var ds=d.dosStatus||'montage';
+  var uid='d'+String(d._fbKey||'').replace(/[^a-z0-9]/gi,'');
+  var borderClr={montage:'#93c5fd',traitement:'#fcd34d',installe:'#86efac',abandonne:'#fca5a5'}[ds]||'#e2e8f0';
+  return '<div class="dos-card" style="border-color:'+borderClr+';">' 
     +'<div class="dos-top" style="display:flex;justify-content:space-between;align-items:flex-start;">'
     +'<div>'
     +'<div class="name" style="font-size:15px;font-weight:900;">'+esc(d.prenom)+' '+esc(d.nom)+'</div>'
     +'<div class="phone" style="font-size:13px;color:#1a56db;font-weight:700;margin-top:2px;">📞 '+esc(d.telephone)+'</div>'
     +'<div class="dos-rac">💶 '+esc(rac)+'</div>'
-    +'<div class="dos-meta">'+date+' · '+esc(d.dossier)+'</div>'
+    +'<div class="dos-meta">'+date+' · '+esc(d.dossier)+(d.notes?'<br>📝 '+esc(d.notes):'')+'</div>'
     +'</div>'
     +'<span class="dos-pill cb-'+esc(coul)+'">'+esc(d.couleur||'—')+'</span>'
     +'</div>'
+    +'<div style="padding:0 13px 8px;">'
+    +'<select class="dos-status-sel" id="dss_'+uid+'" onchange=\'onDosStatusChange("'+esc(d._fbKey)+'","'+uid+'")\'>'
+    +Object.keys(DOS_STATUS).map(function(k){return'<option value="'+k+'"'+(ds===k?' selected':'')+'>'+DOS_STATUS[k]+'</option>';}).join('')
+    +'</select>'
+    +'</div>'
     +'<div class="card-bot">'
-    +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d._fbKey)+'")\'> 📋 Voir dossier complet</button>'
+    +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d._fbKey)+'")\'> 📋 Voir dossier</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(d.telephone)+'">📞 Appeler</a>'
+    +'<button class="cb-btn" style="background:#f0fdf4;color:#166534;" onclick=\'openDosEdit("'+esc(d._fbKey)+'")\'>✏️ Modifier</button>'
     +'</div>'
     +'</div>';
 }
@@ -583,7 +672,7 @@ function openDosDetail(fbKey){
     +row('Dépt / Zone',d.dept+(d.zone?' — Zone '+d.zone:''));
   if(d.dossier==='PAC'||d.dossier==='PAC+ISO')body+='<div class="msec">🔥 PAC Air/Eau</div>'+row('Chauffage actuel',d.chauffage)+row('Surface chauffée',d.surfPac?d.surfPac+' m²':'—')+row('Compteur',d.compteur)+row('ECS',d.ecs)+row('VMC',d.vmc)+row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'—'));
   if(d.dossier==='ISO'||d.dossier==='PAC+ISO')body+='<div class="msec">🏠 Isolation</div>'+row('Gestes',d.gestes)+row('Surface ISO',d.surfIso?d.surfIso+' m²':'—')+row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'—'));
-  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
+  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Statut',DOS_STATUS[d.dosStatus||'montage']||d.dosStatus)+(d.notes?row('Notes',d.notes):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
   document.getElementById('modalBody').innerHTML=body;
   document.getElementById('detailModal').classList.add('show');
 }
