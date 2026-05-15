@@ -235,8 +235,6 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="choices c2" id="cRadiateur">
     <div class="choice" data-val="Fonte" onclick="pick(this,'cRadiateur')"><div class="chi">⚫</div><div class="chl">Fonte</div></div>
     <div class="choice" data-val="Métal" onclick="pick(this,'cRadiateur')"><div class="chi">🔘</div><div class="chl">Métal</div></div>
-    <div class="choice" data-val="Électrique" onclick="pick(this,'cRadiateur')"><div class="chi">⚡</div><div class="chl">Électrique</div></div>
-    <div class="choice" data-val="Plancher chauffant" onclick="pick(this,'cRadiateur')"><div class="chi">♨️</div><div class="chl">Plancher chauffant</div></div>
   </div>
   <label class="flabel" style="margin-top:8px;">Notes PAC</label>
   <textarea id="notesPac" placeholder="Remarques techniques…"></textarea>
@@ -641,19 +639,44 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){location.reload();}
-function getMondayCfg(){try{return JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');}catch(e){return null;}}
-function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg?cfg.token:'';g('monBoardId').value=cfg?cfg.boardId:'';g('monModal').classList.add('show');}
+function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936'};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');return s||DEF;}catch(e){return DEF;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monModal').classList.add('show');}
 function closeMondayCfg(){g('monModal').classList.remove('show');}
 function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
-function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent=getMondayCfg()?'🟣 Monday ✅':'⚙️ Monday';}
+function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
 function postToMonday(racStr,totalRac){
   try{
-    var cfg=getMondayCfg();if(!cfg||!cfg.token||!cfg.boardId)return;
+    var cfg=getMondayCfg();
     var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
     var nonPAC=hasPAC&&(!S.pacOk||!S.surfOk);
     var itemName=(S.prenom+' '+S.nom+' — '+S.dossier+' — RAC '+racStr).replace(/["\\\n]/g,' ');
-    var r3=S.isIDF?'idf':'prov',idx3=Math.min(Math.max(S.parts-1,0),5);
+    var cv={};
+    if(S.prenom)cv['text_mkxbqtwa']=S.prenom;
+    if(S.telephone)cv['phone_mkxbpxwp']={phone:S.telephone,countryShortName:'FR'};
+    if(S.email)cv['email_mkxkgs76']={email:S.email,text:S.email};
+    if(S.adresse)cv['location_mkxbh8sz']={address:S.adresse+(S.ville?', '+S.ville:''),city:S.ville||''};
+    if(S.cp)cv['numeric_mkxb4aj']=S.cp;
+    if(S.surfPac)cv['numeric_mkxbw0f6']=S.surfPac;
+    if(S.chauffage)cv['color_mkxbnhd6']={label:S.chauffage};
+    if(S.emplacementChaudiere)cv['color_mm39sa6j']={label:S.emplacementChaudiere};
+    if(S.ecs)cv['color_mm39jpwn']={label:S.ecs};
+    if(S.compteur)cv['color_mm39nvdk']={label:S.compteur};
+    if(S.etatIso)cv['text_mm39z7rh']=S.etatIso;
+    if(totalRac)cv['numeric_mkxbn966']=totalRac;
+    if(S.numDeclarant)cv['text_mm39mwgm']=S.numDeclarant;
+    if(S.numDeclarant2)cv['text_mm39wde8']=S.numDeclarant2;
+    if(S.rfr)cv['numeric_mkxbbhb9']=S.rfr;
+    if(S.parts)cv['numeric_mkxbj3qt']=S.parts;
+    if(S.dateNaissance)cv['text_mm39zn6t']=S.dateNaissance;
+    if(S.couleur)cv['color_mkxbyky9']={label:S.couleur};
+    if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
+    if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
+    if(S.anneeConstruction)cv['numeric_mm1jmtrb']=S.anneeConstruction;
+    var td=new Date();var mm=td.getMonth()+1;var dd=td.getDate();
+    cv['date_mkxbakkn']={date:td.getFullYear()+'-'+(mm<10?'0':'')+mm+'-'+(dd<10?'0':'')+dd};
+    var cvStr=JSON.stringify(JSON.stringify(cv));
+    var q1='mutation{create_item(board_id:5093379936,group_id:"topics",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
     var lines=[
       '━━━ 👤 CLIENT ━━━',
       '• Nom / Prénom : '+S.prenom+' '+S.nom,
@@ -670,7 +693,6 @@ function postToMonday(racStr,totalRac){
       '• RFR : '+fmt(S.rfr),
       '• Parts fiscales : '+S.parts+' part(s)',
       '• Région : '+(S.isIDF?'Île-de-France':'Province'),
-      '• Département / Zone : '+S.dept+(S.zone?' — Zone '+S.zone:''),
       '• Couleur ANAH : '+S.couleur,
       '',
       hasPAC?'━━━ 🔥 POMPE À CHALEUR ━━━':'',
@@ -693,19 +715,16 @@ function postToMonday(racStr,totalRac){
       '',
       '━━━ 💶 RÉSULTAT ━━━',
       '• RAC Total : '+racStr,
-      hasPAC?'• RAC PAC détail : '+(nonPAC?'Non éligible':S.racPac===0?'1€':fmt(S.racPac)):'',
-      hasISO?'• RAC ISO détail : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible'):'',
       '',
       '━━━ 👤 TÉLÉPROSPECTEUR ━━━',
       S.teleproNom?'• Nom : '+S.teleproNom:'• Nom : —',
       S.codeReferent?'• Code référent : '+S.codeReferent:'',
       '• Date : '+new Date().toLocaleDateString('fr-FR')
-    ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\\n');
-    var q1='mutation{create_item(board_id:'+cfg.boardId+',item_name:"'+itemName+'"){id}}';
+    ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\n');
     fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
     .then(function(r){return r.json();}).then(function(d){
       var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
-      if(id){var q2='mutation{create_update(item_id:'+id+',body:"'+lines+'"){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(){});}
+      if(id){var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(){});}
     }).catch(function(){});
   }catch(e){}
 }
