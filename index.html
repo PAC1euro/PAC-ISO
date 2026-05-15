@@ -776,26 +776,19 @@ function postToMonday(racStr,totalRac){
     var itemName=(S.prenom+' '+S.nom+' — '+S.dossier+' — RAC '+racStr).replace(/["\\\n]/g,' ');
     var cv={};
     if(S.prenom)cv['text_mkxbqtwa']=S.prenom;
-    if(S.telephone)cv['phone_mkxbpxwp']={phone:S.telephone,countryShortName:'FR'};
+    if(S.telephone)cv['phone_mkxbpxwp']={phone:S.telephone.replace(/\s/g,''),countryShortName:'FR'};
     if(S.email)cv['email_mkxkgs76']={email:S.email,text:S.email};
-    if(S.adresse)cv['location_mkxbh8sz']={address:S.adresse+(S.ville?', '+S.ville:''),city:S.ville||''};
-    if(S.cp)cv['numeric_mkxb4aj']=S.cp;
-    if(S.surfPac)cv['numeric_mkxbw0f6']=S.surfPac;
-    if(S.chauffage)cv['color_mkxbnhd6']={label:S.chauffage};
-    if(S.emplacementChaudiere)cv['color_mm39sa6j']={label:S.emplacementChaudiere};
-    if(S.ecs)cv['color_mm39jpwn']={label:S.ecs};
-    if(S.compteur)cv['color_mm39nvdk']={label:S.compteur};
+    if(S.cp)cv['numeric_mkxb4aj']=Number(S.cp)||0;
+    if(S.surfPac)cv['numeric_mkxbw0f6']=Number(S.surfPac)||0;
     if(S.etatIso)cv['text_mm39z7rh']=S.etatIso;
-    if(totalRac)cv['numeric_mkxbn966']=totalRac;
+    if(totalRac)cv['numeric_mkxbn966']=Number(totalRac)||0;
     if(S.numDeclarant)cv['text_mm39mwgm']=S.numDeclarant;
     if(S.numDeclarant2)cv['text_mm39wde8']=S.numDeclarant2;
-    if(S.rfr)cv['numeric_mkxbbhb9']=S.rfr;
-    if(S.parts)cv['numeric_mkxbj3qt']=S.parts;
+    if(S.rfr)cv['numeric_mkxbbhb9']=Number(S.rfr)||0;
+    if(S.parts)cv['numeric_mkxbj3qt']=Number(S.parts)||0;
     if(S.dateNaissance)cv['text_mm39zn6t']=S.dateNaissance;
-    if(S.couleur)cv['color_mkxbyky9']={label:S.couleur};
     if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
-    if(S.anneeConstruction)cv['numeric_mm1jmtrb']=S.anneeConstruction;
     var td=new Date();var mm=td.getMonth()+1;var dd=td.getDate();
     cv['date_mkxbakkn']={date:td.getFullYear()+'-'+(mm<10?'0':'')+mm+'-'+(dd<10?'0':'')+dd};
     var cvStr=JSON.stringify(JSON.stringify(cv));
@@ -846,10 +839,12 @@ function postToMonday(racStr,totalRac){
     ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\n');
     fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
     .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.errors)console.error('Monday create_item error:',JSON.stringify(d.errors));
       var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
-      if(id){var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(){});}
-    }).catch(function(){});
-  }catch(e){}
+      if(id){var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});}
+      else{console.error('Monday: pas d\'ID retourné',JSON.stringify(d));}
+    }).catch(function(e){console.error('Monday fetch error:',e);});
+  }catch(e){console.error('Monday exception:',e);}
 }
 function _pf(id,val){var el=g(id);if(el&&val!==undefined&&val!==null&&val!=='')el.value=val;}
 function _pickVal(grp,val){if(!val)return;var el=document.querySelector('#'+grp+' .choice[data-val="'+val+'"]');if(el)pick(el,grp);}
