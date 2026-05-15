@@ -219,18 +219,18 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="Bonne" onclick="pick(this,'cEtatIso')"><div class="chi">🟢</div><div class="chl">Bonne</div></div>
   </div>
   <div class="slabel">Emplacement de la chaudière</div>
-  <div class="choices c2" id="cEmplacement">
-    <div class="choice" data-val="Chaufferie / Garage" onclick="pick(this,'cEmplacement')"><div class="chi">🏭</div><div class="chl">Chaufferie / Garage</div></div>
-    <div class="choice" data-val="Cave" onclick="pick(this,'cEmplacement')"><div class="chi">⬇️</div><div class="chl">Cave</div></div>
-    <div class="choice" data-val="Buanderie / Cuisine" onclick="pick(this,'cEmplacement')"><div class="chi">🍳</div><div class="chl">Buanderie / Cuisine</div></div>
-    <div class="choice" data-val="Extérieur" onclick="pick(this,'cEmplacement')"><div class="chi">🌿</div><div class="chl">Extérieur</div></div>
+  <div class="choices c3" id="cEmplacement">
+    <div class="choice" data-val="Garage" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">🚗</div><div class="chl">Garage</div></div>
+    <div class="choice" data-val="Chaufferie" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">🏭</div><div class="chl">Chaufferie</div></div>
+    <div class="choice" data-val="Cuisine" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">🍳</div><div class="chl">Cuisine</div></div>
+    <div class="choice" data-val="Cave" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">⬇️</div><div class="chl">Cave</div></div>
+    <div class="choice" data-val="Sous-sol" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">🏗️</div><div class="chl">Sous-sol</div></div>
+    <div class="choice" data-val="Buanderie" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">🧺</div><div class="chl">Buanderie</div></div>
+    <div class="choice" data-val="Autre" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='block'"><div class="chi">✏️</div><div class="chl">Autre</div></div>
   </div>
+  <input type="text" id="emplacementAutre" placeholder="Précisez l'emplacement..." style="display:none;margin-bottom:16px;">
   <div class="slabel">Hauteur sous plafond</div>
-  <div class="choices c3" id="cHauteur">
-    <div class="choice" data-val="< 2.5m" onclick="pick(this,'cHauteur')"><div class="chi">📏</div><div class="chl">< 2.5m</div></div>
-    <div class="choice" data-val="2.5m – 3m" onclick="pick(this,'cHauteur')"><div class="chi">📐</div><div class="chl">2.5m – 3m</div></div>
-    <div class="choice" data-val="> 3m" onclick="pick(this,'cHauteur')"><div class="chi">🏛️</div><div class="chl">> 3m</div></div>
-  </div>
+  <input type="text" id="hauteurPlafond" placeholder="ex: 2.80m">
   <div class="slabel">Type de radiateurs</div>
   <div class="choices c2" id="cRadiateur">
     <div class="choice" data-val="Fonte" onclick="pick(this,'cRadiateur')"><div class="chi">⚫</div><div class="chl">Fonte</div></div>
@@ -442,7 +442,7 @@ function calcFinal(){
   S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gv('anneeConstruction');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
-    S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');S.emplacementChaudiere=gSel('cEmplacement');S.hauteurPlafond=gSel('cHauteur');S.typeRadiateur=gSel('cRadiateur');S.notesPac=gv('notesPac');
+    S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=gSel('cRadiateur');S.notesPac=gv('notesPac');
     var eligChauf=['Gaz','Fioul','Chaudière à bois','Chaudière à charbon'].indexOf(chauf)>-1;
     S.pacOk=eligChauf;
     if(eligChauf){if(surfPac<70||surfPac>250){S.racPac=99999;S.surfOk=false;}else{if(surfPac<90)S.racPac+=5000;else if(surfPac>190)S.racPac+=3500;S.racPac+=racZ(zone);S.racPac+=racC(couleur);}}
@@ -754,6 +754,8 @@ function prefillFromDossier(d,editKey){
   _pf('surfPac',d.surfPac);
   if(d.compteur)_pickVal('cCompt',d.compteur);
   if(d.ecs)_pickVal('cECS',d.ecs);
+  if(d.emplacementChaudiere){var _empVals=['Garage','Chaufferie','Cuisine','Cave','Sous-sol','Buanderie'];if(_empVals.indexOf(d.emplacementChaudiere)>-1){_pickVal('cEmplacement',d.emplacementChaudiere);}else{var _eAut=document.querySelector('#cEmplacement .choice[data-val="Autre"]');if(_eAut)pick(_eAut,'cEmplacement');g('emplacementAutre').style.display='block';_pf('emplacementAutre',d.emplacementChaudiere);}}
+  if(d.hauteurPlafond)_pf('hauteurPlafond',d.hauteurPlafond);
   _pf('notesPac',d.notesPac);
   if(d.parts){S.parts=Number(d.parts);var pEl=document.querySelector('#cFoyer .choice[data-val="'+d.parts+'"],#cFoyer2 .choice[data-val="'+d.parts+'"]');if(pEl)pickFoyer(pEl);}
   if(d.rfr){_pf('rfr',d.rfr);previewCouleur();}
