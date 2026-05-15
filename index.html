@@ -804,6 +804,8 @@ function postToMonday(racStr,totalRac){
     if(S.parts)cv['numeric_mkxbj3qt']=Number(S.parts)||0;
     if(S.dateNaissance)cv['text_mm39zn6t']=S.dateNaissance;
     if(S.couleur&&_mCouleur[S.couleur])cv['color_mkxbyky9']={label:_mCouleur[S.couleur]};
+    var _mTypeLead={'PAC':'PAC 171','ISO':'ISO 174','PAC+ISO':'PAC&ISO 171+174'};
+    if(S.dossier&&_mTypeLead[S.dossier])cv['color_mm2xk7kt']={label:_mTypeLead[S.dossier]};
     if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
     var td=new Date();var mm=td.getMonth()+1;var dd=td.getDate();
