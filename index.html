@@ -623,22 +623,51 @@ function postToMonday(racStr,totalRac){
     var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
     var nonPAC=hasPAC&&(!S.pacOk||!S.surfOk);
     var itemName=(S.prenom+' '+S.nom+' — '+S.dossier+' — RAC '+racStr).replace(/["\\\n]/g,' ');
+    var r3=S.isIDF?'idf':'prov',idx3=Math.min(Math.max(S.parts-1,0),5);
     var lines=[
-      '📋 Dossier : '+S.dossier,
-      '📞 Téléphone : '+S.telephone,
-      '📧 Email : '+(S.email||'—'),
-      '📍 Adresse : '+S.adresse+', '+S.cp+' '+S.ville,
-      '🎯 Couleur ANAH : '+S.couleur+' — Zone '+S.zone+(S.isIDF?' (IDF)':' (Province)'),
-      '💶 RAC Total : '+racStr,
-      hasPAC?'🔥 PAC : '+(nonPAC?'Non éligible':S.racPac===0?'1€':fmt(S.racPac)):'',
-      hasISO?'🏠 ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible'):'',
-      '💰 RFR : '+fmt(S.rfr)+' — '+S.parts+' part(s)',
-      S.chauffage?'🔧 Chauffage : '+S.chauffage:'',
-      S.surfPac?'📏 Surface : '+S.surfPac+' m²':'',
-      S.teleproNom?'👤 Téléprospecteur : '+S.teleproNom:'',
-      S.codeReferent?'🏷 Code référent : '+S.codeReferent:'',
-      '📅 Date : '+new Date().toLocaleDateString('fr-FR')
-    ].filter(Boolean).join('\\n');
+      '━━━ 👤 CLIENT ━━━',
+      '• Nom / Prénom : '+S.prenom+' '+S.nom,
+      S.dateNaissance?'• Date de naissance : '+S.dateNaissance:'',
+      '• Téléphone : '+S.telephone,
+      '• Email : '+(S.email||'—'),
+      '• Adresse : '+S.adresse,
+      '• CP / Ville : '+S.cp+' '+S.ville,
+      S.anneeConstruction?'• Année construction : '+S.anneeConstruction:'',
+      '',
+      '━━━ 💰 DÉCLARATION FISCALE ━━━',
+      '• N° déclarant : '+(S.numDeclarant||'—'),
+      '• RFR : '+fmt(S.rfr),
+      '• Parts fiscales : '+S.parts+' part(s)',
+      '• Région : '+(S.isIDF?'Île-de-France':'Province'),
+      '• Département / Zone : '+S.dept+(S.zone?' — Zone '+S.zone:''),
+      S.parts?'• Plafond Bleu : '+fmt(PLAF[r3].bleu[idx3]):'',
+      S.parts?'• Plafond Jaune : '+fmt(PLAF[r3].jaune[idx3]):'',
+      '• Couleur ANAH : '+S.couleur,
+      '',
+      hasPAC?'━━━ 🔥 POMPE À CHALEUR ━━━':'',
+      hasPAC?'• Chauffage actuel : '+(S.chauffage||'—'):'',
+      hasPAC?'• Surface chauffée : '+(S.surfPac?S.surfPac+' m²':'—'):'',
+      hasPAC?'• Compteur : '+(S.compteur||'—'):'',
+      hasPAC?'• Eau chaude (ECS) : '+(S.ecs||'—'):'',
+      hasPAC?'• RAC PAC : '+(nonPAC?'Non éligible — Voir Resp. technique':S.racPac===0?'1€':fmt(S.racPac)):'',
+      S.notesPac?'• Notes PAC : '+S.notesPac:'',
+      '',
+      hasISO?'━━━ 🏠 ISOLATION ━━━':'',
+      hasISO?'• Gestes : '+(S.gestes.join(', ')||'—'):'',
+      hasISO?'• Surface ISO : '+(S.surfIso?S.surfIso+' m²':'—'):'',
+      hasISO?'• RAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible — Voir Resp. technique'):'',
+      S.notesIso?'• Notes ISO : '+S.notesIso:'',
+      '',
+      '━━━ 💶 RÉSULTAT ━━━',
+      '• RAC Total : '+racStr,
+      hasPAC?'• RAC PAC détail : '+(nonPAC?'Non éligible':S.racPac===0?'1€':fmt(S.racPac)):'',
+      hasISO?'• RAC ISO détail : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible'):'',
+      '',
+      '━━━ 👤 TÉLÉPROSPECTEUR ━━━',
+      S.teleproNom?'• Nom : '+S.teleproNom:'• Nom : —',
+      S.codeReferent?'• Code référent : '+S.codeReferent:'',
+      '• Date : '+new Date().toLocaleDateString('fr-FR')
+    ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\\n');
     var q1='mutation{create_item(board_id:'+cfg.boardId+',item_name:"'+itemName+'"){id}}';
     fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
     .then(function(r){return r.json();}).then(function(d){
