@@ -125,6 +125,7 @@ textarea{resize:vertical;min-height:70px;}
 hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 @media(max-width:420px){.c3{grid-template-columns:1fr 1fr;}.c4{grid-template-columns:1fr 1fr;}.row2{grid-template-columns:1fr;}}
 .mon-cfg-btn{position:fixed;bottom:16px;right:16px;background:#0f172a;color:#fff;border:none;border-radius:50px;font-size:12px;font-weight:700;padding:9px 14px;cursor:pointer;z-index:30;box-shadow:0 4px 12px rgba(0,0,0,.25);font-family:Arial,sans-serif;}
+#monStatusMsg{position:fixed;bottom:60px;right:16px;background:#1e293b;color:#fff;border-radius:12px;font-size:13px;font-weight:700;padding:10px 16px;z-index:35;box-shadow:0 4px 16px rgba(0,0,0,.3);display:none;max-width:320px;word-break:break-word;font-family:Arial,sans-serif;}
 .mon-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:16px;}
 .mon-modal-bg.show{display:flex;}
 .mon-box{background:#fff;border-radius:16px;width:100%;max-width:440px;padding:24px;}
@@ -142,6 +143,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 </head>
 <body>
 <button class="mon-cfg-btn" id="monCfgBtn" onclick="openMondayCfg()">⚙️ Monday</button>
+<div id="monStatusMsg"></div>
 
 <div class="mon-modal-bg" id="monModal" onclick="if(event.target===this)closeMondayCfg()">
   <div class="mon-box">
@@ -772,6 +774,7 @@ function closeMondayCfg(){g('monModal').classList.remove('show');}
 function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
 function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
+function showMonStatus(msg){var el=g('monStatusMsg');if(!el)return;el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none';},8000);}
 function postToMonday(racStr,totalRac){
   try{
     var cfg=getMondayCfg();
@@ -853,11 +856,11 @@ function postToMonday(racStr,totalRac){
     ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\n');
     fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
     .then(function(r){return r.json();}).then(function(d){
-      if(d&&d.errors)console.error('Monday create_item error:',JSON.stringify(d.errors));
+      if(d&&d.errors){console.error('Monday create_item error:',JSON.stringify(d.errors));showMonStatus('❌ Monday : erreur API — '+JSON.stringify(d.errors).slice(0,80));}
       var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
-      if(id){var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});}
-      else{console.error('Monday: pas d\'ID retourné',JSON.stringify(d));}
-    }).catch(function(e){console.error('Monday fetch error:',e);});
+      if(id){showMonStatus('🟣 Monday : fiche créée ✅ (id '+id+')');var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});}
+      else if(!d||!d.errors){showMonStatus('❌ Monday : pas d\'ID retourné');console.error('Monday: pas d\'ID retourné',JSON.stringify(d));}
+    }).catch(function(e){console.error('Monday fetch error:',e);showMonStatus('❌ Monday : erreur réseau');});
   }catch(e){console.error('Monday exception:',e);}
 }
 function _pf(id,val){var el=g(id);if(el&&val!==undefined&&val!==null&&val!=='')el.value=val;}
