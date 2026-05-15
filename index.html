@@ -365,9 +365,11 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <button type="button" id="btnMaps" onclick="openMaps()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">🌍 Google Earth</button>
     <button type="button" id="btnGeo" onclick="openGeo()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">🗺️ Géoportail</button>
   </div>
-  <label class="flabel">Année de construction</label>
-  <input type="number" id="anneeConstruction" placeholder="Ex: 1998" min="1800" max="2099" oninput="chkAnnee()"/>
-  <div id="anneeAlert"></div>
+  <div class="slabel">Année de construction</div>
+  <div class="choices c2" id="cAnnee">
+    <div class="choice" data-val="+ de 15 ans" onclick="pick(this,'cAnnee')"><div class="chi">✅</div><div class="chl">+ de 15 ans</div></div>
+    <div class="choice" data-val="- de 15 ans" onclick="pick(this,'cAnnee')"><div class="chi">❌</div><div class="chl">- de 15 ans</div></div>
+  </div>
   <div class="slabel">Déclaration fiscale</div>
   <div class="row2">
     <div><label class="flabel">N° Déclarant 1</label><input type="text" id="numDeclarant" placeholder="1234567890123"/></div>
@@ -469,7 +471,7 @@ function calcFinal(){
   var rfr=Number(g('rfr').value),parts=S.parts,zone=S.zone,couleur=calcCouleur(rfr,parts,S.isIDF),chauf=gSel('cChauf'),surfPac=Number(g('surfPac').value)||0,surfIso=Number(g('surfIso').value)||0;
   var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
   S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;
-  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gv('anneeConstruction');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
+  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
     S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=gSel('cRadiateur');S.notesPac=gv('notesPac');
@@ -881,7 +883,7 @@ function prefillFromDossier(d,editKey){
   _pf('nom',d.nom);_pf('prenom',d.prenom);_pf('dateNaissance',d.dateNaissance);
   _pf('telephone',d.telephone);_pf('email',d.email);
   _pf('adresse',d.adresse);_pf('cp',d.cp);_pf('ville',d.ville);
-  _pf('anneeConstruction',d.anneeConstruction);
+  if(d.anneeConstruction)_pickVal('cAnnee',d.anneeConstruction);
   _pf('numDeclarant',d.numDeclarant);_pf('rfr2',d.rfr||d.rfr2);
   _pf('teleproNom',d.teleproNom);_pf('codeReferent',d.codeReferent);
   updMapsLink();
