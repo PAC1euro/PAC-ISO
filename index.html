@@ -652,7 +652,7 @@ function pv(s){var prev=s-1;if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)
 function editIso(){fromResult=true;show(5);}
 function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;if(n===5){var isISO=S.dossier==='ISO';g('regionToggleISO').style.display=isISO?'block':'none';if(!isISO){var rEls=document.querySelectorAll('#cRegion .choice');for(var j=0;j<rEls.length;j++)rEls[j].classList.remove('sel');if(S.isIDF){var idfEl=document.querySelector('#cRegion .choice[data-val="idf"]');if(idfEl)idfEl.classList.add('sel');}else{var provEl=document.querySelector('#cRegion .choice[data-val="prov"]');if(provEl)provEl.classList.add('sel');}}}updProg();window.scrollTo(0,0);}
 function pickRegion(el){pick(el,'cRegion');S.isIDF=el.getAttribute('data-val')==='idf';previewCouleur();}
-function chkAnnee(){var v=Number(g('anneeConstruction').value);if(!v){g('anneeAlert').innerHTML='';return;}var limite=new Date().getFullYear()-15;if(v>limite)g('anneeAlert').innerHTML='<div class="alert ar">❌ Maison de moins de 15 ans — Non éligible aux aides</div>';else g('anneeAlert').innerHTML='<div class="alert ag">✅ Maison de plus de 15 ans — Éligible</div>';}
+function chkAnnee(){var v=Number(g('anneeConstruction').value);if(!v||v<1800||v>new Date().getFullYear()){g('anneeAlert').innerHTML='';return;}var age=new Date().getFullYear()-v;if(age>=15)g('anneeAlert').innerHTML='<div class="alert ag">✅ <strong>+ de 15 ans</strong> — '+age+' ans</div>';else g('anneeAlert').innerHTML='<div class="alert ar">❌ <strong>- de 15 ans</strong> — '+age+' ans</div>';}
 var _addrTimer=null,_addrFeatures=[],_geoLon=null,_geoLat=null;
 function adresseInput(val){
   updMapsLink();
