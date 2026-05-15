@@ -698,6 +698,7 @@ function pickAdresse(i){
   g('ville').value=p.city||'';
   _geoLon=f.geometry.coordinates[0];
   _geoLat=f.geometry.coordinates[1];
+  S._lat=_geoLat;S._lon=_geoLon;
   g('adresseList').classList.remove('show');
   updMapsLink();
 }
@@ -809,7 +810,7 @@ function postToMonday(racStr,totalRac){
     if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
-    if(fullAddr.trim())cv['location_mkxbh8sz']={address:fullAddr.trim()};
+    if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
     var cvStr=JSON.stringify(JSON.stringify(cv));
     var q1='mutation{create_item(board_id:5093379936,group_id:"topics",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
     var lines=[
