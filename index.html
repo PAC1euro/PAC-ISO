@@ -327,7 +327,7 @@ var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
-var PLAF={idf:{bleu:[23541,34551,41493,48447,55427,62375],jaune:[29095,42058,50513,58981,67473,75944]},prov:{bleu:[17009,24875,29917,34948,40002,45046],jaune:[21805,31889,38874,45862,52870,58874]}};
+var PLAF={idf:{bleu:[24031,35270,42357,49455,56580,63696],jaune:[29253,42933,51594,60208,68877,77540],violet:[40851,60051,71846,84562,96817,109074]},prov:{bleu:[17363,25393,30540,35676,40835,45986],jaune:[22259,32553,39148,45735,52348,58946],violet:[31185,45842,55196,64550,73907,83264]}};
 
 function detectZone(){
   var raw=g('dept').value.trim();
@@ -346,7 +346,7 @@ function calcCouleur(rfr,parts,isIDF){
   var r=isIDF?'idf':'prov',i=Math.min(parts-1,5);
   if(rfr<=PLAF[r].bleu[i])return'Bleu';
   if(rfr<=PLAF[r].jaune[i])return'Jaune';
-  if(rfr<=(isIDF?90000:70000))return'Violet';
+  if(rfr<=PLAF[r].violet[i])return'Violet';
   return'Rose';
 }
 function racC(c){return{Bleu:0,Jaune:5000,Violet:6194,Rose:9194}[c]||0;}
@@ -363,7 +363,7 @@ function previewCouleur(){
   g('couleurBloc').innerHTML='<div class="cbadge '+m.cls+'"><div class="cb-t">'+m.dot+' Couleur ANAH : '+c+'</div><div class="cb-d">'+m.lbl+' · '+(S.isIDF?'IDF':'Province')+'</div><div class="cb-r">'+racTxt+'<br>'+isoTxt+'</div></div>';
   var r=S.isIDF?'idf':'prov',idx=Math.min(parts-1,5);
   var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
-    var plaf=col==='Violet'?(S.isIDF?90000:70000):col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
+    var plaf=col==='Violet'?PLAF[r].violet[idx]:col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
     var dot={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'}[col];
     return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
   }).join('');
