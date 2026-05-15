@@ -187,6 +187,11 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="stag">🔥 PAC</div>
   <div class="stitle">Informations PAC Air/Eau</div>
   <div class="ssub">Chauffage actuel et dimensionnement</div>
+  <div class="slabel">Superficie</div>
+  <label class="flabel">Surface chauffée (m²)</label>
+  <input type="number" id="surfPac" placeholder="Ex: 120" oninput="chkSurf()"/>
+  <div class="hint">90–190m² : éligible · 190–250m² : +3 500€ · >250m² : Voir Resp. technique · 70–90m² : +5 000€ · &lt;70m² : Voir Resp. technique</div>
+  <div id="surfAlert"></div>
   <div class="slabel">Chauffage actuel</div>
   <div class="choices c3" id="cChauf">
     <div class="choice" data-val="Gaz" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🔵</div><div class="chl">Gaz</div></div>
@@ -197,11 +202,6 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="Autre" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">❓</div><div class="chl">Autre</div></div>
   </div>
   <div id="chaufAlert"></div>
-  <div class="slabel">Superficie</div>
-  <label class="flabel">Surface chauffée (m²)</label>
-  <input type="number" id="surfPac" placeholder="Ex: 120" oninput="chkSurf()"/>
-  <div class="hint">90–190m² : éligible · 190–250m² : +3 500€ · >250m² : Voir Resp. technique · 70–90m² : +5 000€ · &lt;70m² : Voir Resp. technique</div>
-  <div id="surfAlert"></div>
   <div class="slabel">Électricité</div>
   <div class="choices c2" id="cCompt">
     <div class="choice" data-val="Monophasé" onclick="pick(this,'cCompt')"><div class="chi">🔌</div><div class="chl">Monophasé</div></div>
