@@ -808,8 +808,8 @@ function postToMonday(racStr,totalRac){
     if(S.dossier&&_mTypeLead[S.dossier])cv['color_mm2xk7kt']={label:_mTypeLead[S.dossier]};
     if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
-    var td=new Date();var mm=td.getMonth()+1;var dd=td.getDate();
-    cv['date_mkxbakkn']={date:td.getFullYear()+'-'+(mm<10?'0':'')+mm+'-'+(dd<10?'0':'')+dd};
+    var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
+    if(fullAddr.trim())cv['location_mkxbh8sz']={address:fullAddr.trim()};
     var cvStr=JSON.stringify(JSON.stringify(cv));
     var q1='mutation{create_item(board_id:5093379936,group_id:"topics",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
     var lines=[
