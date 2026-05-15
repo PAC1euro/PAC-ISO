@@ -267,7 +267,10 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   </div>
   <input type="text" id="emplacementAutre" placeholder="Précisez l'emplacement..." style="display:none;margin-bottom:16px;">
   <div class="slabel">Hauteur sous plafond</div>
-  <input type="text" id="hauteurPlafond" placeholder="ex: 2.80m">
+  <div style="position:relative;">
+    <input type="number" id="hauteurPlafond" placeholder="2.50" step="0.01" min="1" max="10" style="padding-right:40px;"/>
+    <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#475569;">m</span>
+  </div>
   <div class="slabel">Type de radiateurs</div>
   <div class="choices c3" id="cRadiateur">
     <div class="choice" data-val="Fonte" onclick="pick(this,'cRadiateur')"><div class="chi">⚫</div><div class="chl">Fonte</div></div>
