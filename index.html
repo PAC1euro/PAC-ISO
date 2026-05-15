@@ -221,6 +221,16 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <input type="number" id="rfrS2" placeholder="Ex: 18000" oninput="syncRfrS2(this.value)"/>
   <div class="hint" style="margin-top:-12px;margin-bottom:14px;">Case RFR sur l'avis d'imposition</div>
   <div id="couleurBlocS2" style="margin-bottom:12px;"></div>
+  <div class="err" id="e2">⚠ Veuillez compléter tous les champs.</div>
+  <div class="brow"><button class="btn bs" onclick="pv(2)">← Retour</button><button class="btn bp" onclick="nx(2)">Suivant →</button></div>
+</div>
+<input type="hidden" id="dept"/>
+<div id="zoneBox" style="display:none;"></div>
+
+<div class="step" id="step3">
+  <div class="stag">🔧 PAC Air/Eau</div>
+  <div class="stitle">Équipements & Installation</div>
+  <div class="ssub">Détails techniques pour le dimensionnement</div>
   <div class="slabel">Électricité</div>
   <div class="choices c2" id="cCompt">
     <div class="choice" data-val="Monophasé" onclick="pick(this,'cCompt')"><div class="chi">🔌</div><div class="chl">Monophasé</div></div>
@@ -258,18 +268,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   </div>
   <label class="flabel" style="margin-top:8px;">Notes PAC</label>
   <textarea id="notesPac" placeholder="Remarques techniques…"></textarea>
-  <div class="err" id="e2">⚠ Veuillez compléter tous les champs.</div>
-  <div class="brow"><button class="btn bs" onclick="pv(2)">← Retour</button><button class="btn bp" onclick="nx(2)">Suivant →</button></div>
-</div>
-
-<div class="step" id="step3">
-  <div class="stag">📍 Localisation</div>
-  <div class="stitle">Département &amp; Zone</div>
-  <div class="ssub">Zone H1/H2/H3 détectée automatiquement</div>
-  <label class="flabel">Département</label>
-  <input type="text" id="dept" placeholder="Ex: 95, 75, 13…" maxlength="3" oninput="this.value=this.value.replace(/[^0-9]/g,'');detectZone()"/>
-  <div id="zoneBox"></div>
-  <div class="err" id="e3">⚠ Veuillez saisir votre département.</div>
+  <div class="err" id="e3">⚠ Veuillez compléter tous les champs.</div>
   <div class="brow"><button class="btn bs" onclick="pv(3)">← Retour</button><button class="btn bp" onclick="nx(3)">Suivant →</button></div>
 </div>
 
@@ -637,8 +636,8 @@ try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _
 postToMonday(racStr,totalRac);
 }
 var cur=1,fromResult=false;
-function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'){if(s===2)next=6;}else if(S.dossier==='PAC+ISO'){if(s===2)next=5;}if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
-function pv(s){var prev=s-1;if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)prev=5;else if(s===6)prev=4;}else if(S.dossier==='PAC'){if(s===6)prev=2;}else if(S.dossier==='PAC+ISO'){if(s===5)prev=2;else if(s===6)prev=5;}if(fromResult&&s===5){fromResult=false;show(7);return;}show(prev);}
+function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'&&s===3){next=6;}else if(S.dossier==='PAC+ISO'&&s===3){next=5;}if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
+function pv(s){var prev=s-1;if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)prev=5;else if(s===6)prev=4;}else if(S.dossier==='PAC'){if(s===6)prev=3;}else if(S.dossier==='PAC+ISO'){if(s===5)prev=3;else if(s===6)prev=5;}if(fromResult&&s===5){fromResult=false;show(7);return;}show(prev);}
 function editIso(){fromResult=true;show(5);}
 function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;if(n===5){var isISO=S.dossier==='ISO';g('regionToggleISO').style.display=isISO?'block':'none';if(!isISO){var rEls=document.querySelectorAll('#cRegion .choice');for(var j=0;j<rEls.length;j++)rEls[j].classList.remove('sel');if(S.isIDF){var idfEl=document.querySelector('#cRegion .choice[data-val="idf"]');if(idfEl)idfEl.classList.add('sel');}else{var provEl=document.querySelector('#cRegion .choice[data-val="prov"]');if(provEl)provEl.classList.add('sel');}}}updProg();window.scrollTo(0,0);}
 function pickRegion(el){pick(el,'cRegion');S.isIDF=el.getAttribute('data-val')==='idf';previewCouleur();}
