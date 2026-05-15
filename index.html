@@ -116,9 +116,45 @@ textarea{resize:vertical;min-height:70px;}
 .btn-new{width:100%;padding:12px;background:transparent;border:1.5px solid #e2e8f0;color:#475569;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;}
 hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 @media(max-width:420px){.c3{grid-template-columns:1fr 1fr;}.c4{grid-template-columns:1fr 1fr;}.row2{grid-template-columns:1fr;}}
+.mon-cfg-btn{position:fixed;bottom:16px;right:16px;background:#0f172a;color:#fff;border:none;border-radius:50px;font-size:12px;font-weight:700;padding:9px 14px;cursor:pointer;z-index:30;box-shadow:0 4px 12px rgba(0,0,0,.25);font-family:Arial,sans-serif;}
+.mon-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:center;justify-content:center;padding:16px;}
+.mon-modal-bg.show{display:flex;}
+.mon-box{background:#fff;border-radius:16px;width:100%;max-width:440px;padding:24px;}
+.mon-box h2{font-size:17px;font-weight:900;margin-bottom:6px;}
+.mon-box p{font-size:12px;color:#475569;line-height:1.6;margin-bottom:14px;}
+.mon-input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;padding:10px 14px;font-family:monospace;margin:6px 0 12px;background:#f8fafc;color:#0f172a;}
+.mon-input:focus{outline:none;border-color:#6d28d9;}
+.mon-lbl{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;}
+.mon-step{background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:11px;margin-bottom:10px;font-size:12px;color:#374151;line-height:1.5;}
+.mon-step strong{display:block;font-size:10px;color:#6d28d9;font-weight:900;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+.mon-actions{display:flex;gap:8px;margin-top:4px;}
+.mon-save{flex:1;background:#6d28d9;color:#fff;border:none;border-radius:10px;font-size:14px;padding:12px;cursor:pointer;font-family:Arial,sans-serif;font-weight:700;}
+.mon-cancel{background:#f1f5f9;color:#64748b;border:none;border-radius:10px;font-size:13px;padding:12px 16px;cursor:pointer;font-family:Arial,sans-serif;}
 </style>
 </head>
 <body>
+<button class="mon-cfg-btn" id="monCfgBtn" onclick="openMondayCfg()">⚙️ Monday</button>
+
+<div class="mon-modal-bg" id="monModal" onclick="if(event.target===this)closeMondayCfg()">
+  <div class="mon-box">
+    <h2>🟣 Connexion Monday.com</h2>
+    <p>Chaque dossier soumis sera créé automatiquement dans votre board Monday.</p>
+    <div class="mon-step"><strong>Étape 1 — Token API</strong>Profil (avatar en bas à gauche) → <strong>Administration → API</strong> → Copier le token personnel</div>
+    <div class="mon-step"><strong>Étape 2 — ID du Board</strong>Ouvrir le board → URL : monday.com/boards/<strong style="color:#6d28d9;">XXXXXXXXXX</strong> → Copier ce numéro</div>
+    <div class="mon-lbl">Token API</div>
+    <input class="mon-input" id="monToken" placeholder="eyJhbGciOiJIUzI1NiJ9…"/>
+    <div class="mon-lbl">ID du Board</div>
+    <input class="mon-input" id="monBoardId" placeholder="1234567890" type="number"/>
+    <div class="mon-actions">
+      <button class="mon-cancel" onclick="closeMondayCfg()">Annuler</button>
+      <button class="mon-save" onclick="saveMondayCfg()">💾 Enregistrer</button>
+    </div>
+    <div style="margin-top:12px;text-align:center;">
+      <button onclick="clearMondayCfg()" style="background:none;border:none;color:#ef4444;font-size:11px;cursor:pointer;font-family:Arial,sans-serif;">🗑 Supprimer la configuration</button>
+    </div>
+  </div>
+</div>
+
 <div class="wrapper">
 <div class="header">
   <div class="hico">⚡</div>
@@ -327,7 +363,7 @@ var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',rfr:0,rfr2
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
-var PLAF={idf:{bleu:[23541,34551,41493,48447,55427,62375],jaune:[29095,42058,50513,58981,67473,75944]},prov:{bleu:[17009,24875,29917,34948,40002,45046],jaune:[21805,31889,38874,45862,52870,58874]}};
+var PLAF={idf:{bleu:[24031,35270,42357,49455,56580,63696],jaune:[29253,42933,51594,60208,68877,77540],violet:[40851,60051,71846,84562,96817,109074]},prov:{bleu:[17363,25393,30540,35676,40835,45986],jaune:[22259,32553,39148,45735,52348,58946],violet:[31185,45842,55196,64550,73907,83264]}};
 
 function detectZone(){
   var raw=g('dept').value.trim();
@@ -346,7 +382,7 @@ function calcCouleur(rfr,parts,isIDF){
   var r=isIDF?'idf':'prov',i=Math.min(parts-1,5);
   if(rfr<=PLAF[r].bleu[i])return'Bleu';
   if(rfr<=PLAF[r].jaune[i])return'Jaune';
-  if(rfr<=(isIDF?90000:70000))return'Violet';
+  if(rfr<=PLAF[r].violet[i])return'Violet';
   return'Rose';
 }
 function racC(c){return{Bleu:0,Jaune:5000,Violet:6194,Rose:9194}[c]||0;}
@@ -363,7 +399,7 @@ function previewCouleur(){
   g('couleurBloc').innerHTML='<div class="cbadge '+m.cls+'"><div class="cb-t">'+m.dot+' Couleur ANAH : '+c+'</div><div class="cb-d">'+m.lbl+' · '+(S.isIDF?'IDF':'Province')+'</div><div class="cb-r">'+racTxt+'<br>'+isoTxt+'</div></div>';
   var r=S.isIDF?'idf':'prov',idx=Math.min(parts-1,5);
   var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
-    var plaf=col==='Violet'?(S.isIDF?90000:70000):col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
+    var plaf=col==='Violet'?PLAF[r].violet[idx]:col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
     var dot={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'}[col];
     return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
   }).join('');
@@ -558,6 +594,7 @@ emailjs.send('service_leads','template_2komt8b',{
   console.error('EmailJS:',err);
 });
 try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _dos={formDate:new Date().toISOString(),dossier:S.dossier,nom:S.nom,prenom:S.prenom,dateNaissance:S.dateNaissance,telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,dept:S.dept,zone:S.zone,isIDF:S.isIDF,parts:S.parts,numDeclarant:S.numDeclarant,rfr:S.rfr,couleur:S.couleur,chauffage:S.chauffage,surfPac:S.surfPac,ecs:S.ecs,vmc:S.vmc,compteur:S.compteur,gestes:S.gestes.join(', '),surfIso:S.surfIso,racPac:S.racPac,racIso:S.racIso,teleproNom:S.teleproNom,codeReferent:S.codeReferent,totalRac:totalRac,anneeConstruction:S.anneeConstruction};if(S._leadKey)_dos.leadKey=S._leadKey;var _base=_fb.replace(/\/$/,'');if(S._editKey){fetch(_base+'/dossiers/'+S._editKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}else{_dos.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);fetch(_base+'/dossiers.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}}}catch(e){}
+postToMonday(racStr,totalRac);
 }
 var cur=1,fromResult=false;
 function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'&&next===5)next=6;if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
@@ -582,6 +619,42 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){location.reload();}
+function getMondayCfg(){try{return JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');}catch(e){return null;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg?cfg.token:'';g('monBoardId').value=cfg?cfg.boardId:'';g('monModal').classList.add('show');}
+function closeMondayCfg(){g('monModal').classList.remove('show');}
+function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b}));}updMonBtn();closeMondayCfg();}
+function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
+function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent=getMondayCfg()?'🟣 Monday ✅':'⚙️ Monday';}
+function postToMonday(racStr,totalRac){
+  try{
+    var cfg=getMondayCfg();if(!cfg||!cfg.token||!cfg.boardId)return;
+    var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
+    var nonPAC=hasPAC&&(!S.pacOk||!S.surfOk);
+    var itemName=(S.prenom+' '+S.nom+' — '+S.dossier+' — RAC '+racStr).replace(/["\\\n]/g,' ');
+    var lines=[
+      '📋 Dossier : '+S.dossier,
+      '📞 Téléphone : '+S.telephone,
+      '📧 Email : '+(S.email||'—'),
+      '📍 Adresse : '+S.adresse+', '+S.cp+' '+S.ville,
+      '🎯 Couleur ANAH : '+S.couleur+' — Zone '+S.zone+(S.isIDF?' (IDF)':' (Province)'),
+      '💶 RAC Total : '+racStr,
+      hasPAC?'🔥 PAC : '+(nonPAC?'Non éligible':S.racPac===0?'1€':fmt(S.racPac)):'',
+      hasISO?'🏠 ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible'):'',
+      '💰 RFR : '+fmt(S.rfr)+' — '+S.parts+' part(s)',
+      S.chauffage?'🔧 Chauffage : '+S.chauffage:'',
+      S.surfPac?'📏 Surface : '+S.surfPac+' m²':'',
+      S.teleproNom?'👤 Téléprospecteur : '+S.teleproNom:'',
+      S.codeReferent?'🏷 Code référent : '+S.codeReferent:'',
+      '📅 Date : '+new Date().toLocaleDateString('fr-FR')
+    ].filter(Boolean).join('\\n');
+    var q1='mutation{create_item(board_id:'+cfg.boardId+',item_name:"'+itemName+'"){id}}';
+    fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
+    .then(function(r){return r.json();}).then(function(d){
+      var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
+      if(id){var q2='mutation{create_update(item_id:'+id+',body:"'+lines+'"){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(){});}
+    }).catch(function(){});
+  }catch(e){}
+}
 function _pf(id,val){var el=g(id);if(el&&val!==undefined&&val!==null&&val!=='')el.value=val;}
 function _pickVal(grp,val){if(!val)return;var el=document.querySelector('#'+grp+' .choice[data-val="'+val+'"]');if(el)pick(el,grp);}
 function prefillFromLead(l){
@@ -635,6 +708,7 @@ function loadFromParams(){
   }
 }
 loadFromParams();
+updMonBtn();
 updProg();
 </script>
 

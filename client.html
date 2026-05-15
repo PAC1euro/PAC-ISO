@@ -10,24 +10,17 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f0fdf4;color:#0f172a;min-height:100vh;}
 
-/* HERO BANNER SECTION */
-.hero-wrap{background:#0f172a;display:flex;align-items:center;justify-content:center;padding:24px 20px;min-height:100svh;}
-.hero{width:min(92vw,92vh);max-width:520px;aspect-ratio:1/1;background:linear-gradient(145deg,#14532d 0%,#166534 35%,#15803d 60%,#0d9488 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:6%;cursor:pointer;}
-.hero::before{content:'';position:absolute;width:55%;height:55%;border-radius:50%;background:rgba(255,255,255,.05);top:-15%;right:-15%;pointer-events:none;}
-.hero::after{content:'';position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,.05);bottom:-10%;left:-10%;pointer-events:none;}
-.hero-badge{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:50px;padding:.55em 1.4em;font-size:clamp(10px,2.2vw,16px);font-weight:900;color:#fbbf24;letter-spacing:2px;text-transform:uppercase;margin-bottom:5%;}
-.hero h1{font-size:clamp(24px,6.5vw,58px);font-weight:900;color:#fff;text-align:center;line-height:1.05;margin-bottom:3%;text-shadow:0 4px 20px rgba(0,0,0,.3);}
+/* HERO */
+.hero{background:linear-gradient(135deg,#166534 0%,#15803d 40%,#0d9488 100%);color:#fff;padding:32px 20px 28px;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.hero h1{font-size:26px;font-weight:900;line-height:1.2;margin-bottom:10px;text-shadow:0 1px 4px rgba(0,0,0,.2);}
 .hero h1 span{color:#fbbf24;}
-.hero p{font-size:clamp(11px,2.2vw,18px);color:rgba(255,255,255,.88);text-align:center;margin-bottom:5%;line-height:1.5;}
-.hero-stats{display:flex;background:rgba(0,0,0,.25);border-radius:12px;overflow:hidden;margin-bottom:5%;width:100%;}
-.stat{flex:1;padding:4% 2%;text-align:center;border-right:1px solid rgba(255,255,255,.12);}
+.hero p{font-size:14px;opacity:.92;margin-bottom:20px;line-height:1.6;}
+.hero-stats{display:flex;justify-content:center;gap:0;background:rgba(0,0,0,.15);border-radius:14px;overflow:hidden;max-width:340px;margin:0 auto;}
+.stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.15);}
 .stat:last-child{border-right:none;}
-.stat-n{font-size:clamp(14px,3.5vw,32px);font-weight:900;color:#fbbf24;line-height:1;}
-.stat-l{font-size:clamp(8px,1.5vw,12px);color:rgba(255,255,255,.75);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-.hero-cta{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f172a;font-size:clamp(13px,2.8vw,26px);font-weight:900;padding:.65em 2em;border-radius:100px;box-shadow:0 8px 30px rgba(251,191,36,.4);letter-spacing:.5px;margin-bottom:4%;}
-.hero-trust{display:flex;gap:5%;align-items:center;flex-wrap:wrap;justify-content:center;}
-.hero-trust span{font-size:clamp(8px,1.5vw,12px);color:rgba(255,255,255,.8);font-weight:700;}
-.hero-url{position:absolute;bottom:3%;color:rgba(255,255,255,.3);font-size:clamp(7px,1.2vw,10px);}
+.stat-n{font-size:18px;font-weight:900;color:#fbbf24;}
+.stat-l{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
 
 /* PROGRESS */
 .prog-wrap{background:#fff;padding:14px 20px 0;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.06);}
@@ -98,19 +91,6 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 .result-sub{font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6;}
 .result-badge{display:inline-block;background:#dcfce7;color:#166534;font-size:13px;font-weight:700;padding:8px 22px;border-radius:20px;border:1px solid #86efac;}
 
-/* ANAH color boxes */
-.anah-box{border-radius:12px;padding:14px 16px;margin:14px 0;border:2px solid;}
-.anah-bleu{background:#dbeafe;border-color:#3b82f6;color:#1e3a8a;}
-.anah-jaune{background:#fef9c3;border-color:#eab308;color:#713f12;}
-.anah-violet{background:#f3e8ff;border-color:#a855f7;color:#581c87;}
-.anah-hors{background:#fff7ed;border-color:#f97316;color:#7c2d12;}
-.anah-h{font-size:14px;font-weight:800;margin-bottom:8px;}
-.anah-row{display:flex;justify-content:space-between;gap:10px;margin:8px 0;}
-.anah-col{flex:1;}
-.anah-num{font-size:20px;font-weight:900;line-height:1.1;}
-.anah-lbl{font-size:10px;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
-.anah-note{font-size:11px;opacity:.85;line-height:1.5;margin-top:6px;font-style:italic;}
-
 .recall-box{background:linear-gradient(135deg,#166534,#0d9488);color:#fff;border-radius:16px;padding:22px 20px;text-align:center;margin:18px 0;}
 .recall-box .rco{font-size:36px;margin-bottom:10px;}
 .recall-box h3{font-size:17px;font-weight:800;margin-bottom:6px;}
@@ -130,38 +110,32 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 /* Footer */
 .footer{background:#0f172a;color:#64748b;padding:18px 20px;text-align:center;font-size:10px;line-height:1.8;}
 
-@media(max-width:360px){.c3{grid-template-columns:1fr 1fr;}}
+/* Urgency banner */
+.urgency{background:linear-gradient(90deg,#dc2626,#b91c1c);color:#fff;padding:8px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.3px;}
+
+@media(max-width:360px){.c3{grid-template-columns:1fr 1fr;}.hero h1{font-size:22px;}}
 </style>
 </head>
 <body>
 <script>emailjs.init('ikg4K9rtN8zThodmu');</script>
 
-<!-- HERO BANNER -->
-<div class="hero-wrap" id="heroWrap">
-  <div class="hero" onclick="goToForm()">
-    <div class="hero-badge">🌿 MaPrimeRénov' 2025</div>
-    <h1>Votre PAC installée<br/>à <span>1€ seulement</span></h1>
-    <p>Pompe à chaleur · Isolation · MaPrimeRénov' + CEE<br/>Financé jusqu'à <strong style="color:#fbbf24;">100%</strong> par l'État · Sans avance de frais</p>
-    <div class="hero-stats">
-      <div class="stat"><div class="stat-n">1€</div><div class="stat-l">PAC installée</div></div>
-      <div class="stat"><div class="stat-n">MPR+CEE</div><div class="stat-l">Cumulables</div></div>
-      <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Gratuit</div></div>
-    </div>
-    <div class="hero-cta">✅ Vérifier mon éligibilité →</div>
-    <div class="hero-trust">
-      <span>🏛️ Agréé MaPrimeRénov'</span>
-      <span>🇫🇷 Entreprise française</span>
-      <span>🔒 Sans engagement</span>
-    </div>
-    <div class="hero-url">pac1euro.github.io/PAC-ISO/client.html</div>
+<!-- URGENCY -->
+<div class="urgency">⚡ Aides 2025 disponibles — Délai limité — Testez votre éligibilité maintenant</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🌿 MaPrimeRénov' 2025</div>
+  <h1>Votre installation financée<br/>jusqu'à <span>100%</span> par l'État</h1>
+  <p>Pompe à chaleur · Isolation · Sans avance de frais<br/>Vérifiez votre éligibilité en <strong>2 minutes</strong> · 100% gratuit</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n">70 000€</div><div class="stat-l">Aides max</div></div>
+    <div class="stat"><div class="stat-n">2 min</div><div class="stat-l">Pour savoir</div></div>
+    <div class="stat"><div class="stat-n">Gratuit</div><div class="stat-l">Sans engagement</div></div>
   </div>
 </div>
 
-<!-- FORMULAIRE -->
-<div id="formWrap" style="display:none;">
-
 <!-- PROGRESS -->
-<div class="prog-wrap" id="prog">
+<div class="prog-wrap">
   <div class="prog-row"><span id="pLbl">Étape 1 sur 4</span><span id="pPct" style="font-weight:bold;color:#16a34a;">0%</span></div>
   <div class="prog-track"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
   <div class="steps-row">
@@ -191,7 +165,7 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
       <div class="chi">⚡</div><div class="chl">PAC + Isolation</div><div class="chs">Dossier complet</div>
     </div>
   </div>
-  <div class="alert ag" style="margin-top:4px;">💡 <div><strong>MaPrimeRénov' + CEE cumulables</strong> — votre PAC peut être installée à partir de <strong>1€ seulement</strong></div></div>
+  <div class="alert ab" style="margin-top:4px;">💡 <div><strong>Bon à savoir :</strong> Les deux aides peuvent se cumuler pour atteindre jusqu'à <strong>70 000€ d'aides</strong></div></div>
   <div class="err" id="e1">⚠ Veuillez choisir un projet pour continuer.</div>
   <div class="brow"><button class="btn bp" onclick="goNext(1)">Continuer →</button></div>
 </div>
@@ -207,43 +181,12 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
     <div class="choices c3" id="cChauf">
       <div class="choice" data-val="Gaz" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🔵</div><div class="chl">Gaz</div></div>
       <div class="choice" data-val="Fioul" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🛢️</div><div class="chl">Fioul</div></div>
-      <div class="choice" data-val="Chaudière à bois" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🪵</div><div class="chl">Chaudière<br/>à bois</div></div>
-      <div class="choice" data-val="Chaudière à charbon" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚫</div><div class="chl">Chaudière<br/>à charbon</div></div>
+      <div class="choice" data-val="Bois" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">🪵</div><div class="chl">Bois</div></div>
+      <div class="choice" data-val="Charbon" data-ok="1" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚫</div><div class="chl">Charbon</div></div>
       <div class="choice" data-val="Électrique" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">⚡</div><div class="chl">Électrique</div></div>
       <div class="choice" data-val="Autre" data-ok="0" onclick="pick(this,'cChauf');chkChauf()"><div class="chi">❓</div><div class="chl">Autre</div></div>
     </div>
     <div id="chaufAlert"></div>
-  </div>
-
-  <div class="slabel">VMC (ventilation mécanique)</div>
-  <div class="choices c2" id="cVmc">
-    <div class="choice" data-val="Non" onclick="pick(this,'cVmc');chkBallon()">
-      <div class="chi">🔇</div><div class="chl">Non</div><div class="chs">Pas de VMC</div>
-    </div>
-    <div class="choice" data-val="Oui" onclick="pick(this,'cVmc');chkBallon()">
-      <div class="chi">💨</div><div class="chl">Oui</div><div class="chs">J'ai une VMC</div>
-    </div>
-  </div>
-
-  <div id="ballonSection" style="display:none;">
-    <div class="slabel">Ancienneté de la VMC</div>
-    <div class="choices c2" id="cVmcAge">
-      <div class="choice" data-val="Ancienne" onclick="pick(this,'cVmcAge')">
-        <div class="chi">🕰️</div><div class="chl">Ancienne</div><div class="chs">+ de 10 ans</div>
-      </div>
-      <div class="choice" data-val="Récente" onclick="pick(this,'cVmcAge')">
-        <div class="chi">✨</div><div class="chl">Récente</div><div class="chs">- de 10 ans</div>
-      </div>
-    </div>
-    <div class="slabel">Ballon thermodynamique</div>
-    <div class="choices c2" id="cBallon">
-      <div class="choice" data-val="Non" onclick="pick(this,'cBallon')">
-        <div class="chi">❌</div><div class="chl">Non</div><div class="chs">Pas de ballon</div>
-      </div>
-      <div class="choice" data-val="Oui" onclick="pick(this,'cBallon')">
-        <div class="chi">♨️</div><div class="chl">Oui</div><div class="chs">J'en ai un</div>
-      </div>
-    </div>
   </div>
 
   <div class="slabel">Votre logement</div>
@@ -256,54 +199,11 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
   <div id="anneeAlert"></div>
 
   <div class="slabel">Statut d'occupation</div>
-  <div class="choices c3" id="cStatut">
-    <div class="choice" data-val="Propriétaire maison" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏠</div><div class="chl">Propriétaire</div><div class="chs">Maison</div></div>
-    <div class="choice" data-val="Propriétaire appartement" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏢</div><div class="chl">Propriétaire</div><div class="chs">Appartement</div></div>
-    <div class="choice" data-val="Locataire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🔑</div><div class="chl">Locataire</div><div class="chs"></div></div>
+  <div class="choices c2" id="cStatut">
+    <div class="choice" data-val="Propriétaire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🏠</div><div class="chl">Propriétaire</div></div>
+    <div class="choice" data-val="Locataire" onclick="pick(this,'cStatut');chkStatut()"><div class="chi">🔑</div><div class="chl">Locataire</div></div>
   </div>
   <div id="statutAlert"></div>
-
-  <div class="slabel">Aides énergétiques déjà perçues</div>
-  <div class="choices c2" id="cAides">
-    <div class="choice" data-val="Non" onclick="pick(this,'cAides');chkAides()">
-      <div class="chi">🙅</div><div class="chl">Non</div><div class="chs">Première demande</div>
-    </div>
-    <div class="choice" data-val="Oui" onclick="pick(this,'cAides');chkAides()">
-      <div class="chi">✅</div><div class="chl">Oui</div><div class="chs">J'en ai déjà bénéficié</div>
-    </div>
-  </div>
-  <div id="aidesDetailSection" style="display:none;">
-    <div class="slabel">Équipement déjà aidé</div>
-    <div class="choices c2" id="cAidesType">
-      <div class="choice" data-val="PAC" onclick="pick(this,'cAidesType')">
-        <div class="chi">🔥</div><div class="chl">PAC</div><div class="chs">Pompe à chaleur</div>
-      </div>
-      <div class="choice" data-val="Isolation" onclick="pick(this,'cAidesType')">
-        <div class="chi">🏠</div><div class="chl">Isolation</div><div class="chs">Combles, murs…</div>
-      </div>
-      <div class="choice" data-val="Chaudière" onclick="pick(this,'cAidesType')">
-        <div class="chi">🔵</div><div class="chl">Chaudière</div><div class="chs">Biomasse, gaz…</div>
-      </div>
-      <div class="choice" data-val="Autre" onclick="pick(this,'cAidesType')">
-        <div class="chi">❓</div><div class="chl">Autre</div><div class="chs">Autre équipement</div>
-      </div>
-    </div>
-    <div class="slabel">Il y a combien de temps ?</div>
-    <div class="choices c2" id="cAidesDelai">
-      <div class="choice" data-val="Moins d'1 an" onclick="pick(this,'cAidesDelai')">
-        <div class="chl" style="font-size:13px;">Moins d'1 an</div>
-      </div>
-      <div class="choice" data-val="1 à 3 ans" onclick="pick(this,'cAidesDelai')">
-        <div class="chl" style="font-size:13px;">1 à 3 ans</div>
-      </div>
-      <div class="choice" data-val="3 à 5 ans" onclick="pick(this,'cAidesDelai')">
-        <div class="chl" style="font-size:13px;">3 à 5 ans</div>
-      </div>
-      <div class="choice" data-val="Plus de 5 ans" onclick="pick(this,'cAidesDelai')">
-        <div class="chl" style="font-size:13px;">Plus de 5 ans</div>
-      </div>
-    </div>
-  </div>
 
   <div class="err" id="e2">⚠ Veuillez remplir toutes les informations.</div>
   <div class="brow">
@@ -329,36 +229,12 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
   </div>
 
   <div class="slabel">Revenus annuels du foyer</div>
-  <div class="hint" style="margin-top:0;margin-bottom:10px;">Revenu fiscal de référence total du foyer (avis d'imposition)</div>
+  <div class="hint" style="margin-top:0;margin-bottom:10px;">Revenu total de toutes les personnes vivant au foyer</div>
   <div class="choices c2" id="cRevenus">
-    <div class="choice" data-val="Moins de 15 000€/an" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:13px;">Moins de<br/><strong>15 000€/an</strong></div></div>
-    <div class="choice" data-val="15 000 – 22 000€/an" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:13px;"><strong>15 000</strong> à<br/><strong>22 000€/an</strong></div></div>
-    <div class="choice" data-val="22 000 – 32 000€/an" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:13px;"><strong>22 000</strong> à<br/><strong>32 000€/an</strong></div></div>
-    <div class="choice" data-val="32 000 – 45 000€/an" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:13px;"><strong>32 000</strong> à<br/><strong>45 000€/an</strong></div></div>
-    <div class="choice" data-val="45 000 – 60 000€/an" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:13px;"><strong>45 000</strong> à<br/><strong>60 000€/an</strong></div></div>
-    <div class="choice" data-val="Plus de 60 000€/an" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:13px;">Plus de<br/><strong>60 000€/an</strong></div></div>
-  </div>
-
-  <div class="slabel">Devis / demande déjà effectué</div>
-  <div class="hint" style="margin-top:0;margin-bottom:10px;">À titre informatif — ne bloque pas votre demande</div>
-  <div class="choices c2" id="cDevis">
-    <div class="choice" data-val="Non" onclick="pick(this,'cDevis');chkDevis()">
-      <div class="chi">🙅</div><div class="chl">Non</div><div class="chs">Pas encore</div>
-    </div>
-    <div class="choice" data-val="Oui" onclick="pick(this,'cDevis');chkDevis()">
-      <div class="chi">📄</div><div class="chl">Oui</div><div class="chs">J'ai déjà un devis</div>
-    </div>
-  </div>
-  <div id="devisAgeWrap" style="display:none;">
-    <div class="slabel">Ancienneté du devis</div>
-    <div class="choices c2" id="cDevisAge">
-      <div class="choice" data-val="Moins d'1 an" onclick="pick(this,'cDevisAge')">
-        <div class="chi">🕐</div><div class="chl">Moins d'1 an</div>
-      </div>
-      <div class="choice" data-val="Plus d'1 an" onclick="pick(this,'cDevisAge')">
-        <div class="chi">🗓️</div><div class="chl">Plus d'1 an</div>
-      </div>
-    </div>
+    <div class="choice" data-val="Moins de 20 000€/an" data-score="1" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;">Moins de<br/><strong>20 000€/an</strong></div></div>
+    <div class="choice" data-val="20 000 – 35 000€/an" data-score="2" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;"><strong>20 000</strong> à<br/><strong>35 000€/an</strong></div></div>
+    <div class="choice" data-val="35 000 – 55 000€/an" data-score="3" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;"><strong>35 000</strong> à<br/><strong>55 000€/an</strong></div></div>
+    <div class="choice" data-val="Plus de 55 000€/an" data-score="4" onclick="pick(this,'cRevenus')"><div class="chl" style="font-size:14px;">Plus de<br/><strong>55 000€/an</strong></div></div>
   </div>
 
   <div class="err" id="e3">⚠ Veuillez remplir toutes les informations.</div>
@@ -405,13 +281,10 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
     <div class="result-badge" id="rBadge">✅ Dossier favorable</div>
   </div>
 
-  <div id="anahBox"></div>
-
   <div class="recall-box">
     <div class="rco">📞</div>
     <h3>Un conseiller vous rappelle sous 24h</h3>
     <p>Étude complète <strong>gratuite</strong> · Sans engagement · Prise en charge totale de votre dossier</p>
-    <p style="margin-top:10px;background:rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;font-size:12px;">💡 <strong>Pour estimer au mieux votre dossier lors de l'appel</strong>, n'hésitez pas à prévoir le montant de votre dernier revenu fiscal de référence (indiqué sur votre avis d'imposition).</p>
   </div>
 
   <div class="summary-box">
@@ -424,10 +297,8 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 
 </div><!-- /card -->
 
-</div><!-- /formWrap -->
-
 <!-- TRUST -->
-<div class="trust" id="trustBar" style="display:none;">
+<div class="trust">
   <div class="trust-item">🏛️ Agréé MaPrimeRénov'</div>
   <div class="trust-item">🇫🇷 Entreprise française</div>
   <div class="trust-item">🔒 100% gratuit</div>
@@ -435,64 +306,19 @@ input:focus,select:focus{outline:none;border-color:#16a34a;background:#fff;box-s
 </div>
 
 <!-- FOOTER -->
-<div class="footer" id="footerBar" style="display:none;">
+<div class="footer">
   <p>Ce simulateur est fourni à titre indicatif. Les montants d'aides définitifs sont déterminés après étude complète de votre dossier par un conseiller agréé.</p>
   <p style="margin-top:6px;">© 2025 · Aides Énergétiques · Tous droits réservés</p>
 </div>
 
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
-var FIREBASE_URL='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
-
-function goToForm(){
-  document.getElementById('heroWrap').style.display='none';
-  document.getElementById('formWrap').style.display='block';
-  document.getElementById('trustBar').style.display='flex';
-  document.getElementById('footerBar').style.display='block';
-  window.scrollTo(0,0);
-}
-
-var L={projet:'',chauffage:'',vmc:'',vmcAge:'',ballon:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',devis:'',devisAge:'',aidesAnterieures:'',aidesType:'',aidesDelai:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
+var FIREBASE_URL='';
+var L={projet:'',chauffage:'',surface:'',annee:'',statut:'',personnes:'',revenus:'',prenom:'',nom:'',telephone:'',email:'',cp:''};
 var cur=1;
 
-var ANAH={
-  IDF:{
-    bleu:  [23541,34551,41493,48447,55427,62397],
-    jaune: [28657,42058,50513,58981,67473,75959],
-    violet:[40018,58827,70382,82839,94844,106679]
-  },
-  AUTRE:{
-    bleu:  [17173,25115,30206,35285,40388,45478],
-    jaune: [21805,31898,38382,44845,51281,57743],
-    violet:[30844,45340,54587,63753,72993,82221]
-  }
-};
-
-var INC={
-  'Moins de 15 000€/an':10000,
-  '15 000 – 22 000€/an':18500,
-  '22 000 – 32 000€/an':27000,
-  '32 000 – 45 000€/an':38500,
-  '45 000 – 60 000€/an':52500,
-  'Plus de 60 000€/an':75000
-};
-
-var PIDX={'1 personne':0,'2 personnes':1,'3 personnes':2,'4 personnes':3,'5 personnes':4,'6 personnes ou plus':5};
-
-function getAnahColor(){
-  var inc=INC[L.revenus]||50000;
-  var idf=['75','77','78','91','92','93','94','95'].indexOf((L.cp||'').slice(0,2))>-1;
-  var t=idf?ANAH.IDF:ANAH.AUTRE;
-  var i=PIDX[L.personnes]!==undefined?PIDX[L.personnes]:5;
-  if(inc<=t.bleu[i])  return{c:'bleu',  lab:'Très modeste',   em:'🔵',mpr:'70%',rac:'~1€',         note:"PAC installée à 1€ très probable — aide maximale MaPrimeRénov' 70% + CEE.",css:'anah-bleu'};
-  if(inc<=t.jaune[i]) return{c:'jaune', lab:'Modeste',        em:'🟡',mpr:'50%',rac:'Faible',       note:"MaPrimeRénov' 50% + CEE — reste à charge réduit, PAC à 1€ possible selon le devis.",css:'anah-jaune'};
-  if(inc<=t.violet[i])return{c:'violet',lab:'Intermédiaire',  em:'🟣',mpr:'30%',rac:'2 000€–5 000€',note:"Éligible MaPrimeRénov' 30% + CEE — un conseiller cherchera à réduire au maximum votre reste à charge.",css:'anah-violet'};
-  return                     {c:'hors', lab:'Supérieur',       em:'🟠',mpr:'Éligible CEE',rac:'À étudier',note:"Éligible aux aides CEE — un conseiller étudie votre dossier pour trouver la meilleure solution possible.",css:'anah-hors'};
-}
-
 function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
-function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';
-}
+function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';}  
 function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
@@ -523,25 +349,6 @@ function show(n){
   window.scrollTo(0,0);
 }
 
-function chkBallon(){
-  var v=gSel('cVmc');
-  var sec=document.getElementById('ballonSection');
-  sec.style.display=v==='Oui'?'':'none';
-  if(v!=='Oui'){
-    ['#cBallon .choice','#cVmcAge .choice'].forEach(function(sel){
-      var els=document.querySelectorAll(sel);for(var i=0;i<els.length;i++)els[i].classList.remove('sel');
-    });
-  }
-}
-function chkAides(){
-  var v=gSel('cAides');
-  document.getElementById('aidesDetailSection').style.display=v==='Oui'?'':'none';
-  if(v!=='Oui'){
-    ['#cAidesType .choice','#cAidesDelai .choice'].forEach(function(sel){
-      var els=document.querySelectorAll(sel);for(var i=0;i<els.length;i++)els[i].classList.remove('sel');
-    });
-  }
-}
 function chkChauf(){
   var el=document.querySelector('#cChauf .sel');if(!el)return;
   var ok=el.getAttribute('data-ok')==='1';
@@ -568,15 +375,9 @@ function chkAnnee(){
 
 function chkStatut(){
   var s=gSel('cStatut');
-  if(s==='Locataire')g('statutAlert').innerHTML='<div class="alert ar">❌ Les aides MaPrimeRénov\' et CEE sont réservées aux <strong>propriétaires occupants</strong>. Les locataires ne sont pas éligibles.</div>';
-  else if(s==='Propriétaire appartement')g('statutAlert').innerHTML='<div class="alert ar">❌ Les aides PAC Air/Eau nécessitent une <strong>maison individuelle</strong>. Les appartements ne sont pas éligibles.</div>';
-  else if(s)g('statutAlert').innerHTML='<div class="alert ag">✅ Propriétaire maison — vous êtes éligible aux aides</div>';
-}
-
-function chkDevis(){
-  var v=gSel('cDevis');
-  g('devisAgeWrap').style.display=v==='Oui'?'block':'none';
-  if(v!=='Oui'){var all=document.querySelectorAll('#cDevisAge .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');}
+  g('statutAlert').innerHTML=s==='Locataire'
+    ?'<div class="alert ao">⚠️ En tant que locataire, l\'accord du propriétaire est nécessaire — un conseiller vous expliquera la démarche</div>'
+    :'';
 }
 
 function goNext(s){
@@ -593,15 +394,7 @@ function goNext(s){
     if(!gv('surface')){g('e2').classList.add('show');return;}
     if(!gv('annee')){g('e2').classList.add('show');return;}
     if(!gSel('cStatut')){g('e2').classList.add('show');return;}
-    if(gSel('cStatut')==='Locataire'){g('e2').classList.add('show');g('e2').textContent='❌ Les locataires ne sont pas éligibles aux aides MaPrimeRénov\' et CEE.';return;}
-    if(gSel('cStatut')==='Propriétaire appartement'){g('e2').classList.add('show');g('e2').textContent='❌ Les propriétaires d\'appartement ne sont pas éligibles à la PAC Air/Eau.';return;}
     L.chauffage=gSel('cChauf')||'—';
-    L.vmc=gSel('cVmc')||'Non';
-    L.vmcAge=gSel('cVmc')==='Oui'?(gSel('cVmcAge')||'—'):'—';
-    L.ballon=gSel('cVmc')==='Oui'?(gSel('cBallon')||'Non'):'—';
-    L.aidesAnterieures=gSel('cAides')||'Non';
-    L.aidesType=gSel('cAides')==='Oui'?(gSel('cAidesType')||'—'):'—';
-    L.aidesDelai=gSel('cAides')==='Oui'?(gSel('cAidesDelai')||'—'):'—';
     L.surface=gv('surface');
     L.annee=gv('annee');
     L.statut=gSel('cStatut');
@@ -611,22 +404,24 @@ function goNext(s){
     if(!gSel('cPersonnes')||!gSel('cRevenus')){g('e3').classList.add('show');return;}
     L.personnes=gSel('cPersonnes');
     L.revenus=gSel('cRevenus');
-    L.devis=gSel('cDevis')||'Non renseigné';
-    L.devisAge=gSel('cDevisAge')||'';
     show(4);return;
   }
 }
 
 function goPrev(s){show(s-1);}
 
-function getZone(cp){
-  var d=cp.slice(0,2);
-  if(d==='97')d=cp.slice(0,3);
-  var H3=['06','13','20','83','971','972','973','974'];
-  var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
-  if(H3.indexOf(d)>-1)return'H3 ☀️ (Méditerranée)';
-  if(H1.indexOf(d)>-1)return'H1 ❄️ (Climat froid)';
-  return'H2 🌤️ (Climat tempéré)';
+function getScore(){
+  var ok=true,notes=[];
+  var proj=L.projet,chauf=L.chauffage,surf=Number(L.surface),annee=Number(L.annee),rev=L.revenus,statut=L.statut;
+  if((proj==='PAC Air/Eau'||proj==='PAC + Isolation')&&chauf==='Électrique'){ok=false;}
+  if(annee>new Date().getFullYear()-15)notes.push('maison récente');
+  if(surf<70)notes.push('petite surface');
+  if(rev==='Plus de 55 000€/an')notes.push('revenus élevés');
+  if(statut==='Locataire')notes.push('locataire');
+  if(!ok)return{label:'À étudier avec un conseiller',ico:'📊',color:'#d97706',favorable:false};
+  if(notes.length===0)return{label:'Très favorable ⭐',ico:'🎉',color:'#16a34a',favorable:true};
+  if(notes.length===1)return{label:'Favorable',ico:'✅',color:'#0d9488',favorable:true};
+  return{label:'À étudier avec un conseiller',ico:'📊',color:'#d97706',favorable:false};
 }
 
 function submit(){
@@ -638,7 +433,8 @@ function submit(){
   var date=new Date().toLocaleString('fr-FR');
   var zone=getZone(L.cp);
   var anah=getAnahColor();
-  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,vmc:L.vmc,vmcAge:L.vmcAge,ballon:L.ballon,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,aidesAnterieures:L.aidesAnterieures,aidesType:L.aidesType,aidesDelai:L.aidesDelai,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,status:'nouveau',comment:''};
+  var score=getScore();
+  var leadObj={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),formDate:new Date().toISOString(),prenom:L.prenom,nom:L.nom,telephone:L.telephone,email:L.email,cp:L.cp,zone:zone,projet:L.projet,chauffage:L.chauffage,surface:L.surface,annee:L.annee,statut:L.statut,personnes:L.personnes,revenus:L.revenus,devis:L.devis,devisAge:L.devisAge,anahColor:anah.c,anahLab:anah.lab,anahMpr:anah.mpr,anahRac:anah.rac,eligibilite:score.label,status:'nouveau',comment:''};
   var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');
   if(_fb){fetch(_fb.replace(/\/$/,'')+'/leads.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(leadObj)}).catch(function(){});}
   var adminLink='https://pac1euro.github.io/PAC-ISO/crm.html?import='+btoa(unescape(encodeURIComponent(JSON.stringify(leadObj))));
@@ -663,8 +459,7 @@ function submit(){
   +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Prénom / Nom</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.prenom+' '+L.nom+'</td></tr>'
   +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Téléphone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.telephone+'</td></tr>'
   +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Email</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(L.email||'—')+'</td></tr>'
-  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Code postal</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.cp+'</td></tr>'
-  +'<tr><td style="padding:5px 8px;color:#475569;">Zone climatique</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+zone+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;">Code postal</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+L.cp+'</td></tr>'
   +'</table>'
   +'<div style="background:#dcfce7;color:#166534;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">🏡 LOGEMENT</div>'
   +'<table style="width:100%;border-collapse:collapse;">'
@@ -677,60 +472,36 @@ function submit(){
   +'<div style="background:#dcfce7;color:#166534;font-weight:bold;padding:6px 10px;border-radius:4px;margin:10px 0 5px;">💰 FOYER</div>'
   +'<table style="width:100%;border-collapse:collapse;">'
   +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Composition</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.personnes+'</td></tr>'
-  +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Revenus annuels</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+L.revenus+'</td></tr>'
-  +'<tr><td style="padding:5px 8px;color:#475569;">Devis antérieur</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+L.devis+(L.devisAge?' ('+L.devisAge+')':'')+'</td></tr>'
+  +'<tr><td style="padding:5px 8px;color:#475569;">Revenus annuels</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+L.revenus+'</td></tr>'
   +'</table>'
-  +'<div style="font-size:10px;color:#94a3b8;text-align:center;margin-top:14px;">Lead généré automatiquement — '+date+'</div>'
+  +'<div style="background:'+score.color+';color:#fff;padding:12px 18px;border-radius:8px;display:flex;justify-content:space-between;font-size:14px;font-weight:bold;margin:14px 0;"><span>📊 ÉLIGIBILITÉ ESTIMÉE</span><span>'+score.label+'</span></div>'
+  +'<div style="font-size:10px;color:#94a3b8;text-align:center;">Lead généré automatiquement — '+date+'</div>'
   +'</div>';
   emailjs.send('service_leads','template_2komt8b',{
     to_email:'maxime.paciso1@gmail.com',
     name:L.prenom+' '+L.nom,
     nom_client:L.prenom+' '+L.nom,
-    subject:anah.em+' Lead '+L.prenom+' '+L.nom+' — ANAH '+anah.lab+' — RAC '+anah.rac+' — '+L.telephone+' — CP '+L.cp,
+    subject:'🌿 Lead '+L.prenom+' '+L.nom+' — '+L.projet+' — '+L.telephone+' — CP '+L.cp,
     time:date,
     dossier:L.projet,
-    rac_total:anah.rac,
+    rac_total:score.label,
     message:message,
     telephone:L.telephone,
     adresse:L.cp,
-    couleur_anah:anah.em+' '+anah.lab,
+    couleur_anah:anah.lab,
     zone:zone,
     date:date
   }).then(function(){showResult();},function(){showResult();});
 }
 
 function showResult(){
-  var anah=getAnahColor();
-  if(anah.c==='bleu'){
-    g('rIco').textContent='🎉';
-    g('rTitle').textContent='Votre PAC à 1€ est très probable !';
-    g('rSub').textContent="Catégorie ANAH Très modeste — vous bénéficiez de l'aide maximale MaPrimeRénov' 70% + CEE. Un conseiller confirme votre dossier sous 24h.";
-    g('rBadge').textContent='🔵 Reste à charge estimé : ~1€';
-  } else if(anah.c==='jaune'){
-    g('rIco').textContent='✅';
-    g('rTitle').textContent='Vous avez droit aux aides !';
-    g('rSub').textContent="Catégorie ANAH Modeste — MaPrimeRénov' 50% + CEE. Reste à charge réduit. Un conseiller calcule le montant exact gratuitement.";
-    g('rBadge').textContent='🟡 Faible reste à charge — à confirmer avec un conseiller';
-  } else if(anah.c==='violet'){
-    g('rIco').textContent='✅';
-    g('rTitle').textContent='Vous êtes éligible aux aides !';
-    g('rSub').textContent="Catégorie ANAH Intermédiaire — MaPrimeRénov' 30% + CEE. Un conseiller cherchera à optimiser votre dossier pour réduire au maximum votre reste à charge.";
-    g('rBadge').textContent='🟣 Éligible — un conseiller optimise votre dossier';
-  } else {
-    g('rIco').textContent='✅';
-    g('rTitle').textContent='Vous êtes éligible aux aides !';
-    g('rSub').textContent="Vous bénéficiez des aides CEE. Un conseiller étudie votre dossier gratuitement pour vous présenter les meilleures solutions disponibles.";
-    g('rBadge').textContent='🟠 Éligible CEE — un conseiller étudie votre dossier';
-  }
-  g('anahBox').className='anah-box '+anah.css;
-  g('anahBox').innerHTML=''
-    +'<div class="anah-h">'+anah.em+' Catégorie ANAH : <strong>'+anah.lab+'</strong></div>'
-    +'<div class="anah-row">'
-    +'<div class="anah-col"><div class="anah-lbl">MaPrimeRénov\'</div><div class="anah-num">'+anah.mpr+'</div></div>'
-    +'<div class="anah-col" style="text-align:right;"><div class="anah-lbl">Reste à charge estimé</div><div class="anah-num">'+anah.rac+'</div></div>'
-    +'</div>'
-    +'<div class="anah-note">'+anah.note+'</div>';
-  var racBg=anah.c==='bleu'?'#dbeafe':anah.c==='jaune'?'#fef9c3':anah.c==='violet'?'#f3e8ff':'#fff7ed';
+  var score=getScore();
+  g('rIco').textContent=score.ico;
+  g('rTitle').textContent=score.favorable?'Bonne nouvelle !':'Votre demande est bien reçue !';
+  g('rSub').textContent=score.favorable
+    ?'Vous êtes potentiellement éligible aux aides MaPrimeRénov\'. Un conseiller vous contacte sous 24h.'
+    :'Un conseiller spécialisé va étudier votre situation personnellement et vous rappeler sous 24h.';
+  g('rBadge').textContent='📞 Rappel conseiller sous 24h';
   var rows='';
   rows+='<div class="srow"><span class="sl">Projet</span><span class="sv">'+L.projet+'</span></div>';
   if(L.chauffage&&L.chauffage!=='—')rows+='<div class="srow"><span class="sl">Chauffage</span><span class="sv">'+L.chauffage+'</span></div>';
@@ -739,10 +510,7 @@ function showResult(){
   rows+='<div class="srow"><span class="sl">Revenus</span><span class="sv">'+L.revenus+'</span></div>';
   rows+='<div class="srow"><span class="sl">Code postal</span><span class="sv">'+L.cp+'</span></div>';
   rows+='<div class="srow"><span class="sl">Téléphone</span><span class="sv">'+L.telephone+'</span></div>';
-  if(L.devis)rows+='<div class="srow"><span class="sl">Devis antérieur</span><span class="sv">'+L.devis+(L.devisAge?' ('+L.devisAge+')':'')+'</span></div>';
-  rows+='<div class="srow" style="background:'+racBg+';border-radius:8px;padding:8px 6px;margin-top:4px;">'
-    +'<span class="sl" style="font-weight:bold;">Catégorie ANAH</span>'
-    +'<span class="sv">'+anah.em+' '+anah.lab+'</span></div>';
+  rows+='<div class="srow" style="background:#dcfce7;border-radius:8px;padding:8px 6px;margin-top:4px;"><span class="sl" style="color:#166534;font-weight:bold;">Éligibilité estimée</span><span class="sv" style="color:#166534;">'+score.label+'</span></div>';
   g('summaryRows').innerHTML=rows;
   show(5);
 }

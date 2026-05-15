@@ -201,7 +201,7 @@ textarea.edit-in{resize:vertical;min-height:70px;}
         <option value="">Toutes catégories</option>
         <option value="bleu">🔵 Bleu</option>
         <option value="jaune">🟡 Jaune</option>
-        <option value="violet">🟣 Violet</option>
+        <option value="violet">🟪 Violet</option>
         <option value="orange">🟠 Orange</option>
       </select>
       <select class="fsel" id="fltStatus" onchange="renderLeads()">
@@ -360,14 +360,14 @@ function isEligible(l){
   if(l.transferred==='oui')return true;
   if(l.manualInelig===true||l.manualInelig==='true')return false;
   if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)return false;
-  if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)return false;
+  if(String(l.chauffage||'')==='Electrique'&&String(l.projet||'').indexOf('PAC')>-1)return false;
   return true;
 }
 function ineligReason(l){
   var r=[];
   if(l.manualInelig===true||l.manualInelig==='true')r.push('Déplacé manuellement');
   if(String(l.statut||'').toLowerCase().indexOf('locataire')>-1)r.push('Locataire');
-  if(String(l.chauffage||'')==='Électrique'&&String(l.projet||'').indexOf('PAC')>-1)r.push('Chauffage électrique + PAC');
+  if(String(l.chauffage||'')==='Electrique'&&String(l.projet||'').indexOf('PAC')>-1)r.push('Chauffage électrique + PAC');
   return r.join(' · ')||'Non éligible';
 }
 
@@ -445,7 +445,7 @@ function renderInelig(){
 }
 
 function leadCard(l){
-  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'--';
   var status=l.status||'nouveau';
   var uid='u'+String(l._fbKey||l.id).replace(/[^a-z0-9]/gi,'');
   var isPAC=String(l.projet||'').indexOf('PAC')>-1;
@@ -456,18 +456,18 @@ function leadCard(l){
     +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
     +'<div class="meta">'+date+' · CP '+esc(l.cp)+' · Zone '+esc(l.zone)+'</div>'
     +'</div>'
-    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'—')+'</span>'
+    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'--')+'</span>'
     +'</div>'
     +'<div class="card-tags">'
     +'<span class="tag '+(isPAC?'tag-pac':'')+'">'+esc(l.projet)+'</span>'
-    +(l.chauffage&&l.chauffage!=='—'?'<span class="tag '+(l.chauffage==='Électrique'?'tag-ko':'')+'">'+esc(l.chauffage)+'</span>':'')
+    +(l.chauffage&&l.chauffage!=='--'?'<span class="tag '+(l.chauffage==='Électrique'?'tag-ko':'')+'">'+esc(l.chauffage)+'</span>':'')
     +'<span class="tag">'+esc(l.surface)+' m²</span>'
     +'<span class="tag">'+esc(l.statut)+'</span>'
     +'<span class="tag">MPR: '+esc(l.anahMpr)+'</span>'
     +(l.hasDossier?'<span class="tag tag-dos">📁 Dossier créé</span>':'')
     +'</div>'
     +'<div class="card-status">'
-    +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l._fbKey)+'","'+uid+'")\'>'
+    +'<select class="status-sel" id="sel_'+uid+'" onchange=\'onStatusChange("'+esc(l._fbKey)+'","'+uid+'")\'>' 
     +Object.keys(STATUS_LBL).map(function(k){return'<option value="'+k+'"'+(status===k?' selected':'')+'>'+STATUS_LBL[k]+'</option>';}).join('')
     +'</select>'
     +'<input class="comment-in'+(status==='rappeler'?' show':'')+' " id="com_'+uid+'" placeholder="Note / date de rappel…" value="'+esc(l.comment||'')+'" oninput=\'schedSave("'+esc(l._fbKey)+'","'+uid+'")\'/>'
@@ -484,14 +484,14 @@ function leadCard(l){
 }
 
 function ineligCard(l){
-  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var date=l.formDate?new Date(l.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'--';
   var uid='u'+String(l._fbKey||l.id).replace(/[^a-z0-9]/gi,'');
   return '<div class="card inelig">'
     +'<div class="card-top">'
     +'<div class="ct-left"><div class="name">'+esc(l.prenom)+' '+esc(l.nom)+'</div>'
     +'<div class="phone">📞 '+esc(l.telephone)+'</div>'
     +'<div class="meta">'+date+' · CP '+esc(l.cp)+'</div></div>'
-    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'—')+'</span>'
+    +'<span class="anah-pill pill-'+esc(l.anahColor||'orange')+'">'+esc(l.anahLab||l.anahColor||'--')+'</span>'
     +'</div>'
     +'<div class="reason-badge">❌ '+esc(ineligReason(l))+'</div>'
     +'<div class="card-tags">'
@@ -610,9 +610,9 @@ function renderDossiers(){
 }
 
 function dosCard(d){
-  var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+  var date=d.formDate?new Date(d.formDate).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'--';
   var coul=String(d.couleur||'').toLowerCase();
-  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€ RAC':'—');
+  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€ RAC':'--');
   var ds=d.dosStatus||'montage';
   var uid='d'+String(d._fbKey||'').replace(/[^a-z0-9]/gi,'');
   var borderClr={montage:'#93c5fd',traitement:'#fcd34d',installe:'#86efac',abandonne:'#fca5a5'}[ds]||'#e2e8f0';
@@ -624,10 +624,10 @@ function dosCard(d){
     +'<div class="dos-rac">💶 '+esc(rac)+'</div>'
     +'<div class="dos-meta">'+date+' · '+esc(d.dossier)+(d.notes?'<br>📝 '+esc(d.notes):'')+'</div>'
     +'</div>'
-    +'<span class="dos-pill cb-'+esc(coul)+'">'+esc(d.couleur||'—')+'</span>'
+    +'<span class="dos-pill cb-'+esc(coul)+'">'+esc(d.couleur||'--')+'</span>'
     +'</div>'
     +'<div style="padding:0 13px 8px;">'
-    +'<select class="dos-status-sel" id="dss_'+uid+'" onchange=\'onDosStatusChange("'+esc(d._fbKey)+'","'+uid+'")\'>'
+    +'<select class="dos-status-sel" id="dss_'+uid+'" onchange=\'onDosStatusChange("'+esc(d._fbKey)+'","'+uid+'")\'>' 
     +Object.keys(DOS_STATUS).map(function(k){return'<option value="'+k+'"'+(ds===k?' selected':'')+'>'+DOS_STATUS[k]+'</option>';}).join('')
     +'</select>'
     +'</div>'
@@ -647,15 +647,15 @@ function openLeadDetail(fbKey){
     '<div class="msec">📞 Contact</div>'
     +row('Nom / Prénom',l.prenom+' '+l.nom)
     +row('Téléphone','<a href="tel:'+esc(l.telephone)+'">'+esc(l.telephone)+'</a>')
-    +row('Email',l.email||'—')
+    +row('Email',l.email||'--')
     +row('Code postal',l.cp)
     +row('Zone',l.zone)
     +'<div class="msec">🏡 Logement</div>'
     +row('Projet',l.projet)
     +row('Chauffage',l.chauffage)
-    +row('VMC',l.vmc+(l.vmcAge&&l.vmcAge!=='—'?' — '+l.vmcAge:''))
+    +row('VMC',l.vmc+(l.vmcAge&&l.vmcAge!=='--'?' -- '+l.vmcAge:''))
     +row('Ballon thermodynamique',l.ballon)
-    +row('Surface',l.surface?l.surface+' m²':'—')
+    +row('Surface',l.surface?l.surface+' m²':'--')
     +row('Année construction',l.annee)
     +row('Statut',l.statut)
     +'<div class="msec">💰 Foyer</div>'
@@ -666,11 +666,11 @@ function openLeadDetail(fbKey){
     +row('Catégorie',l.anahLab||l.anahColor)
     +row('MaPrimeRénov\'',l.anahMpr)
     +row('Reste à charge estimé',l.anahRac)
-    +row('Éligibilité',l.eligibilite||'—')
+    +row('Éligibilité',l.eligibilite||'--')
     +'<div class="msec">📋 Suivi</div>'
     +row('Statut',STATUS_LBL[l.status||'nouveau']||l.status)
     +(l.comment?row('Note',l.comment):'')
-    +row('Date',l.formDate?new Date(l.formDate).toLocaleString('fr-FR'):'—');
+    +row('Date',l.formDate?new Date(l.formDate).toLocaleString('fr-FR'):'--');
   document.getElementById('detailModal').classList.add('show');
 }
 
@@ -678,7 +678,7 @@ function openDosDetail(fbKey){
   var d=allDossiers.find(function(x){return x._fbKey===fbKey;});
   if(!d)return;
   document.getElementById('modalTitle').textContent=d.prenom+' '+d.nom;
-  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€':'—');
+  var rac=d.totalRac===0||d.totalRac==='0'?'1€':(d.totalRac?d.totalRac+'€':'--');
   var body='<div class="msec">👤 Client</div>'
     +row('Nom / Prénom',d.prenom+' '+d.nom)
     +row('Date de naissance',d.dateNaissance)
@@ -688,14 +688,14 @@ function openDosDetail(fbKey){
     +(d.anneeConstruction?row('Année construction',d.anneeConstruction):'')
     +'<div class="msec">💰 Déclaration fiscale</div>'
     +row('N° déclarant',d.numDeclarant)
-    +row('RFR',d.rfr?Number(d.rfr).toLocaleString('fr-FR')+'€':'—')
+    +row('RFR',d.rfr?Number(d.rfr).toLocaleString('fr-FR')+'€':'--')
     +row('Parts fiscales',d.parts)
     +row('Région',d.isIDF?'IDF':'Province')
     +row('Couleur ANAH',d.couleur)
-    +row('Dépt / Zone',d.dept+(d.zone?' — Zone '+d.zone:''));
-  if(d.dossier==='PAC'||d.dossier==='PAC+ISO')body+='<div class="msec">🔥 PAC Air/Eau</div>'+row('Chauffage actuel',d.chauffage)+row('Surface chauffée',d.surfPac?d.surfPac+' m²':'—')+row('Compteur',d.compteur)+row('ECS',d.ecs)+row('VMC',d.vmc)+row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'—'));
-  if(d.dossier==='ISO'||d.dossier==='PAC+ISO')body+='<div class="msec">🏠 Isolation</div>'+row('Gestes',d.gestes)+row('Surface ISO',d.surfIso?d.surfIso+' m²':'—')+row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'—'));
-  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Statut',DOS_STATUS[d.dosStatus||'montage']||d.dosStatus)+(d.notes?row('Notes',d.notes):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'—');
+    +row('Dépt / Zone',d.dept+(d.zone?' -- Zone '+d.zone:''));
+  if(d.dossier==='PAC'||d.dossier==='PAC+ISO')body+='<div class="msec">🔥 PAC Air/Eau</div>'+row('Chauffage actuel',d.chauffage)+row('Surface chauffée',d.surfPac?d.surfPac+' m²':'--')+row('Compteur',d.compteur)+row('ECS',d.ecs)+row('VMC',d.vmc)+row('RAC PAC',d.racPac===0||d.racPac==='0'?'1€':String(d.racPac||'--'));
+  if(d.dossier==='ISO'||d.dossier==='PAC+ISO')body+='<div class="msec">🏠 Isolation</div>'+row('Gestes',d.gestes)+row('Surface ISO',d.surfIso?d.surfIso+' m²':'--')+row('RAC ISO',d.racIso===0||d.racIso==='0'?'1€':String(d.racIso||'--'));
+  body+='<div class="msec">📊 Résumé</div>'+row('Dossier',d.dossier)+row('RAC total',rac)+(d.teleproNom?row('Téléprospecteur',d.teleproNom):'')+row('Statut',DOS_STATUS[d.dosStatus||'montage']||d.dosStatus)+(d.notes?row('Notes',d.notes):'')+row('Date',d.formDate?new Date(d.formDate).toLocaleString('fr-FR'):'--');
   document.getElementById('modalBody').innerHTML=body;
   document.getElementById('detailModal').classList.add('show');
 }
@@ -714,7 +714,7 @@ function setTab(tab){
 function filterTab(tab,anah){setTab(tab);document.getElementById('fltAnah').value=anah;renderLeads();}
 
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hide');setTimeout(function(){t.classList.add('hide');},2500);}
-function row(label,val){return'<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'—')+'</span></div>';}
+function row(label,val){return'<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'--')+'</span></div>';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 </body>
