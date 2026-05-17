@@ -585,11 +585,21 @@ function saveLocal(){localStorage.setItem(STORE_KEY,JSON.stringify(ST));}
 function getFbUrl(){return localStorage.getItem(FB_KEY)||'';}
 function getFbPath(){var url=getFbUrl().replace(/\/$/,'');var pin=localStorage.getItem(PIN_KEY)||'default';return url+'/mariage_'+pin+'.json';}
 var lastLocalSave=0;
+var fbGuestCount=0; // nombre d'invités connu sur Firebase (protection contre écrasement)
 function saveData(){
   saveLocal();
   lastLocalSave=Date.now();
   var url=getFbUrl();
-  if(url){var payload=JSON.parse(JSON.stringify(ST));payload.categories.forEach(function(cat){cat.items.forEach(function(it){it._photos_local=true;it.photos=[];});});fetch(getFbPath(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});}
+  if(url){
+    var payload=JSON.parse(JSON.stringify(ST));
+    payload.categories.forEach(function(cat){cat.items.forEach(function(it){it._photos_local=true;it.photos=[];});});
+    var localCount=toArr(payload.guests&&payload.guests.all).length;
+    // Ne jamais écraser Firebase si on a moins d'invités que ce qu'on sait y être
+    if(fbGuestCount>0&&localCount===0)return;
+    fetch(getFbPath(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(){if(localCount>0)fbGuestCount=localCount;})
+      .catch(function(){});
+  }
 }
 function refreshData(showFeedback){
   var btn=g('syncBtn');
@@ -601,23 +611,24 @@ function refreshData(showFeedback){
     return;
   }
   fetch(getFbPath())
-    .then(function(r){return r.json();})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(function(d){
       if(btn)btn.classList.remove('spinning');
       if(d&&d.categories){
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
-        var prevGuests=ST.guests;ST=d;
+        ST=d;
         var hadOld=['henna','hlel','maire'].some(function(ev){return toArr(ST.guests&&ST.guests[ev]).length>0;});
         migrateGuests();
+        fbGuestCount=toArr(ST.guests&&ST.guests.all).length;
         if(hadOld)saveData(); else saveLocal();
         renderDashboard();
         if(showFeedback)toast('✅ Synchronisé');
       }else if(showFeedback){toast('⚠️ Aucune donnée cloud');}
     })
-    .catch(function(){
+    .catch(function(err){
       if(btn)btn.classList.remove('spinning');
-      if(showFeedback)toast('❌ Erreur de connexion');
+      if(showFeedback)toast('❌ '+(err&&err.message?err.message:'Erreur de connexion'));
     });
 }
 function loadFromFb(){refreshData(false);}
@@ -642,6 +653,7 @@ function startRealtime(){
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
         var hadOld2=['henna','hlel','maire'].some(function(ev){return toArr(d.guests&&d.guests[ev]).length>0;});
         ST=d;migrateGuests();
+        fbGuestCount=toArr(ST.guests&&ST.guests.all).length;
         if(hadOld2)saveData(); else saveLocal();
         renderDashboard();
         if(curCatId&&g('viewCategory').classList.contains('on'))renderCategory(curCatId);
