@@ -371,6 +371,13 @@ textarea.finput{min-height:64px;resize:vertical;}
     <p style="font-size:11px;color:#94a3b8;margin-top:8px;">⚠️ Les photos sont stockées localement sur chaque appareil. Exportez/importez pour les transférer.</p>
   </div>
   <div class="setting-block">
+    <h3>🔍 Diagnostic invités</h3>
+    <div id="diagResult" style="font-size:12px;color:var(--text);background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px;min-height:36px;white-space:pre-wrap;word-break:break-all;"></div>
+    <button class="btn-sec" onclick="diagGuests()">🔍 Voir données locales</button>
+    <button class="btn-sec" onclick="diagFirebase()">☁️ Voir données Firebase</button>
+    <button class="btn-sec" style="color:var(--green);" onclick="forceRecoverGuests()">♻️ Tenter récupération</button>
+  </div>
+  <div class="setting-block">
     <h3>⚠️ Zone danger</h3>
     <button class="btn-danger" onclick="resetAll()">🗑️ Tout effacer</button>
   </div>
@@ -1111,6 +1118,73 @@ function delGuest(id){
 
 function editEpargne(){var v=prompt('Montant de côté (€) :',Number(ST.meta.epargne)||0);if(v===null)return;var n=Number(v.replace(/[^0-9]/g,''));ST.meta.epargne=n;saveData();renderDashboard();toast('💰 Mise à jour !');}
 
+
+// ── DIAGNOSTIC ────────────────────────────────────────────────────────────────
+function diagGuests(){
+  var d=g('diagResult');
+  var gs=ST.guests||{};
+  var lines=['=== MÉMOIRE LOCALE ==='];
+  if(gs.all){lines.push('Format: NOUVEAU · all['+toArr(gs.all).length+']');}
+  else{lines.push('Format: ANCIEN');['henna','hlel','maire'].forEach(function(ev){lines.push('  '+ev+': '+(toArr(gs[ev]).length)+' entrées');});}
+  var total=toArr(gs.all).length||(['henna','hlel','maire'].reduce(function(s,ev){return s+toArr(gs[ev]).length;},0));
+  lines.push('Total entrées: '+total);
+  var raw=localStorage.getItem(STORE_KEY);
+  lines.push('\n=== localStorage brut guests ===');
+  try{var p=JSON.parse(raw);lines.push(JSON.stringify(p.guests,null,2).substring(0,600));}catch(e){lines.push('Erreur: '+e);}
+  d.textContent=lines.join('\n');
+}
+function diagFirebase(){
+  var d=g('diagResult');
+  var url=getFbUrl();if(!url){d.textContent='Firebase non configuré';return;}
+  d.textContent='Chargement Firebase…';
+  fetch(getFbPath())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data){d.textContent='Firebase vide ou inaccessible';return;}
+      var gs=data.guests||{};
+      var lines=['=== FIREBASE RAW ==='];
+      if(gs.all){lines.push('Format: NOUVEAU · all['+toArr(gs.all).length+']');}
+      else{['henna','hlel','maire'].forEach(function(ev){lines.push(ev+': '+toArr(gs[ev]).length+' entrées');});}
+      lines.push('\nJSON guests (600 car max):');
+      lines.push(JSON.stringify(gs,null,2).substring(0,600));
+      d.textContent=lines.join('\n');
+    })
+    .catch(function(e){d.textContent='Erreur Firebase: '+e;});
+}
+function forceRecoverGuests(){
+  var url=getFbUrl();
+  if(!url){toast('⚠️ Firebase non configuré');return;}
+  g('diagResult').textContent='Récupération en cours…';
+  fetch(getFbPath())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data){g('diagResult').textContent='Aucune donnée Firebase';return;}
+      // Merge Firebase guests (old + new format) into current ST
+      var fbGs=data.guests||{};
+      if(!ST.guests)ST.guests={all:[]};
+      if(!ST.guests.all)ST.guests.all=[];
+      // Pull from Firebase old format
+      var seen={};toArr(ST.guests.all).forEach(function(x){if(x&&x.id)seen[x.id]=true;});
+      ['henna','hlel','maire'].forEach(function(ev){
+        toArr(fbGs[ev]).forEach(function(gu){
+          if(!gu||!gu.id||seen[gu.id])return;
+          var ng=Object.assign({},gu);
+          ng.events=gu.event==='both'?['hlel','maire']:[gu.event||ev];
+          delete ng.event;seen[gu.id]=true;ST.guests.all.push(ng);
+        });
+      });
+      // Pull from Firebase new format
+      toArr(fbGs.all).forEach(function(gu){
+        if(!gu||!gu.id||seen[gu.id])return;
+        seen[gu.id]=true;ST.guests.all.push(gu);
+      });
+      var total=ST.guests.all.length;
+      saveData();renderDashboard();
+      g('diagResult').textContent='✅ Récupéré '+total+' invité(s). Sauvegardé.';
+      toast('✅ '+total+' invités récupérés');
+    })
+    .catch(function(e){g('diagResult').textContent='Erreur: '+e;});
+}
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
 function renderSettings(){
