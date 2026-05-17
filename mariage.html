@@ -220,7 +220,15 @@ textarea.finput{min-height:64px;resize:vertical;}
       <div class="hero-stat"><div class="n" id="heroConfirme">0 €</div><div class="l">Confirmé / Payé</div></div>
       <div class="hero-stat"><div class="n" id="heroReste">0 €</div><div class="l">Reste à budgétiser</div></div>
     </div>
-    <button class="btn-pourquoi" onclick="showPourquoi()">📊 Détail — Pourquoi ce budget ?</button>
+    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div>
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;opacity:.8;margin-bottom:2px;">💰 Ce qu'on a de côté</div>
+        <div style="font-size:20px;font-weight:900;" id="heroEpargne">0 €</div>
+        <div style="font-size:11px;opacity:.75;margin-top:2px;" id="heroManque"></div>
+      </div>
+      <button onclick="editEpargne()" style="background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">✏️ Modifier</button>
+    </div>
+    <button class="btn-pourquoi" onclick="showPourquoi()" style="margin-top:10px;">📊 Détail — Pourquoi ce budget ?</button>
   </div>
   <div id="catList"></div>
   <button class="btn-add-cat" onclick="openAddCat()">＋ Ajouter une catégorie</button>
@@ -356,7 +364,7 @@ textarea.finput{min-height:64px;resize:vertical;}
 var STORE_KEY='mariage_v2';
 var PIN_KEY='mariage_pin';
 var FB_KEY='mariage_fb_url';
-var ST={categories:[],meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis'}};
+var ST={categories:[],meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};
 var curCatId=null,editItemId=null,pendingPhotos=[];
 var pinInput='',pinMode='check';
 
@@ -438,6 +446,10 @@ function renderDashboard(){
   g('heroSub').textContent=info.join('  ·  ');
   g('heroConfirme').textContent=fmt(t.reel);
   g('heroReste').textContent=fmt(Math.max(0,t.estime-t.reel));
+  var ep=Number(ST.meta.epargne)||0;
+  g('heroEpargne').textContent=fmt(ep);
+  var manque=t.estime-ep;
+  g('heroManque').textContent=manque>0?'Il manque encore '+fmt(manque):manque<0?'🎉 Objectif atteint !':'✅ Objectif atteint !';
   var html='';
   GROUPS.forEach(function(grp){
     var cats=ST.categories.filter(function(c){return c.group===grp.id;});
@@ -653,6 +665,8 @@ function showPourquoi(){
   g('pqModal').classList.add('show');
 }
 function closePq(){g('pqModal').classList.remove('show');}
+function editEpargne(){var v=prompt('Montant de côté (€) :',Number(ST.meta.epargne)||0);if(v===null)return;var n=Number(v.replace(/[^0-9]/g,''));ST.meta.epargne=n;saveData();renderDashboard();toast('💰 Mise à jour !');}
+
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
 function renderSettings(){
@@ -666,7 +680,7 @@ function saveMeta(){ST.meta.date_hlel=g('setDateHlel').value;ST.meta.date_civil=
 function changePin(){var p=g('newPin').value;if(!/^\d{4}$/.test(p)){toast('⚠️ 4 chiffres requis');return;}localStorage.setItem(PIN_KEY,hashPin(p));g('newPin').value='';toast('✅ PIN changé');}
 function exportData(){var blob=new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mariage_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
 function importData(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(d.categories){ST=d;saveData();renderDashboard();toast('✅ Importé');}}catch(e){toast('❌ Fichier invalide');}};r.readAsText(f);}
-function resetAll(){if(!confirm('Supprimer toutes les données ?'))return;if(!confirm('Confirmer ?'))return;ST={categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis'}};saveData();renderDashboard();toast('🗑️ Réinitialisé');}
+function resetAll(){if(!confirm('Supprimer toutes les données ?'))return;if(!confirm('Confirmer ?'))return;ST={categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};saveData();renderDashboard();toast('🗑️ Réinitialisé');}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 if(!localStorage.getItem(PIN_KEY)){pinMode='setup';g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';}
