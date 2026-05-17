@@ -328,7 +328,7 @@ textarea.finput{min-height:64px;resize:vertical;}
 <div class="content">
   <div class="setting-block">
     <h3>☁️ Synchronisation (accès à deux)</h3>
-    <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Pour accéder tous les deux au même planning, renseignez l'URL Firebase. <span id="syncStatus"></span></p>
+    <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Synchronisation automatique entre vos deux téléphones. <span id="syncStatus"></span></p>
     <label class="flabel">URL Firebase Realtime Database</label>
     <input class="finput" id="fbUrl" placeholder="https://xxx-default-rtdb.firebaseio.com"/>
     <button class="btn-sec" onclick="saveFbUrl()">💾 Sauvegarder</button>
@@ -488,6 +488,8 @@ textarea.finput{min-height:64px;resize:vertical;}
 var STORE_KEY='mariage_v2';
 var PIN_KEY='mariage_pin';
 var FB_KEY='mariage_fb_url';
+var FB_DEFAULT='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
+if(!localStorage.getItem(FB_KEY))localStorage.setItem(FB_KEY,FB_DEFAULT);
 var ST={categories:[],guests:{hlel:[],civil:[]},meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};
 var curCatId=null,editItemId=null,pendingPhotos=[];
 var pinInput='',pinMode='check';
