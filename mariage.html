@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>💍 Notre Mariage</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--gold:#b8860b;--rose:#c9956c;--cream:#fff8f2;--light:#f5e6d8;--dark:#3d2b1f;--text:#5c3d2e;--green:#10b981;--blue:#1a56db;--red:#ef4444;--yellow:#f59e0b;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;}
+
+/* PIN SCREEN */
+.pin-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#3d2b1f,#8b5e3c);padding:24px;}
+.pin-logo{font-size:64px;margin-bottom:16px;}
+.pin-title{color:#fff;font-size:24px;font-weight:800;text-align:center;margin-bottom:6px;}
+.pin-sub{color:rgba(255,255,255,.7);font-size:14px;text-align:center;margin-bottom:32px;}
+.pin-box{background:rgba(255,255,255,.12);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;}
+.pin-dots{display:flex;justify-content:center;gap:16px;margin-bottom:28px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.3);transition:background .2s;}
+.pin-dot.filled{background:#c9956c;}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.pin-btn{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:14px;font-size:22px;font-weight:700;padding:18px;cursor:pointer;transition:background .15s;}
+.pin-btn:hover{background:rgba(255,255,255,.25);}
+.pin-btn.del{font-size:18px;}
+.pin-err{color:#fca5a5;font-size:13px;text-align:center;margin-top:14px;min-height:20px;}
+.pin-link{color:rgba(255,255,255,.5);font-size:12px;text-align:center;margin-top:16px;cursor:pointer;text-decoration:underline;}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,#3d2b1f,#8b5e3c);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(61,43,31,.3);}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;}
+.topbar h1{font-size:17px;font-weight:800;}
+.topbar-sub{font-size:11px;opacity:.7;margin-top:1px;}
+.topbar-right{display:flex;gap:8px;}
+.icon-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:7px 10px;font-size:16px;cursor:pointer;}
+
+/* CONTENT */
+.content{padding:16px;max-width:600px;margin:0 auto;}
+
+/* BUDGET HERO */
+.hero{background:linear-gradient(135deg,#8b5e3c,#c9956c);border-radius:18px;padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
+.hero::after{content:'💍';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:60px;opacity:.15;}
+.hero-label{font-size:11px;font-weight:800;text-transform:uppercase;opacity:.8;margin-bottom:4px;}
+.hero-amount{font-size:36px;font-weight:900;letter-spacing:-1px;}
+.hero-sub{font-size:13px;opacity:.8;margin-top:4px;}
+.hero-row{display:flex;gap:16px;margin-top:14px;}
+.hero-stat{flex:1;background:rgba(0,0,0,.15);border-radius:10px;padding:10px 12px;}
+.hero-stat .n{font-size:18px;font-weight:800;}
+.hero-stat .l{font-size:10px;opacity:.8;font-weight:700;text-transform:uppercase;}
+.btn-pourquoi{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;margin-top:12px;width:100%;}
+
+/* CATEGORIES */
+.section-title{font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px;}
+.cat-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.07);cursor:pointer;display:flex;align-items:center;gap:14px;transition:transform .15s,box-shadow .15s;}
+.cat-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.cat-emoji{font-size:28px;flex-shrink:0;}
+.cat-info{flex:1;}
+.cat-name{font-size:15px;font-weight:800;color:var(--dark);}
+.cat-detail{font-size:12px;color:#94a3b8;margin-top:2px;}
+.cat-amounts{text-align:right;}
+.cat-estime{font-size:14px;font-weight:800;color:var(--text);}
+.cat-reel{font-size:11px;color:var(--green);font-weight:700;}
+.cat-bar{height:4px;background:#f1f5f9;border-radius:2px;margin-top:8px;}
+.cat-bar-fill{height:4px;border-radius:2px;background:linear-gradient(90deg,#c9956c,#8b5e3c);transition:width .4s;}
+.btn-add-cat{background:#fff;border:2px dashed #e2e8f0;border-radius:14px;padding:14px;width:100%;font-size:14px;color:#94a3b8;font-weight:700;cursor:pointer;margin-top:4px;}
+.btn-add-cat:hover{border-color:#c9956c;color:#c9956c;}
+
+/* CATEGORY DETAIL */
+.cat-hero{background:linear-gradient(135deg,#3d2b1f,#8b5e3c);border-radius:14px;padding:16px;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.cat-hero-emoji{font-size:40px;}
+.cat-hero-name{font-size:18px;font-weight:800;}
+.cat-hero-amounts{font-size:13px;opacity:.85;margin-top:4px;}
+
+/* ITEMS */
+.item-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,.07);border-left:4px solid #e2e8f0;}
+.item-card.st-explorer{border-left-color:#cbd5e1;}
+.item-card.st-devis{border-left-color:var(--yellow);}
+.item-card.st-confirme{border-left-color:var(--green);}
+.item-card.st-paye{border-left-color:#8b5e3c;}
+.item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.item-name{font-size:14px;font-weight:800;color:var(--dark);}
+.item-prestataire{font-size:12px;color:#94a3b8;margin-top:2px;}
+.item-amounts{text-align:right;flex-shrink:0;}
+.item-reel{font-size:15px;font-weight:800;color:var(--dark);}
+.item-estime{font-size:11px;color:#94a3b8;}
+.stat-pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-top:6px;}
+.sp-explorer{background:#f1f5f9;color:#475569;}
+.sp-devis{background:#fef3c7;color:#92400e;}
+.sp-confirme{background:#d1fae5;color:#065f46;}
+.sp-paye{background:#f5e6d8;color:#8b5e3c;}
+.item-notes{font-size:12px;color:#64748b;margin-top:6px;line-height:1.4;}
+.item-img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:8px;}
+.item-link{font-size:12px;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:6px;}
+.item-actions{display:flex;gap:6px;margin-top:10px;}
+.btn-edit-sm{background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:12px;font-weight:700;padding:6px 12px;cursor:pointer;}
+.btn-del-sm{background:#fee2e2;color:var(--red);border:none;border-radius:8px;font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer;}
+.btn-add-item{background:linear-gradient(135deg,#8b5e3c,#c9956c);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;padding:14px;width:100%;cursor:pointer;margin-top:8px;}
+
+/* MODALS */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:20px;max-height:92vh;overflow-y:auto;}
+.modal h2{font-size:18px;font-weight:800;color:var(--dark);margin-bottom:16px;}
+.flabel{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;margin-top:14px;}
+.flabel:first-of-type{margin-top:0;}
+.finput{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;}
+.finput:focus{border-color:#c9956c;}
+textarea.finput{min-height:64px;resize:vertical;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-choices{display:flex;gap:6px;flex-wrap:wrap;}
+.schoice{border:2px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;color:#475569;transition:all .2s;}
+.schoice.sel{border-color:#8b5e3c;background:#f5e6d8;color:#8b5e3c;}
+.mbrow{display:flex;gap:10px;margin-top:18px;}
+.btn-save{flex:1;background:linear-gradient(135deg,#8b5e3c,#c9956c);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;padding:13px;cursor:pointer;}
+.btn-cancel{background:#f1f5f9;color:#475569;border:none;border-radius:12px;font-size:14px;font-weight:700;padding:13px 18px;cursor:pointer;}
+
+/* POURQUOI MODAL */
+.pq-cat{margin-bottom:14px;}
+.pq-cat-hdr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;}
+.pq-cat-name{font-size:14px;font-weight:800;color:var(--dark);}
+.pq-cat-amt{font-size:14px;font-weight:800;color:#8b5e3c;}
+.pq-item{display:flex;justify-content:space-between;padding:5px 12px;font-size:12px;color:#475569;border-bottom:1px solid #f8f9fa;}
+.pq-item span:last-child{font-weight:700;color:var(--dark);}
+.pq-total{background:#f5e6d8;border-radius:12px;padding:14px;margin-top:14px;}
+.pq-total-row{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px;}
+.pq-total-row.main{font-size:17px;font-weight:900;color:#8b5e3c;}
+.pq-empty{text-align:center;padding:30px;color:#94a3b8;font-size:13px;}
+
+/* SETTINGS */
+.setting-block{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,.06);}
+.setting-block h3{font-size:14px;font-weight:800;margin-bottom:12px;color:var(--dark);}
+.btn-sec{background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%;margin-top:8px;}
+.btn-danger{background:#fee2e2;color:var(--red);border:none;border-radius:10px;font-size:13px;font-weight:700;padding:10px 16px;cursor:pointer;width:100%;margin-top:8px;}
+.sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+.sync-ok{background:var(--green);}
+.sync-off{background:#cbd5e1;}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3d2b1f;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;z-index:500;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.2);}
+
+/* VIEWS */
+.view{display:none;}
+.view.on{display:block;}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pinScreen" class="pin-screen">
+  <div class="pin-logo">💍</div>
+  <div class="pin-title">Notre Mariage</div>
+  <div class="pin-sub" id="pinSubText">Entrez votre code PIN</div>
+  <div class="pin-box">
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinKey('1')">1</button>
+      <button class="pin-btn" onclick="pinKey('2')">2</button>
+      <button class="pin-btn" onclick="pinKey('3')">3</button>
+      <button class="pin-btn" onclick="pinKey('4')">4</button>
+      <button class="pin-btn" onclick="pinKey('5')">5</button>
+      <button class="pin-btn" onclick="pinKey('6')">6</button>
+      <button class="pin-btn" onclick="pinKey('7')">7</button>
+      <button class="pin-btn" onclick="pinKey('8')">8</button>
+      <button class="pin-btn" onclick="pinKey('9')">9</button>
+      <button class="pin-btn" onclick="pinKey('0')">0</button>
+      <button class="pin-btn del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-err" id="pinErr"></div>
+  </div>
+  <div class="pin-link" onclick="showSetup()">Première fois ? Configurer</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+  <div class="topbar-left">
+    <button class="back-btn" id="backBtn" onclick="goBack()" style="display:none;">← Retour</button>
+    <div>
+      <div class="topbar h1" id="topbarTitle" style="font-size:17px;font-weight:800;">💍 Notre Mariage</div>
+      <div class="topbar-sub" id="topbarSub"></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="showView('settings')" title="Paramètres">⚙️</button>
+    <button class="icon-btn" onclick="lock()" title="Verrouiller">🔒</button>
+  </div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div class="view on" id="viewDashboard">
+<div class="content">
+  <div class="hero">
+    <div class="hero-label">Budget total estimé</div>
+    <div class="hero-amount" id="heroTotal">0 €</div>
+    <div class="hero-sub" id="heroSub">Aucune dépense enregistrée</div>
+    <div class="hero-row">
+      <div class="hero-stat">
+        <div class="n" id="heroConfirme">0 €</div>
+        <div class="l">Confirmé / Payé</div>
+      </div>
+      <div class="hero-stat">
+        <div class="n" id="heroReste">0 €</div>
+        <div class="l">Reste à budgétiser</div>
+      </div>
+    </div>
+    <button class="btn-pourquoi" onclick="showPourquoi()">📊 Détail — Pourquoi ce budget ?</button>
+  </div>
+  <div class="section-title">Catégories</div>
+  <div id="catList"></div>
+  <button class="btn-add-cat" onclick="openAddCat()">＋ Ajouter une catégorie</button>
+</div>
+</div>
+
+<!-- CATEGORY VIEW -->
+<div class="view" id="viewCategory">
+<div class="content">
+  <div id="catHero"></div>
+  <div id="itemList"></div>
+  <button class="btn-add-item" onclick="openAddItem()">＋ Ajouter un élément</button>
+</div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div class="view" id="viewSettings">
+<div class="content">
+  <div class="setting-block">
+    <h3>☁️ Synchronisation (accès à deux)</h3>
+    <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Pour que vous puissiez accéder tous les deux au même planning, renseignez l'URL Firebase. <span id="syncStatus"></span></p>
+    <label class="flabel">URL Firebase Realtime Database</label>
+    <input class="finput" id="fbUrl" placeholder="https://xxx-default-rtdb.firebaseio.com"/>
+    <button class="btn-sec" onclick="saveFbUrl()">💾 Sauvegarder l'URL</button>
+  </div>
+  <div class="setting-block">
+    <h3>📅 Informations du mariage</h3>
+    <label class="flabel">Date du mariage</label>
+    <input class="finput" id="setDate" type="date"/>
+    <label class="flabel">Lieu</label>
+    <input class="finput" id="setLieu" placeholder="Marrakech"/>
+    <button class="btn-sec" onclick="saveMeta()">💾 Enregistrer</button>
+  </div>
+  <div class="setting-block">
+    <h3>🔑 Changer le PIN</h3>
+    <label class="flabel">Nouveau PIN (4 chiffres)</label>
+    <input class="finput" id="newPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••"/>
+    <button class="btn-sec" onclick="changePin()">🔑 Changer le PIN</button>
+  </div>
+  <div class="setting-block">
+    <h3>📤 Sauvegarde</h3>
+    <button class="btn-sec" onclick="exportData()">📤 Exporter les données (JSON)</button>
+    <button class="btn-sec" onclick="g('importFile').click()">📥 Importer des données</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(this)"/>
+  </div>
+  <div class="setting-block">
+    <h3>⚠️ Zone danger</h3>
+    <button class="btn-danger" onclick="resetAll()">🗑️ Tout effacer et recommencer</button>
+  </div>
+</div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ITEM MODAL -->
+<div class="modal-bg" id="itemModal" onclick="if(event.target===this)closeItemModal()">
+<div class="modal">
+  <h2 id="itemModalTitle">Nouvel élément</h2>
+  <label class="flabel">Désignation *</label>
+  <input class="finput" id="iNom" placeholder="Ex: Villa Les Jardins de Marrakech"/>
+  <label class="flabel">Prestataire / Fournisseur</label>
+  <input class="finput" id="iPrestataire" placeholder="Nom du prestataire"/>
+  <label class="flabel">Statut</label>
+  <div class="stat-choices" id="iStatChoices">
+    <div class="schoice sel" data-val="explorer" onclick="pickStat(this)">💭 À explorer</div>
+    <div class="schoice" data-val="devis" onclick="pickStat(this)">📩 Devis</div>
+    <div class="schoice" data-val="confirme" onclick="pickStat(this)">✅ Confirmé</div>
+    <div class="schoice" data-val="paye" onclick="pickStat(this)">💰 Payé</div>
+  </div>
+  <div class="row2">
+    <div><label class="flabel">Budget estimé (€)</label><input class="finput" id="iEstime" type="number" placeholder="0"/></div>
+    <div><label class="flabel">Montant réel (€)</label><input class="finput" id="iReel" type="number" placeholder="0"/></div>
+  </div>
+  <label class="flabel">Notes</label>
+  <textarea class="finput" id="iNotes" placeholder="Détails, conditions, contact..."></textarea>
+  <label class="flabel">Lien de référence (URL)</label>
+  <input class="finput" id="iUrl" type="url" placeholder="https://..."/>
+  <label class="flabel">Image de référence (URL photo)</label>
+  <input class="finput" id="iImg" type="url" placeholder="https://photos.google.com/..." oninput="previewImg()"/>
+  <img id="imgPreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:8px;margin-top:8px;"/>
+  <div class="mbrow">
+    <button class="btn-cancel" onclick="closeItemModal()">Annuler</button>
+    <button class="btn-save" onclick="saveItem()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
+<!-- ADD CATEGORY MODAL -->
+<div class="modal-bg" id="catModal" onclick="if(event.target===this)closeCatModal()">
+<div class="modal">
+  <h2>Nouvelle catégorie</h2>
+  <label class="flabel">Emoji</label>
+  <input class="finput" id="cEmoji" placeholder="🎨" maxlength="4"/>
+  <label class="flabel">Nom de la catégorie</label>
+  <input class="finput" id="cName" placeholder="Décoration florale"/>
+  <div class="mbrow">
+    <button class="btn-cancel" onclick="closeCatModal()">Annuler</button>
+    <button class="btn-save" onclick="saveCat()">Ajouter</button>
+  </div>
+</div>
+</div>
+
+<!-- POURQUOI MODAL -->
+<div class="modal-bg" id="pqModal" onclick="if(event.target===this)closePq()">
+<div class="modal">
+  <h2>📊 Détail du budget</h2>
+  <div id="pqContent"></div>
+  <div class="mbrow"><button class="btn-cancel" style="flex:1;" onclick="closePq()">Fermer</button></div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var STORE_KEY='mariage_v1';
+var PIN_KEY='mariage_pin';
+var FB_KEY='mariage_fb_url';
+
+var ST={categories:[],meta:{date_mariage:'',lieu:'Marrakech',budget_global:0}};
+var curCatId=null;
+var editItemId=null;
+var prevView=null;
+var pinInput='';
+var pinMode='check'; // 'check' or 'setup'
+
+// ── DEFAULT CATEGORIES ──────────────────────────────────────────────────────
+var DEFAULT_CATS=[
+  {id:'villa',emoji:'🏰',name:'Villa & Lieu',items:[]},
+  {id:'deco',emoji:'🎨',name:'Décoration',items:[]},
+  {id:'dj',emoji:'🎵',name:'DJ & Musique',items:[]},
+  {id:'cocktail',emoji:'🥂',name:'Cocktail & Boissons',items:[]},
+  {id:'photo',emoji:'📸',name:'Photographe & Vidéaste',items:[]},
+  {id:'traiteur',emoji:'🍽️',name:'Traiteur',items:[]},
+  {id:'cadeaux',emoji:'🎁',name:'Cadeaux Invités',items:[]},
+  {id:'henne',emoji:'🌿',name:'Espace Henné',items:[]},
+  {id:'musique',emoji:'🎺',name:'Musiciens Traditionnels',items:[]},
+  {id:'gateaux',emoji:'🎂',name:'Gâteaux & Wedding Cake',items:[]},
+  {id:'pool',emoji:'🏊',name:'Pool Party (Veille)',items:[]},
+  {id:'civil',emoji:'💍',name:'Mariage Civil (Cannes/Cassis)',items:[]},
+  {id:'tenue',emoji:'👗',name:'Tenue & Beauté',items:[]},
+  {id:'ameublement',emoji:'🛋️',name:'Ameublement',items:[]},
+  {id:'divers',emoji:'✨',name:'Divers',items:[]}
+];
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+function g(id){return document.getElementById(id);}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmt(n){return Number(n||0).toLocaleString('fr-FR')+'€';}
+function toast(msg){var t=g('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},2500);}
+function hashPin(p){var h=5381;for(var i=0;i<p.length;i++){h=(h*33)^p.charCodeAt(i);}return(h>>>0).toString(36);}
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+function loadLocal(){try{var d=JSON.parse(localStorage.getItem(STORE_KEY)||'null');if(d){ST=d;}}catch(e){}}
+function saveLocal(){localStorage.setItem(STORE_KEY,JSON.stringify(ST));}
+function getFbUrl(){return localStorage.getItem(FB_KEY)||'';}
+function getFbPath(){var url=getFbUrl().replace(/\/$/,'');var pin=localStorage.getItem(PIN_KEY)||'default';return url+'/mariage_'+pin+'.json';}
+
+function saveData(){saveLocal();var url=getFbUrl();if(url){fetch(getFbPath(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(ST)}).catch(function(){});}}
+function loadFromFb(){var url=getFbUrl();if(!url)return;fetch(getFbPath()).then(function(r){return r.json();}).then(function(d){if(d&&d.categories){ST=d;saveLocal();renderDashboard();toast('☁️ Données synchronisées');}}).catch(function(){});}
+
+// ── PIN ──────────────────────────────────────────────────────────────────────
+function pinKey(k){
+  if(pinInput.length>=4)return;
+  pinInput+=k;
+  updatePinDots();
+  if(pinInput.length===4){
+    if(pinMode==='setup'){confirmPin();}
+    else{checkPin();}
+  }
+}
+function pinDel(){pinInput=pinInput.slice(0,-1);updatePinDots();g('pinErr').textContent='';}
+function updatePinDots(){for(var i=0;i<4;i++)g('pd'+i).classList.toggle('filled',i<pinInput.length);}
+function checkPin(){
+  var stored=localStorage.getItem(PIN_KEY);
+  if(!stored){g('pinSubText').textContent='Créez votre PIN';pinMode='setup';pinInput='';updatePinDots();return;}
+  if(hashPin(pinInput)===stored){unlockApp();}
+  else{g('pinErr').textContent='PIN incorrect, réessayez';pinInput='';updatePinDots();}
+}
+function confirmPin(){
+  localStorage.setItem(PIN_KEY,hashPin(pinInput));
+  toast('✅ PIN créé');unlockApp();
+}
+function showSetup(){pinMode='setup';pinInput='';updatePinDots();g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';g('pinErr').textContent='';}
+function unlockApp(){g('pinScreen').style.display='none';g('app').style.display='block';loadLocal();loadFromFb();renderDashboard();showView('dashboard');}
+function lock(){g('app').style.display='none';g('pinScreen').style.display='flex';pinInput='';pinMode='check';updatePinDots();g('pinSubText').textContent='Entrez votre code PIN';g('pinErr').textContent='';}
+
+// ── VIEWS ────────────────────────────────────────────────────────────────────
+function showView(v,catId){
+  document.querySelectorAll('.view').forEach(function(el){el.classList.remove('on');});
+  g('view'+v.charAt(0).toUpperCase()+v.slice(1)).classList.add('on');
+  g('backBtn').style.display=(v==='dashboard')?'none':'block';
+  if(v==='dashboard'){g('topbarTitle').textContent='💍 Notre Mariage';g('topbarSub').textContent=ST.meta.lieu||'';renderDashboard();}
+  else if(v==='category'&&catId){curCatId=catId;renderCategory(catId);}
+  else if(v==='settings'){g('topbarTitle').textContent='⚙️ Paramètres';g('topbarSub').textContent='';renderSettings();}
+  prevView=v;
+}
+function goBack(){showView('dashboard');}
+
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+function calcTotals(){
+  var estime=0,reel=0;
+  ST.categories.forEach(function(cat){
+    cat.items.forEach(function(item){
+      estime+=Number(item.estime)||0;
+      if(item.statut==='confirme'||item.statut==='paye')reel+=Number(item.reel||item.estime)||0;
+    });
+  });
+  return{estime:estime,reel:reel};
+}
+function renderDashboard(){
+  var t=calcTotals();
+  g('heroTotal').textContent=fmt(t.estime);
+  g('heroSub').textContent=ST.meta.date_mariage?'📅 '+fmtDate(ST.meta.date_mariage)+(ST.meta.lieu?' · '+ST.meta.lieu:''):(ST.meta.lieu||'');
+  g('heroConfirme').textContent=fmt(t.reel);
+  g('heroReste').textContent=fmt(Math.max(0,t.estime-t.reel));
+  var html='';
+  var cats=ST.categories.length?ST.categories:DEFAULT_CATS;
+  if(!ST.categories.length){ST.categories=JSON.parse(JSON.stringify(DEFAULT_CATS));saveData();}
+  cats.forEach(function(cat){
+    var ce=0,cr=0,ni=cat.items.length;
+    cat.items.forEach(function(it){ce+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')cr+=Number(it.reel||it.estime)||0;});
+    var pct=ce>0?Math.round((cr/ce)*100):0;
+    html+='<div class="cat-card" onclick="showView(\'category\',\''+cat.id+'\')">'+
+      '<div class="cat-emoji">'+cat.emoji+'</div>'+
+      '<div class="cat-info">'+
+        '<div class="cat-name">'+esc(cat.name)+'</div>'+
+        '<div class="cat-detail">'+ni+' élément'+(ni>1?'s':'')+(ce>0?' · estimé : '+fmt(ce):'')+'</div>'+
+        (ce>0?'<div class="cat-bar"><div class="cat-bar-fill" style="width:'+pct+'%"></div></div>':'')
+      +'</div>'+
+      '<div class="cat-amounts">'+
+        (ce>0?'<div class="cat-estime">'+fmt(ce)+'</div>':'<div class="cat-estime" style="color:#94a3b8;">—</div>')+
+        (cr>0?'<div class="cat-reel">✅ '+fmt(cr)+'</div>':'')
+      +'</div>'+
+    '</div>';
+  });
+  g('catList').innerHTML=html;
+}
+
+// ── CATEGORY ─────────────────────────────────────────────────────────────────
+function getCat(id){return ST.categories.find(function(c){return c.id===id;});}
+function renderCategory(catId){
+  var cat=getCat(catId);if(!cat)return;
+  var ce=0,cr=0;
+  cat.items.forEach(function(it){ce+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')cr+=Number(it.reel||it.estime)||0;});
+  g('topbarTitle').textContent=cat.emoji+' '+cat.name;
+  g('topbarSub').textContent=cat.items.length+' élément'+(cat.items.length>1?'s':'');
+  var heroHtml='<div class="cat-hero">'+
+    '<div class="cat-hero-emoji">'+cat.emoji+'</div>'+
+    '<div><div class="cat-hero-name">'+esc(cat.name)+'</div>'+
+    '<div class="cat-hero-amounts">Estimé : '+fmt(ce)+(cr>0?' · Confirmé/payé : '+fmt(cr):'')+'</div>'+
+    '</div></div>';
+  g('catHero').innerHTML=heroHtml;
+  var items=[].concat(cat.items).sort(function(a,b){var o={paye:0,confirme:1,devis:2,explorer:3};return(o[a.statut]||3)-(o[b.statut]||3);});
+  var html=items.length?items.map(function(it){return renderItemCard(it);}).join(''):'<div style="text-align:center;padding:32px;color:#94a3b8;font-size:14px;">Aucun élément — ajoutez votre premier !</div>';
+  g('itemList').innerHTML=html;
+}
+function renderItemCard(it){
+  var statLabels={explorer:'💭 À explorer',devis:'📩 Devis',confirme:'✅ Confirmé',paye:'💰 Payé'};
+  var statCls={explorer:'sp-explorer',devis:'sp-devis',confirme:'sp-confirme',paye:'sp-paye'};
+  var reel=Number(it.reel)||0,estime=Number(it.estime)||0;
+  return'<div class="item-card st-'+it.statut+'">'+
+    '<div class="item-top">'+
+      '<div><div class="item-name">'+esc(it.nom)+'</div>'+(it.prestataire?'<div class="item-prestataire">'+esc(it.prestataire)+'</div>':'')+
+      '<span class="stat-pill '+statCls[it.statut]+'">'+statLabels[it.statut]+'</span></div>'+
+      '<div class="item-amounts">'+
+        (reel>0?'<div class="item-reel">'+fmt(reel)+'</div><div class="item-estime">estimé '+fmt(estime)+'</div>':
+         estime>0?'<div class="item-reel">'+fmt(estime)+'</div><div class="item-estime">estimé</div>':
+         '<div class="item-reel" style="color:#94a3b8;">—</div>')
+      +'</div>'+
+    '</div>'+
+    (it.notes?'<div class="item-notes">'+esc(it.notes)+'</div>':'')+
+    (it.img?'<img class="item-img" src="'+esc(it.img)+'" onerror="this.style.display=\'none\'"/>':'')+
+    (it.url?'<a class="item-link" href="'+esc(it.url)+'" target="_blank">🔗 Voir la référence</a>':'')+
+    '<div class="item-actions">'+
+      '<button class="btn-edit-sm" onclick="openEditItem(\''+it.id+'\')">✏️ Modifier</button>'+
+      '<button class="btn-del-sm" onclick="delItem(\''+it.id+'\')">🗑️</button>'+
+    '</div>'+
+  '</div>';
+}
+
+// ── ITEMS ────────────────────────────────────────────────────────────────────
+function openAddItem(){
+  editItemId=null;
+  g('itemModalTitle').textContent='Nouvel élément';
+  g('iNom').value='';g('iPrestataire').value='';g('iEstime').value='';g('iReel').value='';g('iNotes').value='';g('iUrl').value='';g('iImg').value='';g('imgPreview').style.display='none';
+  document.querySelectorAll('#iStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val==='explorer');});
+  g('itemModal').classList.add('show');
+  setTimeout(function(){g('iNom').focus();},100);
+}
+function openEditItem(id){
+  var cat=getCat(curCatId);if(!cat)return;
+  var it=cat.items.find(function(x){return x.id===id;});if(!it)return;
+  editItemId=id;
+  g('itemModalTitle').textContent='Modifier l\'élément';
+  g('iNom').value=it.nom||'';g('iPrestataire').value=it.prestataire||'';g('iEstime').value=it.estime||'';g('iReel').value=it.reel||'';g('iNotes').value=it.notes||'';g('iUrl').value=it.url||'';g('iImg').value=it.img||'';
+  if(it.img){g('imgPreview').src=it.img;g('imgPreview').style.display='block';}else{g('imgPreview').style.display='none';}
+  document.querySelectorAll('#iStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===it.statut);});
+  g('itemModal').classList.add('show');
+}
+function closeItemModal(){g('itemModal').classList.remove('show');}
+function pickStat(el){document.querySelectorAll('#iStatChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+function getStat(){var el=document.querySelector('#iStatChoices .sel');return el?el.dataset.val:'explorer';}
+function saveItem(){
+  var nom=g('iNom').value.trim();if(!nom){toast('⚠️ Désignation obligatoire');return;}
+  var cat=getCat(curCatId);if(!cat)return;
+  var it={id:editItemId||uid(),nom:nom,prestataire:g('iPrestataire').value.trim(),statut:getStat(),estime:Number(g('iEstime').value)||0,reel:Number(g('iReel').value)||0,notes:g('iNotes').value.trim(),url:g('iUrl').value.trim(),img:g('iImg').value.trim()};
+  if(editItemId){var idx=cat.items.findIndex(function(x){return x.id===editItemId;});if(idx>-1)cat.items[idx]=it;}
+  else{cat.items.push(it);}
+  saveData();closeItemModal();renderCategory(curCatId);renderDashboard();toast(editItemId?'✅ Modifié':'✅ Ajouté');
+}
+function delItem(id){
+  if(!confirm('Supprimer cet élément ?'))return;
+  var cat=getCat(curCatId);if(!cat)return;
+  cat.items=cat.items.filter(function(x){return x.id!==id;});
+  saveData();renderCategory(curCatId);renderDashboard();toast('🗑️ Supprimé');
+}
+function previewImg(){var url=g('iImg').value.trim();if(url){g('imgPreview').src=url;g('imgPreview').style.display='block';}else{g('imgPreview').style.display='none';}}
+
+// ── ADD CATEGORY ──────────────────────────────────────────────────────────────
+function openAddCat(){g('cEmoji').value='';g('cName').value='';g('catModal').classList.add('show');setTimeout(function(){g('cEmoji').focus();},100);}
+function closeCatModal(){g('catModal').classList.remove('show');}
+function saveCat(){
+  var name=g('cName').value.trim(),emoji=g('cEmoji').value.trim()||'📌';
+  if(!name){toast('⚠️ Nom obligatoire');return;}
+  ST.categories.push({id:uid(),emoji:emoji,name:name,items:[]});
+  saveData();closeCatModal();renderDashboard();toast('✅ Catégorie ajoutée');
+}
+
+// ── POURQUOI ──────────────────────────────────────────────────────────────────
+function showPourquoi(){
+  var t=calcTotals();
+  var html='';
+  var hasItems=false;
+  ST.categories.forEach(function(cat){
+    var ce=0,cr=0,confirmedItems=[];
+    cat.items.forEach(function(it){
+      ce+=Number(it.estime)||0;
+      if(it.statut==='confirme'||it.statut==='paye'){
+        var v=Number(it.reel||it.estime)||0;cr+=v;
+        confirmedItems.push({nom:it.nom,v:v,statut:it.statut});
+      }
+    });
+    if(cat.items.length===0)return;
+    hasItems=true;
+    html+='<div class="pq-cat">'+
+      '<div class="pq-cat-hdr"><span class="pq-cat-name">'+cat.emoji+' '+esc(cat.name)+'</span><span class="pq-cat-amt">'+fmt(ce)+'</span></div>';
+    confirmedItems.forEach(function(ci){
+      html+='<div class="pq-item"><span>'+(ci.statut==='paye'?'💰':'✅')+' '+esc(ci.nom)+'</span><span>'+fmt(ci.v)+'</span></div>';
+    });
+    if(!confirmedItems.length){html+='<div class="pq-item"><span style="color:#94a3b8;font-style:italic;">Aucun élément confirmé</span><span>—</span></div>';}
+    html+='</div>';
+  });
+  if(!hasItems){html='<div class="pq-empty">Aucun élément enregistré pour le moment.</div>';}
+  html+='<div class="pq-total">'+
+    '<div class="pq-total-row"><span>Budget total estimé</span><span>'+fmt(t.estime)+'</span></div>'+
+    '<div class="pq-total-row"><span>Confirmé / Payé</span><span style="color:var(--green);">'+fmt(t.reel)+'</span></div>'+
+    '<div class="pq-total-row main"><span>💶 Reste à planifier</span><span>'+fmt(Math.max(0,t.estime-t.reel))+'</span></div>'+
+  '</div>';
+  g('pqContent').innerHTML=html;
+  g('pqModal').classList.add('show');
+}
+function closePq(){g('pqModal').classList.remove('show');}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function renderSettings(){
+  var url=getFbUrl();
+  g('fbUrl').value=url;
+  g('syncStatus').innerHTML=url?'<span class="sync-dot sync-ok"></span>Synchronisation active':'<span class="sync-dot sync-off"></span>Non configurée';
+  g('setDate').value=ST.meta.date_mariage||'';
+  g('setLieu').value=ST.meta.lieu||'';
+}
+function saveFbUrl(){var url=g('fbUrl').value.trim();localStorage.setItem(FB_KEY,url);toast('✅ URL sauvegardée');renderSettings();if(url)loadFromFb();}
+function saveMeta(){ST.meta.date_mariage=g('setDate').value;ST.meta.lieu=g('setLieu').value.trim();saveData();toast('✅ Informations enregistrées');}
+function changePin(){var p=g('newPin').value;if(p.length!==4||!/^\d{4}$/.test(p)){toast('⚠️ PIN doit être 4 chiffres');return;}localStorage.setItem(PIN_KEY,hashPin(p));g('newPin').value='';toast('✅ PIN modifié');}
+function exportData(){var blob=new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mariage_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function importData(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(d.categories){ST=d;saveData();renderDashboard();toast('✅ Données importées');}}catch(err){toast('❌ Fichier invalide');}};r.readAsText(f);}
+function resetAll(){if(!confirm('⚠️ Supprimer TOUTES les données ?'))return;if(!confirm('Vraiment tout effacer ?'))return;ST={categories:[],meta:{date_mariage:'',lieu:'Marrakech',budget_global:0}};saveData();renderDashboard();toast('🗑️ Données effacées');}
+
+// ── MISC ──────────────────────────────────────────────────────────────────────
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(d){if(!d)return'';var dt=new Date(d+'T00:00:00');var months=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+var storedPin=localStorage.getItem(PIN_KEY);
+if(!storedPin){
+  // First time: no PIN yet, show setup
+  pinMode='setup';
+  g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';
+}
+// Auto-sync every 2 minutes when Firebase configured
+setInterval(function(){if(getFbUrl())loadFromFb();},120000);
+</script>
+</body>
+</html>
