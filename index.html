@@ -230,7 +230,8 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <label class="flabel">Revenu Fiscal de Référence (RFR)</label>
   <input type="number" id="rfrS2" placeholder="Ex: 18000" oninput="syncRfrS2(this.value)"/>
   <div class="hint" style="margin-top:-12px;margin-bottom:14px;">Case RFR sur l'avis d'imposition</div>
-  <div id="couleurBlocS2" style="margin-bottom:12px;"></div>
+  <div id="couleurBlocS2" style="margin-bottom:8px;"></div>
+  <div id="plafondTableS2"></div>
   <div class="err" id="e2">⚠ Veuillez compléter tous les champs.</div>
   <div class="brow"><button class="btn bs" onclick="pv(2)">← Retour</button><button class="btn bp" onclick="nx(2)">Suivant →</button></div>
 </div>
@@ -718,7 +719,7 @@ function cpInput(val){
   }
 }
 document.addEventListener('click',function(e){var l=g('adresseList');if(l&&e.target!==g('adresse'))l.classList.remove('show');});
-function updMapsLink(){var a=gv('adresse'),cp=gv('cp'),v=gv('ville');var full=(a+' '+cp+' '+v).trim();var btn=g('btnMaps'),btnG=g('btnGeo'),embed=g('mapEmbed');if(a&&cp&&v&&full.length>5){var enc=encodeURIComponent(full);btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&output=embed" width="100%" height="200" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';}else{btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';embed.innerHTML='';}}
+function updMapsLink(){var a=gv('adresse'),cp=gv('cp'),v=gv('ville');var full=(a+' '+cp+' '+v).trim();var btn=g('btnMaps'),btnG=g('btnGeo'),embed=g('mapEmbed');if(a&&cp&&v&&full.length>5){var enc=encodeURIComponent(full);btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&t=k&z=19&output=embed" width="100%" height="220" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';}else{btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';embed.innerHTML='';}}
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;if(_geoLon&&_geoLat){window.open('https://www.geoportail.gouv.fr/carte?c='+_geoLon+','+_geoLat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes','_blank');}else{window.open('https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=18&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes','_blank');}}
 function updProg(){var flow=S.dossier==='ISO'?[1,5,4,6,7]:S.dossier==='PAC'?[1,2,3,4,6,7]:[1,2,3,4,5,6,7];var pos=flow.indexOf(cur)+1,tot=flow.length;var pct=Math.round(((pos-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+pos+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<pos?' done':i===pos?' on':'')+'" ></div>';g('dots').innerHTML=h;}
@@ -759,11 +760,20 @@ function syncRfrS2(val){
   if(S.rfr&&S.parts)updCouleurS2();
 }
 function updCouleurS2(){
-  var c=calcCouleur(S.rfr,S.parts,S.isIDF);S.couleur=c;
+  var rfr=S.rfr,parts=S.parts;
+  var c=calcCouleur(rfr,parts,S.isIDF);S.couleur=c;
   var pm={Bleu:'p-bleu',Jaune:'p-jaune',Violet:'p-violet',Rose:'p-rose'};
   var pd={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'};
   var b=g('couleurBlocS2');
   if(b)b.innerHTML='<div class="cpill '+pm[c]+'" style="display:inline-flex;margin:0 0 8px;">'+pd[c]+' <strong>Couleur ANAH : '+c+'</strong></div>';
+  var r=S.isIDF?'idf':'prov',idx=Math.min(parts-1,5);
+  var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
+    var plaf=col==='Violet'?PLAF[r].violet[idx]:col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
+    var dot={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'}[col];
+    return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
+  }).join('');
+  var t=g('plafondTableS2');
+  if(t)t.innerHTML='<div style="font-size:11px;color:#94a3b8;margin:4px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
 }
 function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
