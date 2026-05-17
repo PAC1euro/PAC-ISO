@@ -443,7 +443,7 @@ function calcCouleur(rfr,parts,isIDF){
   if(rfr<=PLAF[r].violet[i])return'Violet';
   return'Rose';
 }
-function racC(c){return{Bleu:0,Jaune:5000,Violet:6194,Rose:9200}[c]||0;}
+function racC(c){return{Bleu:0,Jaune:5000,Violet:6194,Rose:9194}[c]||0;}
 function racZ(z){return{H1:0,H2:1508,H3:3768}[z]||0;}
 function previewCouleur(){
   var rfr=Number(g('rfr').value),parts=S.parts;
@@ -508,7 +508,7 @@ function buildResult(){
   if(hasPAC){
     if(!S.surfOk)html+=ri('bad','📏','Surface chauffée','❌ Voir avec Responsable technique');
     else if(S.pacOk&&S.racPac===0)html+=ri('good','🔥','Pompe à chaleur Air/Eau','✅ Éligible à 1€');
-    else if(S.pacOk){html+=ri('warn','🔥','Pompe à chaleur Air/Eau','⚠️ RAC : '+fmt(S.racPac));if(S.surfPac>=70&&S.surfPac<90)html+=ri('info','📏','Surface 70–90 m²','+5 000€');if(S.surfPac>190&&S.surfPac<=250)html+=ri('info','📏','Surface 190–250 m²','+3 500€');if(zone==='H2')html+=ri('info','🌤️','Zone H2','+1 508€');if(zone==='H3')html+=ri('info','☀️','Zone H3','+3 768€');if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune','+5 000€');if(c==='Violet')html+=ri('info','🟣','Couleur Violet','+6 194€');if(c==='Rose')html+=ri('info','🔴','Couleur Rose','+9 200€');}
+    else if(S.pacOk){html+=ri('warn','🔥','Pompe à chaleur Air/Eau','⚠️ RAC : '+fmt(S.racPac));if(S.surfPac>=70&&S.surfPac<90)html+=ri('info','📏','Surface 70–90 m²','+5 000€');if(S.surfPac>190&&S.surfPac<=250)html+=ri('info','📏','Surface 190–250 m²','+3 500€');if(zone==='H2')html+=ri('info','🌤️','Zone H2','+1 508€');if(zone==='H3')html+=ri('info','☀️','Zone H3','+3 768€');if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune','+5 000€');if(c==='Violet')html+=ri('info','🟣','Couleur Violet','+6 194€');if(c==='Rose')html+=ri('info','🔴','Couleur Rose','+9 194€');}
     else html+=ri('bad','🔥','Pompe à chaleur Air/Eau','❌ Voir avec Responsable technique');
   }
   if(hasISO){if(!S.isoOk)html+=ri('bad','🏠','Isolation','❌ Voir avec Responsable technique');else if(S.racIso===0)html+=ri('good','🏠','Isolation','✅ Éligible à 1€');else{html+=ri('warn','🏠','Isolation','⚠️ RAC : '+fmt(S.racIso));if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune (ISO)','+5 000€');if(S.surfIso<110)html+=ri('info','📏','Surface < 110 m²','+1 800€');}html+=ri('info','🏗️','Gestes',S.gestes.join(' + ')||'—');}
