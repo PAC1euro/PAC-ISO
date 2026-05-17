@@ -51,10 +51,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--da
 .btn-pourquoi{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#faf8f5;border-radius:10px;font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer;margin-top:12px;width:100%;}
 
 /* GROUP HEADER */
-.group-hdr{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:8px;margin:16px 0 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+.group-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin:14px 0 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;justify-content:space-between;user-select:none;}
+.grp-chevron{font-size:16px;transition:transform .25s;display:inline-block;}
+.group-hdr.closed .grp-chevron{transform:rotate(-90deg);}
+.grp-body{overflow:hidden;transition:max-height .32s ease;}
+.grp-body.closed{max-height:0!important;}
+.group-henna{background:#fde8d8;color:#9a3412;}
 .group-hlel{background:var(--border);color:var(--accent);}
-.group-civil{background:#dbeafe;color:#1e40af;}
-.group-apres{background:#f4f4f5;color:#71717a;}
+.group-maire{background:#dbeafe;color:#1e40af;}
+.group-meuble{background:#f4f4f5;color:#71717a;}
 
 /* CATEGORY CARDS */
 .cat-card{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s,box-shadow .15s;}
@@ -73,9 +78,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--da
 
 /* CAT HERO */
 .cat-hero{background:#1c1917;border-radius:12px;padding:16px;color:#faf8f5;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.cat-hero.gh-henna{background:#9a3412;}
 .cat-hero.gh-hlel{background:#1c1917;}
-.cat-hero.gh-civil{background:#1e3a8a;}
-.cat-hero.gh-apres{background:#27272a;}
+.cat-hero.gh-maire{background:#1e3a8a;}
+.cat-hero.gh-meuble{background:#27272a;}
 .cat-hero-emoji{font-size:40px;}
 .cat-hero-name{font-size:18px;font-weight:800;}
 .cat-hero-amounts{font-size:13px;opacity:.6;margin-top:4px;}
@@ -308,10 +314,12 @@ textarea.finput{min-height:64px;resize:vertical;}
   </div>
   <div class="setting-block">
     <h3>📅 Informations</h3>
+    <label class="flabel">Date du Henna</label><input class="finput" id="setDateHenna" type="date"/>
+    <label class="flabel">Lieu Henna</label><input class="finput" id="setLieuHenna" placeholder="ex: Marrakech"/>
     <label class="flabel">Date du Hlel</label><input class="finput" id="setDateHlel" type="date"/>
-    <label class="flabel">Date du Civil</label><input class="finput" id="setDateCivil" type="date"/>
-    <label class="flabel">Lieu Hlel</label><input class="finput" id="setLieuHlel" placeholder="Marrakech"/>
-    <label class="flabel">Lieu Civil</label><input class="finput" id="setLieuCivil" placeholder="Cannes / Cassis"/>
+    <label class="flabel">Lieu Hlel</label><input class="finput" id="setLieuHlel" placeholder="ex: Marrakech"/>
+    <label class="flabel">Date Mairie</label><input class="finput" id="setDateMaire" type="date"/>
+    <label class="flabel">Lieu Mairie</label><input class="finput" id="setLieuMaire" placeholder="ex: Cannes / Cassis"/>
     <button class="btn-sec" onclick="saveMeta()">💾 Enregistrer</button>
   </div>
   <div class="setting-block">
@@ -384,9 +392,10 @@ textarea.finput{min-height:64px;resize:vertical;}
   <input class="finput" id="cName" placeholder="Ex: Décoration florale"/>
   <label class="flabel">Appartient à</label>
   <div class="stat-choices" id="cGroupChoices">
-    <div class="schoice sel" data-val="hlel" onclick="pickGroup(this)">🕌 Hlel</div>
-    <div class="schoice" data-val="civil" onclick="pickGroup(this)">💒 Civil</div>
-    <div class="schoice" data-val="apres" onclick="pickGroup(this)">🛋️ Après</div>
+    <div class="schoice sel" data-val="henna" onclick="pickGroup(this)">🌿 Henna</div>
+    <div class="schoice" data-val="hlel" onclick="pickGroup(this)">🕌 Hlel</div>
+    <div class="schoice" data-val="maire" onclick="pickGroup(this)">💒 Mairie</div>
+    <div class="schoice" data-val="meuble" onclick="pickGroup(this)">🛋️ Ameublement</div>
   </div>
   <div class="mbrow">
     <button class="btn-cancel" onclick="closeCatModal()">Annuler</button>
@@ -430,8 +439,9 @@ textarea.finput{min-height:64px;resize:vertical;}
   </div>
   <label class="flabel">Présent à</label>
   <div class="stat-choices" id="gEventChoices">
-    <div class="schoice sel" data-val="hlel" onclick="pickGEvent(this)">🕌 Hlel</div>
-    <div class="schoice" data-val="civil" onclick="pickGEvent(this)">💒 Civil</div>
+    <div class="schoice sel" data-val="henna" onclick="pickGEvent(this)">🌿 Henna</div>
+    <div class="schoice" data-val="hlel" onclick="pickGEvent(this)">🕌 Hlel</div>
+    <div class="schoice" data-val="maire" onclick="pickGEvent(this)">💒 Mairie</div>
     <div class="schoice" data-val="both" onclick="pickGEvent(this)">Les deux</div>
   </div>
   <label class="flabel">Statut</label>
@@ -463,18 +473,35 @@ var PIN_KEY='mariage_pin';
 var FB_KEY='mariage_fb_url';
 var FB_DEFAULT='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
 if(!localStorage.getItem(FB_KEY))localStorage.setItem(FB_KEY,FB_DEFAULT);
-var ST={categories:[],guests:{hlel:[],civil:[]},meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};
+var openGroups={henna:false,hlel:false,maire:false,meuble:false};
+function toggleGroup(id){
+  openGroups[id]=!openGroups[id];
+  var hdr=g('grphdr_'+id),body=g('grpbody_'+id);
+  if(!hdr||!body)return;
+  var open=openGroups[id];
+  hdr.classList.toggle('closed',!open);
+  body.classList.toggle('closed',!open);
+  if(open)body.style.maxHeight=body.scrollHeight+500+'px';
+  else body.style.maxHeight='0';
+}
+var ST={categories:[],guests:{henna:[],hlel:[],maire:[]},meta:{date_henna:'',date_hlel:'',date_maire:'',lieu_henna:'',lieu_hlel:'Marrakech',lieu_maire:'Mairie',epargne:0}};
 var curCatId=null,editItemId=null,pendingPhotos=[];
 var pinInput='',pinMode='check';
 
 // ── GROUPS ───────────────────────────────────────────────────────────────────
 var GROUPS=[
-  {id:'hlel',label:'🕌 Hlel — Marrakech',cls:'group-hlel',heroCls:'gh-hlel'},
-  {id:'civil',label:'💒 Mariage Civil — Cannes / Cassis',cls:'group-civil',heroCls:'gh-civil'},
-  {id:'apres',label:'🛋️ Ameublement & Après',cls:'group-apres',heroCls:'gh-apres'}
+  {id:'henna',label:'🌿 Henna — Carla',cls:'group-henna',heroCls:'gh-henna'},
+  {id:'hlel',label:'🕌 Hlel',cls:'group-hlel',heroCls:'gh-hlel'},
+  {id:'maire',label:'💒 Mairie',cls:'group-maire',heroCls:'gh-maire'},
+  {id:'meuble',label:'🛋️ Ameublement',cls:'group-meuble',heroCls:'gh-meuble'}
 ];
 
 var DEFAULT_CATS=[
+  {id:'henna_deco',emoji:'🌿',name:'Décoration & Henné',group:'henna',items:[]},
+  {id:'henna_tenue',emoji:'👘',name:'Tenue & Bijoux (Henna)',group:'henna',items:[]},
+  {id:'henna_photo',emoji:'📸',name:'Photo & Vidéo (Henna)',group:'henna',items:[]},
+  {id:'henna_musique',emoji:'🎺',name:'Musique & Animation',group:'henna',items:[]},
+  {id:'henna_repas',emoji:'🍽️',name:'Traiteur & Gâteaux',group:'henna',items:[]},
   {id:'villa',emoji:'🏰',name:'Villa & Lieu',group:'hlel',items:[]},
   {id:'deco',emoji:'🎨',name:'Décoration Orientale',group:'hlel',items:[]},
   {id:'dj',emoji:'🎵',name:'DJ & Musique',group:'hlel',items:[]},
@@ -482,18 +509,17 @@ var DEFAULT_CATS=[
   {id:'photo',emoji:'📸',name:'Photographe & Vidéaste',group:'hlel',items:[]},
   {id:'traiteur',emoji:'🍽️',name:'Traiteur',group:'hlel',items:[]},
   {id:'cadeaux',emoji:'🎁',name:'Cadeaux Invités',group:'hlel',items:[]},
-  {id:'henne',emoji:'🌿',name:'Espace Henné',group:'hlel',items:[]},
   {id:'musique',emoji:'🎺',name:'Musiciens Traditionnels',group:'hlel',items:[]},
   {id:'gateaux',emoji:'🎂',name:'Gâteaux & Wedding Cake',group:'hlel',items:[]},
   {id:'pool',emoji:'🏊',name:'Pool Party — Veille du Hlel',group:'hlel',items:[]},
   {id:'tenue_hlel',emoji:'👗',name:'Tenue & Beauté (Hlel)',group:'hlel',items:[]},
-  {id:'civil_lieu',emoji:'💒',name:'Lieu & Organisation Civil',group:'civil',items:[]},
-  {id:'civil_photo',emoji:'📷',name:'Photo & Vidéo (Civil)',group:'civil',items:[]},
-  {id:'civil_tenue',emoji:'👔',name:'Tenue (Civil)',group:'civil',items:[]},
-  {id:'civil_repas',emoji:'🍾',name:'Repas / Réception (Civil)',group:'civil',items:[]},
   {id:'alliances',emoji:'💍',name:'Alliances & Bijoux',group:'hlel',items:[]},
-  {id:'ameublement',emoji:'🛋️',name:'Ameublement',group:'apres',items:[]},
-  {id:'divers',emoji:'✨',name:'Divers',group:'apres',items:[]}
+  {id:'civil_lieu',emoji:'💒',name:'Lieu & Organisation Mairie',group:'maire',items:[]},
+  {id:'civil_photo',emoji:'📷',name:'Photo & Vidéo (Mairie)',group:'maire',items:[]},
+  {id:'civil_tenue',emoji:'👔',name:'Tenue (Mairie)',group:'maire',items:[]},
+  {id:'civil_repas',emoji:'🍾',name:'Repas / Réception',group:'maire',items:[]},
+  {id:'ameublement',emoji:'🛋️',name:'Ameublement',group:'meuble',items:[]},
+  {id:'divers',emoji:'✨',name:'Divers',group:'meuble',items:[]}
 ];
 
 // ── UTILS ────────────────────────────────────────────────────────────────────
@@ -558,8 +584,9 @@ function renderDashboard(){
   var t=calcTotals();
   g('heroTotal').textContent=fmt(t.estime);
   var info=[];
+  if(ST.meta.date_henna)info.push('🌿 Henna : '+fmtDate(ST.meta.date_henna));
   if(ST.meta.date_hlel)info.push('🕌 Hlel : '+fmtDate(ST.meta.date_hlel));
-  if(ST.meta.date_civil)info.push('💒 Civil : '+fmtDate(ST.meta.date_civil));
+  if(ST.meta.date_maire)info.push('💒 Mairie : '+fmtDate(ST.meta.date_maire));
   g('heroSub').textContent=info.join('  ·  ');
   g('heroConfirme').textContent=fmt(t.reel);
   g('heroReste').textContent=fmt(Math.max(0,t.estime-t.reel));
@@ -570,16 +597,19 @@ function renderDashboard(){
   var html='';
   GROUPS.forEach(function(grp){
     var cats=ST.categories.filter(function(c){return c.group===grp.id;});
-    html+='<div class="group-hdr '+grp.cls+'">'+grp.label+'</div>';
-    if(grp.id==='hlel'||grp.id==='civil'){
+    var isOpen=openGroups[grp.id];
+    var grpTotal=0;cats.forEach(function(cat){cat.items.forEach(function(it){grpTotal+=Number(it.estime)||0;});});
+    html+='<div class="group-hdr '+grp.cls+(isOpen?'':' closed')+'" id="grphdr_'+grp.id+'" onclick="toggleGroup(\''+grp.id+'\')"><span>'+grp.label+(grpTotal>0?' — '+fmt(grpTotal):'')+'</span><span class="grp-chevron">▾</span></div>';
+    html+='<div class="grp-body'+(isOpen?'':' closed')+'" id="grpbody_'+grp.id+'">';
+    if(grp.id!=='meuble'){
       var gList=(ST.guests&&ST.guests[grp.id])||[];
       var gConf=gList.filter(function(x){return x.statut==='confirme';}).length;
       var gAbsent=gList.filter(function(x){return x.statut==='absent';}).length;
-      html+='<div onclick="openGuests(\''+grp.id+'\')" style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,.07);cursor:pointer;display:flex;align-items:center;gap:12px;">'+
+      html+='<div onclick="openGuests(\''+grp.id+'\')" style="background:var(--card);border-radius:12px;padding:12px 14px;margin:8px 0;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;">'+
         '<div style="font-size:26px;">👥</div>'+
-        '<div style="flex:1;"><div style="font-size:14px;font-weight:800;">Liste des invités</div>'+
-        '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">'+gList.length+' invité'+(gList.length!==1?'s':'')+' · ✅ '+gConf+' confirmé'+(gConf!==1?'s':'')+' · ❌ '+gAbsent+' absent'+(gAbsent!==1?'s':'')+'</div></div>'+
-        '<div style="font-size:13px;color:#8b5e3c;font-weight:700;">Voir →</div>'+
+        '<div style="flex:1;"><div style="font-size:14px;font-weight:700;">Liste des invités</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+gList.length+' invité'+(gList.length!==1?'s':'')+' · ✅ '+gConf+' · ❌ '+gAbsent+'</div></div>'+
+        '<div style="font-size:13px;color:var(--accent);font-weight:700;">Voir →</div>'+
       '</div>';
     }
     cats.forEach(function(cat){
@@ -594,12 +624,15 @@ function renderDashboard(){
           (ce>0?'<div class="cat-bar"><div class="cat-bar-fill" style="width:'+pct+'%"></div></div>':'')
         +'</div>'+
         '<div class="cat-amounts">'+
-          (ce>0?'<div class="cat-estime">'+fmt(ce)+'</div>':'<div class="cat-estime" style="color:#94a3b8;">—</div>')+
+          (ce>0?'<div class="cat-estime">'+fmt(ce)+'</div>':'<div class="cat-estime" style="color:var(--muted);">—</div>')+
           (cr>0?'<div class="cat-reel">✅ '+fmt(cr)+'</div>':'')
         +'</div></div>';
     });
+    html+='<button class="btn-add-cat" onclick="openAddCat()" style="margin:4px 0 8px;">+ Ajouter une catégorie</button>';
+    html+='</div>';
   });
   g('catList').innerHTML=html;
+  GROUPS.forEach(function(grp){var b=g('grpbody_'+grp.id);if(b&&openGroups[grp.id])b.style.maxHeight=b.scrollHeight+500+'px';});
 }
 
 // ── CATEGORY ─────────────────────────────────────────────────────────────────
@@ -795,10 +828,10 @@ function showPourquoi(){
 function closePq(){g('pqModal').classList.remove('show');}
 
 // ── GUESTS ────────────────────────────────────────────────────────────────────
-var curGuestEvent='hlel',curGuestTab='Riad',editGuestId=null;
+var curGuestEvent='henna',curGuestTab='Riad',editGuestId=null;
 function openGuests(eventId){
   curGuestEvent=eventId;curGuestTab='Riad';
-  if(!ST.guests)ST.guests={hlel:[],civil:[]};
+  if(!ST.guests)ST.guests={henna:[],hlel:[],maire:[]};
   if(!ST.guests[eventId])ST.guests[eventId]=[];
   showView('guests');
 }
@@ -876,7 +909,7 @@ function pickGStat(el){document.querySelectorAll('#gStatChoices .schoice').forEa
 function getGSel(groupId){var el=document.querySelector('#'+groupId+' .sel');return el?el.dataset.val:'';}
 function saveGuest(){
   var nom=g('gNom').value.trim();if(!nom){toast('⚠️ Nom obligatoire');return;}
-  if(!ST.guests)ST.guests={hlel:[],civil:[]};
+  if(!ST.guests)ST.guests={henna:[],hlel:[],maire:[]};
   if(!ST.guests[curGuestEvent])ST.guests[curGuestEvent]=[];
   var gu={id:editGuestId||uid(),nom:nom,liste:getGSel('gListeChoices')||curGuestTab,event:getGSel('gEventChoices')||curGuestEvent,statut:getGSel('gStatChoices')||'invite',notes:g('gNotes').value.trim()};
   if(editGuestId){var idx=ST.guests[curGuestEvent].findIndex(function(x){return x.id===editGuestId;});if(idx>-1)ST.guests[curGuestEvent][idx]=gu;}
@@ -896,15 +929,16 @@ function editEpargne(){var v=prompt('Montant de côté (€) :',Number(ST.meta.e
 function renderSettings(){
   var url=getFbUrl();g('fbUrl').value=url;
   g('syncStatus').innerHTML=url?'<span class="sync-dot sync-ok"></span>Active':'<span class="sync-dot sync-off"></span>Non configurée';
-  g('setDateHlel').value=ST.meta.date_hlel||'';g('setDateCivil').value=ST.meta.date_civil||'';
-  g('setLieuHlel').value=ST.meta.lieu_hlel||'';g('setLieuCivil').value=ST.meta.lieu_civil||'';
+  g('setDateHenna').value=ST.meta.date_henna||'';g('setLieuHenna').value=ST.meta.lieu_henna||'';
+  g('setDateHlel').value=ST.meta.date_hlel||'';g('setLieuHlel').value=ST.meta.lieu_hlel||'';
+  g('setDateMaire').value=ST.meta.date_maire||'';g('setLieuMaire').value=ST.meta.lieu_maire||'';
 }
 function saveFbUrl(){localStorage.setItem(FB_KEY,g('fbUrl').value.trim());toast('✅ URL sauvegardée');renderSettings();if(getFbUrl())loadFromFb();}
-function saveMeta(){ST.meta.date_hlel=g('setDateHlel').value;ST.meta.date_civil=g('setDateCivil').value;ST.meta.lieu_hlel=g('setLieuHlel').value.trim();ST.meta.lieu_civil=g('setLieuCivil').value.trim();saveData();toast('✅ Enregistré');}
+function saveMeta(){ST.meta.date_henna=g('setDateHenna').value;ST.meta.lieu_henna=g('setLieuHenna').value.trim();ST.meta.date_hlel=g('setDateHlel').value;ST.meta.lieu_hlel=g('setLieuHlel').value.trim();ST.meta.date_maire=g('setDateMaire').value;ST.meta.lieu_maire=g('setLieuMaire').value.trim();saveData();toast('✅ Enregistré');}
 function changePin(){var p=g('newPin').value;if(!/^\d{4}$/.test(p)){toast('⚠️ 4 chiffres requis');return;}localStorage.setItem(PIN_KEY,hashPin(p));g('newPin').value='';toast('✅ PIN changé');}
 function exportData(){var blob=new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mariage_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
 function importData(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(d.categories){ST=d;saveData();renderDashboard();toast('✅ Importé');}}catch(e){toast('❌ Fichier invalide');}};r.readAsText(f);}
-function resetAll(){if(!confirm('Supprimer toutes les données ?'))return;if(!confirm('Confirmer ?'))return;ST={categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};saveData();renderDashboard();toast('🗑️ Réinitialisé');}
+function resetAll(){if(!confirm('Supprimer toutes les données ?'))return;if(!confirm('Confirmer ?'))return;ST={categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),guests:{henna:[],hlel:[],maire:[]},meta:{date_henna:'',date_hlel:'',date_maire:'',lieu_henna:'',lieu_hlel:'Marrakech',lieu_maire:'Mairie',epargne:0}};saveData();renderDashboard();toast('🗑️ Réinitialisé');}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 if(!localStorage.getItem(PIN_KEY)){pinMode='setup';g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';}
