@@ -232,6 +232,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="hint" style="margin-top:-12px;margin-bottom:14px;">Case RFR sur l'avis d'imposition</div>
   <div id="couleurBlocS2" style="margin-bottom:8px;"></div>
   <div id="plafondTableS2"></div>
+  <div id="racPreviewS2"></div>
   <div class="err" id="e2">⚠ Veuillez compléter tous les champs.</div>
   <div class="brow"><button class="btn bs" onclick="pv(2)">← Retour</button><button class="btn bp" onclick="nx(2)">Suivant →</button></div>
 </div>
@@ -464,7 +465,7 @@ function previewCouleur(){
   g('plafondTable').innerHTML='<div style="font-size:11px;color:#94a3b8;margin:8px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
 }
 function chkChauf(){var el=document.querySelector('#cChauf .sel');if(!el)return;var ok=el.getAttribute('data-ok')==='1';g('chaufAlert').innerHTML=ok?'<div class="alert ag">✅ Éligible — Chauffage remplaçable par PAC Air/Eau</div>':'<div class="alert ar">❌ Voir avec Responsable technique — Chauffage incompatible</div>';}
-function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ar">❌ Surface < 70 m² — Voir avec Responsable technique</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–90 m² — RAC : +5 000€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ar">❌ Surface > 250 m² — Voir avec Responsable technique</div>';}
+function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';updRacPreviewS2();return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ar">❌ Surface < 70 m² — Voir avec Responsable technique</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–90 m² — RAC : +5 000€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ar">❌ Surface > 250 m² — Voir avec Responsable technique</div>';updRacPreviewS2();}
 function chkVMC(){var v=gSel('cVMC');g('vmcAlert').innerHTML=v==='Oui'?'<div class="alert ab">💧 VMC existante → Ballon thermodynamique à installer</div>':'<div class="alert ab">🌬️ Pas de VMC → VMC à installer</div>';}
 function chkSurfIso(){var s=Number(g('surfIso').value);S.surfIso=s;if(!s){g('surfIsoAlert').innerHTML='';return;}g('surfIsoAlert').innerHTML=s>=110?'<div class="alert ag">✅ Surface suffisante (≥ 110 m²)</div>':'<div class="alert ao">⚠️ Surface < 110 m² — RAC : +1 800€</div>';}
 function togGeste(el){
@@ -786,6 +787,31 @@ function updCouleurS2(){
   }).join('');
   var t=g('plafondTableS2');
   if(t)t.innerHTML='<div style="font-size:11px;color:#94a3b8;margin:4px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
+  updRacPreviewS2();
+}
+function updRacPreviewS2(){
+  var el=g('racPreviewS2');if(!el)return;
+  if(!S.couleur||!S.zone){el.innerHTML='';return;}
+  var surf=Number(gv('surfPac'))||S.surfPac||0;
+  var rc=racC(S.couleur),rz=racZ(S.zone);
+  var rs=0,surfNote='';
+  if(surf>0&&surf<70){el.innerHTML='<div class="alert ar" style="margin-top:10px;">❌ Surface < 70 m² — Non éligible PAC</div>';return;}
+  if(surf>=70&&surf<90){rs=5000;surfNote='Surface 70–90 m² : +5 000€';}
+  else if(surf>190&&surf<=250){rs=3500;surfNote='Surface 190–250 m² : +3 500€';}
+  else if(surf>250){el.innerHTML='<div class="alert ar" style="margin-top:10px;">❌ Surface > 250 m² — Non éligible PAC</div>';return;}
+  var total=rc+rz+rs;
+  var lines=[];
+  if(rc>0)lines.push('<span>🎨 Couleur '+S.couleur+' : +'+fmt(rc)+'</span>');
+  if(rz>0)lines.push('<span>🌍 Zone '+S.zone+' : +'+fmt(rz)+'</span>');
+  if(rs>0)lines.push('<span>📏 '+surfNote+'</span>');
+  var totalTxt=total===0?'<strong style="color:#0ea472;font-size:17px;">✅ 1€ — Éligible à 1€ !</strong>':'<strong style="color:#1a56db;font-size:17px;">💶 RAC estimé : '+fmt(total)+'</strong>';
+  var bgCol=total===0?'#f0fdf4':rc===racC('Rose')?'#fff5f5':'#f0f6ff';
+  var brdCol=total===0?'#10b981':rc===racC('Rose')?'#ef4444':'#1a56db';
+  el.innerHTML='<div style="background:'+bgCol+';border:2px solid '+brdCol+';border-radius:12px;padding:12px 14px;margin-top:10px;">'
+    +'<div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:6px;">💶 Reste à charge PAC</div>'
+    +(lines.length?'<div style="font-size:12px;color:#475569;display:flex;flex-direction:column;gap:3px;margin-bottom:8px;">'+lines.join('')+'</div>':'')
+    +totalTxt
+    +'</div>';
 }
 function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
