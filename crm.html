@@ -476,6 +476,7 @@ function leadCard(l){
     +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
     +'<button class="cb-btn cb-inelig" onclick=\'moveToInelig("'+esc(l._fbKey)+'")\'>↙ Non élig.</button>'
+    +'<button class="cb-btn cb-inelig" style="flex:0 0 auto;padding:8px 10px;" onclick=\'deleteLead("'+esc(l._fbKey)+'")\'> 🗑️</button>'
     +'</div>'
     +'<div style="padding:0 13px 10px;">'
     +'<button class="cb-btn cb-dos" style="width:100%;" onclick=\'openIntForm("'+esc(l._fbKey)+'")\'>📁 '+(l.hasDossier?'Créer un autre dossier':'Créer un dossier client →')+'</button>'
@@ -503,6 +504,7 @@ function ineligCard(l){
     +'<button class="cb-btn cb-detail" onclick=\'openLeadDetail("'+esc(l._fbKey)+'")\'> 📋 Fiche</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(l.telephone)+'">📞 Appeler</a>'
     +'<button class="cb-btn cb-transfer" onclick=\'transferLead("'+esc(l._fbKey)+'")\'> ↗ Transférer</button>'
+    +'<button class="cb-btn cb-inelig" style="flex:0 0 auto;padding:8px 10px;" onclick=\'deleteLead("'+esc(l._fbKey)+'")\'> 🗑️</button>'
     +'</div>'
     +'</div>';
 }
@@ -635,6 +637,7 @@ function dosCard(d){
     +'<button class="cb-btn" style="background:#e0f2fe;color:#0369a1;" onclick=\'openDosDetail("'+esc(d._fbKey)+'")\'> 📋 Résumé</button>'
     +'<a class="cb-btn cb-call" href="tel:'+esc(d.telephone)+'">📞 Appeler</a>'
     +'<button class="cb-btn" style="background:#f0fdf4;color:#166534;" onclick=\'editDossierForm("'+esc(d._fbKey)+'")\'>📝 Fiche complète</button>'
+    +'<button class="cb-btn cb-inelig" style="flex:0 0 auto;padding:8px 10px;" onclick=\'deleteDossier("'+esc(d._fbKey)+'")\'> 🗑️</button>'
     +'</div>'
     +'</div>';
 }
@@ -713,6 +716,22 @@ function setTab(tab){
 }
 function filterTab(tab,anah){setTab(tab);document.getElementById('fltAnah').value=anah;renderLeads();}
 
+function deleteLead(fbKey){
+  if(!confirm('Supprimer ce lead définitivement ? Cette action est irréversible.'))return;
+  var url=getFbUrl();
+  if(url)fetch(url+'/leads/'+fbKey+'.json',{method:'DELETE'}).catch(function(){});
+  allLeads=allLeads.filter(function(x){return x._fbKey!==fbKey;});
+  renderStats();renderLeads();renderInelig();
+  showToast('Lead supprimé 🗑️');
+}
+function deleteDossier(fbKey){
+  if(!confirm('Supprimer ce dossier définitivement ? Cette action est irréversible.'))return;
+  var url=getFbUrl();
+  if(url)fetch(url+'/dossiers/'+fbKey+'.json',{method:'DELETE'}).catch(function(){});
+  allDossiers=allDossiers.filter(function(x){return x._fbKey!==fbKey;});
+  renderStats();renderDossiers();
+  showToast('Dossier supprimé 🗑️');
+}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hide');setTimeout(function(){t.classList.add('hide');},2500);}
 function row(label,val){return'<div class="mrow"><span class="ml">'+label+'</span><span class="mr">'+(val||'--')+'</span></div>';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
