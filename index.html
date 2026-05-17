@@ -721,7 +721,19 @@ function cpInput(val){
 document.addEventListener('click',function(e){var l=g('adresseList');if(l&&e.target!==g('adresse'))l.classList.remove('show');});
 function updMapsLink(){var a=gv('adresse'),cp=gv('cp'),v=gv('ville');var full=(a+' '+cp+' '+v).trim();var btn=g('btnMaps'),btnG=g('btnGeo'),embed=g('mapEmbed');if(a&&cp&&v&&full.length>5){var enc=encodeURIComponent(full);btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&t=k&z=19&output=embed" width="100%" height="220" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';}else{btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';embed.innerHTML='';}}
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
-function openGeo(){var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;if(_geoLon&&_geoLat){window.open('https://www.geoportail.gouv.fr/carte?c='+_geoLon+','+_geoLat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes','_blank');}else{window.open('https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=18&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes','_blank');}}
+function openGeo(){
+  var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
+  var geoUrl=function(lon,lat){return'https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';};
+  if(_geoLon&&_geoLat){window.open(geoUrl(_geoLon,_geoLat),'_blank');return;}
+  var win=window.open('','_blank');
+  fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(addr)+'&limit=1')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.features&&d.features.length>0){var c=d.features[0].geometry.coordinates;_geoLon=c[0];_geoLat=c[1];win.location.href=geoUrl(c[0],c[1]);}
+      else{win.location.href='https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=18&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';}
+    })
+    .catch(function(){win.location.href='https://www.geoportail.gouv.fr/';});
+}
 function updProg(){var flow=S.dossier==='ISO'?[1,5,4,6,7]:S.dossier==='PAC'?[1,2,3,4,6,7]:[1,2,3,4,5,6,7];var pos=flow.indexOf(cur)+1,tot=flow.length;var pct=Math.round(((pos-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+pos+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<pos?' done':i===pos?' on':'')+'" ></div>';g('dots').innerHTML=h;}
 function fmtDOB(el){var v=el.value.replace(/\D/g,'');if(v.length>4)v=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);else if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);el.value=v;}
 function valid(s){hideE(s);if(s===1&&!gSel('cDossier')){showE(1);return false;}return true;}
