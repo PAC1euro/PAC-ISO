@@ -200,6 +200,32 @@ textarea.finput{min-height:64px;resize:vertical;}
 .btn-guest-list:hover{background:rgba(255,255,255,.08);}
 .guest-list-btn-row{display:flex;gap:8px;margin:8px 0 2px;}
 
+/* BUDGET VIEW */
+.cat-budget{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border);}
+.cb-totals{display:flex;gap:8px;margin-bottom:12px;}
+.cb-stat{flex:1;text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px;}
+.cb-stat-n{font-size:15px;font-weight:800;color:var(--dark);line-height:1;}
+.cb-stat-n.ok{color:var(--green);}
+.cb-stat-l{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.cb-bar-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden;display:flex;margin-bottom:12px;}
+.cb-bar-seg{height:100%;transition:width .3s;}
+.cb-seg-paye{background:#1c1917;}
+.cb-seg-confirme{background:var(--green);}
+.cb-seg-devis{background:var(--yellow);}
+.cb-rows{display:flex;flex-direction:column;gap:5px;}
+.cb-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;}
+.cb-row-explorer{background:#f5f5f4;}
+.cb-row-devis{background:#fef9c3;}
+.cb-row-confirme{background:#dcfce7;}
+.cb-row-paye{background:#1c1917;}
+.cb-row-left{display:flex;align-items:center;gap:7px;font-weight:600;}
+.cb-row-explorer .cb-row-left,.cb-row-devis .cb-row-left,.cb-row-confirme .cb-row-left{color:var(--text);}
+.cb-row-paye .cb-row-left{color:#faf8f5;}
+.cb-row-count{font-size:10px;background:rgba(0,0,0,.08);border-radius:20px;padding:2px 7px;font-weight:700;}
+.cb-row-paye .cb-row-count{background:rgba(255,255,255,.15);color:#faf8f5;}
+.cb-row-amt{font-weight:800;font-size:13px;color:var(--dark);}
+.cb-row-paye .cb-row-amt{color:#faf8f5;}
+
 /* VIEWS & TOAST */
 .view{display:none;}
 .view.on{display:block;}
@@ -297,6 +323,7 @@ textarea.finput{min-height:64px;resize:vertical;}
 <div class="view" id="viewCategory">
 <div class="content">
   <div id="catHero"></div>
+  <div id="catBudget"></div>
   <div id="itemList"></div>
   <button class="btn-add-item" onclick="openAddItem()">＋ Ajouter un élément</button>
 </div>
@@ -641,16 +668,55 @@ function getGrp(id){return GROUPS.find(function(g){return g.id===id;})||GROUPS[0
 function renderCategory(catId){
   var cat=getCat(catId);if(!cat)return;
   var grp=getGrp(cat.group);
-  var ce=0,cr=0;
-  cat.items.forEach(function(it){ce+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')cr+=Number(it.reel||it.estime)||0;});
+  var stats={paye:{n:0,e:0},confirme:{n:0,e:0},devis:{n:0,e:0},explorer:{n:0,e:0}};
+  var ce=0;
+  cat.items.forEach(function(it){
+    var estime=Number(it.estime)||0;
+    var reel=Number(it.reel)||0;
+    ce+=estime;
+    var s=it.statut||'explorer';
+    if(stats[s]){stats[s].n++;stats[s].e+=(s==='confirme'||s==='paye')&&reel>0?reel:estime;}
+  });
+  var cr=stats.confirme.e+stats.paye.e;
   g('topbarTitle').textContent=cat.emoji+' '+cat.name;
   g('topbarSub').textContent=grp.label;
   g('catHero').innerHTML='<div class="cat-hero '+grp.heroCls+'">'+
     '<div class="cat-hero-emoji">'+cat.emoji+'</div>'+
     '<div><div class="cat-hero-name">'+esc(cat.name)+'</div>'+
-    '<div class="cat-hero-amounts">Estimé : '+fmt(ce)+(cr>0?' · Confirmé : '+fmt(cr):'')+'</div></div></div>';
+    '<div class="cat-hero-amounts">'+cat.items.length+' élément'+(cat.items.length!==1?'s':'')+(ce>0?' · Budget : '+fmt(ce):'')+'</div></div></div>';
+  // Budget view
+  var budgetHtml='';
+  if(ce>0||cat.items.length>0){
+    var reste=Math.max(0,ce-cr);
+    var pct=function(v){return ce>0?Math.min(100,(v/ce)*100).toFixed(1):0;};
+    var sl={explorer:'💭 À explorer',devis:'📩 Devis reçu',confirme:'✅ Confirmé',paye:'💰 Payé'};
+    var rowBg={explorer:'cb-row-explorer',devis:'cb-row-devis',confirme:'cb-row-confirme',paye:'cb-row-paye'};
+    budgetHtml='<div class="cat-budget">';
+    if(ce>0){
+      budgetHtml+='<div class="cb-totals">'
+        +'<div class="cb-stat"><div class="cb-stat-n">'+fmt(ce)+'</div><div class="cb-stat-l">Budget estimé</div></div>'
+        +'<div class="cb-stat"><div class="cb-stat-n ok">'+fmt(cr)+'</div><div class="cb-stat-l">Confirmé</div></div>'
+        +'<div class="cb-stat"><div class="cb-stat-n">'+fmt(reste)+'</div><div class="cb-stat-l">À confirmer</div></div>'
+        +'</div>'
+        +'<div class="cb-bar-track">'
+        +'<div class="cb-bar-seg cb-seg-paye" style="width:'+pct(stats.paye.e)+'%"></div>'
+        +'<div class="cb-bar-seg cb-seg-confirme" style="width:'+pct(stats.confirme.e)+'%"></div>'
+        +'<div class="cb-bar-seg cb-seg-devis" style="width:'+pct(stats.devis.e)+'%"></div>'
+        +'</div>';
+    }
+    budgetHtml+='<div class="cb-rows">';
+    ['paye','confirme','devis','explorer'].forEach(function(s){
+      var d=stats[s];if(!d.n)return;
+      budgetHtml+='<div class="cb-row '+rowBg[s]+'">'
+        +'<div class="cb-row-left">'+sl[s]+'<span class="cb-row-count">'+d.n+'</span></div>'
+        +'<div class="cb-row-amt">'+(d.e>0?fmt(d.e):'—')+'</div>'
+        +'</div>';
+    });
+    budgetHtml+='</div></div>';
+  }
+  g('catBudget').innerHTML=budgetHtml;
   var items=[].concat(cat.items).sort(function(a,b){return({paye:0,confirme:1,devis:2,explorer:3}[a.statut]||3)-({paye:0,confirme:1,devis:2,explorer:3}[b.statut]||3);});
-  g('itemList').innerHTML=items.length?items.map(renderItemCard).join(''):'<div style="text-align:center;padding:32px;color:#94a3b8;font-size:14px;">Aucun élément — ajoutez votre premier !</div>';
+  g('itemList').innerHTML=items.length?items.map(renderItemCard).join(''):'<div style="text-align:center;padding:32px;color:var(--muted);font-size:14px;">Aucun élément — ajoutez votre premier !</div>';
 }
 function renderItemCard(it){
   var sl={explorer:'💭 À explorer',devis:'📩 Devis reçu',confirme:'✅ Confirmé',paye:'💰 Payé'};
