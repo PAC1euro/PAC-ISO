@@ -683,7 +683,9 @@ function renderDashboard(){
     var cats=ST.categories.filter(function(c){return c.group===grp.id;});
     var isOpen=openGroups[grp.id];
     var grpTotal=0;cats.forEach(function(cat){cat.items.forEach(function(it){grpTotal+=Number(it.estime)||0;});});
-    html+='<div class="group-hdr '+grp.cls+(isOpen?'':' closed')+'" id="grphdr_'+grp.id+'" onclick="toggleGroup(\''+grp.id+'\')"><span>'+grp.label+(grpTotal>0?' — '+fmt(grpTotal):'')+'</span><span class="grp-chevron">▾</span></div>';
+    var grpGuestStr='';
+    if(grp.id!=='meuble'){var gl=(ST.guests&&ST.guests[grp.id])||[];var gtp=gListPersons(gl);grpGuestStr=gtp>0?' · 👥 '+gtp:'·  👥 0';}
+    html+='<div class="group-hdr '+grp.cls+(isOpen?'':' closed')+'" id="grphdr_'+grp.id+'" onclick="toggleGroup(\''+grp.id+'\')"><span>'+grp.label+(grpTotal>0?' — '+fmt(grpTotal):'')+grpGuestStr+'</span><span class="grp-chevron">▾</span></div>';
     html+='<div class="grp-body'+(isOpen?'':' closed')+'" id="grpbody_'+grp.id+'">';
     if(grp.id!=='meuble'){
       var gList=(ST.guests&&ST.guests[grp.id])||[];
