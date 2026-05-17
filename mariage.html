@@ -185,6 +185,7 @@ textarea.finput{min-height:64px;resize:vertical;}
 .ga-carla{background:#dbeafe;color:#1e40af;}
 .guest-info{flex:1;}
 .guest-name{font-size:14px;font-weight:700;}
+.guest-plus{display:inline-block;background:#1c1917;color:#faf8f5;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:5px;vertical-align:middle;}
 .guest-meta{font-size:11px;color:var(--muted);margin-top:1px;}
 .guest-stat{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
 .gs-invite{background:#f5f5f4;color:var(--accent);}
@@ -467,6 +468,12 @@ textarea.finput{min-height:64px;resize:vertical;}
   <h2 id="guestModalTitle">Nouvel invité</h2>
   <label class="flabel">Nom *</label>
   <input class="finput" id="gNom" placeholder="Prénom Nom"/>
+  <label class="flabel">Accompagnants</label>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span style="font-size:18px;font-weight:800;color:var(--muted);">+</span>
+    <input class="finput" id="gPlus" type="number" min="0" max="99" placeholder="0" style="max-width:80px;text-align:center;font-size:18px;font-weight:800;"/>
+    <span style="font-size:12px;color:var(--muted);" id="gPlusLabel">personne(s) supplémentaire(s)</span>
+  </div>
   <label class="flabel">Liste</label>
   <div class="stat-choices" id="gListeChoices">
     <div class="schoice sel" data-val="Riad" onclick="pickGListe(this)">👨‍👩‍👧 Liste Riad</div>
@@ -680,12 +687,13 @@ function renderDashboard(){
     html+='<div class="grp-body'+(isOpen?'':' closed')+'" id="grpbody_'+grp.id+'">';
     if(grp.id!=='meuble'){
       var gList=(ST.guests&&ST.guests[grp.id])||[];
-      var gConf=gList.filter(function(x){return x.statut==='confirme';}).length;
-      var gAbsent=gList.filter(function(x){return x.statut==='absent';}).length;
+      var gConf=gListPersons(gList.filter(function(x){return x.statut==='confirme';}));
+      var gAbsent=gListPersons(gList.filter(function(x){return x.statut==='absent';}));
+      var gTotal=gListPersons(gList);
       html+='<div onclick="openGuests(\''+grp.id+'\')" style="background:var(--card);border-radius:12px;padding:12px 14px;margin:8px 0;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;">'+
         '<div style="font-size:26px;">👥</div>'+
         '<div style="flex:1;"><div style="font-size:14px;font-weight:700;">Liste des invités</div>'+
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+gList.length+' invité'+(gList.length!==1?'s':'')+' · ✅ '+gConf+' · ❌ '+gAbsent+'</div></div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+gTotal+' personne'+(gTotal!==1?'s':'')+' · ✅ '+gConf+' · ❌ '+gAbsent+'</div></div>'+
         '<div style="font-size:13px;color:var(--accent);font-weight:700;">Voir →</div>'+
       '</div>';
     }
@@ -951,41 +959,51 @@ function openGuests(eventId){
   if(!ST.guests[eventId])ST.guests[eventId]=[];
   showView('guests');
 }
+function gPersons(gu){return 1+(parseInt(gu.plus)||0);}
+function gListPersons(list){return list.reduce(function(s,x){return s+gPersons(x);},0);}
+
 function renderGuests(){
-  var eventLabel={hlel:'🕌 Hlel — Marrakech',civil:'💒 Mariage Civil'}[curGuestEvent];
+  var evtLabels={henna:'🌿 Henna — Carla',hlel:'🕌 Hlel',maire:'💒 Mairie'};
   g('topbarTitle').textContent='👥 Invités';
-  g('topbarSub').textContent=eventLabel;
+  g('topbarSub').textContent=evtLabels[curGuestEvent]||curGuestEvent;
   var all=ST.guests[curGuestEvent]||[];
-  var total=all.length,conf=all.filter(function(x){return x.statut==='confirme';}).length,absent=all.filter(function(x){return x.statut==='absent';}).length;
-  var riad=all.filter(function(x){return x.liste==='Riad';}).length;
-  var carla=all.filter(function(x){return x.liste==='Carla';}).length;
+  var totalP=gListPersons(all);
+  var confList=all.filter(function(x){return x.statut==='confirme';});
+  var absentList=all.filter(function(x){return x.statut==='absent';});
+  var confP=gListPersons(confList),absentP=gListPersons(absentList),waitP=totalP-confP-absentP;
+  var riadP=gListPersons(all.filter(function(x){return x.liste==='Riad';}));
+  var carlaP=gListPersons(all.filter(function(x){return x.liste==='Carla';}));
   g('guestSummary').innerHTML='<div class="guest-summary">'+
-    '<div class="guest-sum-block"><div class="guest-sum-n">'+total+'</div><div class="guest-sum-l">Total</div></div>'+
-    '<div class="guest-sum-block"><div class="guest-sum-n">'+conf+'</div><div class="guest-sum-l">Confirmés</div></div>'+
-    '<div class="guest-sum-block"><div class="guest-sum-n">'+absent+'</div><div class="guest-sum-l">Absents</div></div>'+
-    '<div class="guest-sum-block"><div class="guest-sum-n">'+(total-conf-absent)+'</div><div class="guest-sum-l">En attente</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+totalP+'</div><div class="guest-sum-l">Personnes</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+confP+'</div><div class="guest-sum-l">Confirmées</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+absentP+'</div><div class="guest-sum-l">Absentes</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+waitP+'</div><div class="guest-sum-l">En attente</div></div>'+
   '</div>'+
-  '<div style="background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);font-size:13px;display:flex;justify-content:space-between;">'+
-    '<span>👨‍👩‍👧 Liste Riad : <strong>'+riad+'</strong></span>'+
-    '<span>👨‍👩‍👦 Liste Carla : <strong>'+carla+'</strong></span>'+
+  '<div style="background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:8px;border:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;">'+
+    '<span>Liste Riad : <strong>'+riadP+'</strong> pers.</span>'+
+    '<span>Liste Carla : <strong>'+carlaP+'</strong> pers.</span>'+
   '</div>';
   g('gtRiad').classList.toggle('on',curGuestTab==='Riad');
   g('gtCarla').classList.toggle('on',curGuestTab==='Carla');
   var filtered=all.filter(function(x){return x.liste===curGuestTab;});
   var byStatut={confirme:filtered.filter(function(x){return x.statut==='confirme';}),invite:filtered.filter(function(x){return x.statut==='invite';}),absent:filtered.filter(function(x){return x.statut==='absent';})};
   var html='';
-  if(!filtered.length){html='<div style="text-align:center;padding:28px;color:#94a3b8;font-size:14px;">Aucun invité dans cette liste</div>';}
+  if(!filtered.length){html='<div style="text-align:center;padding:28px;color:var(--muted);font-size:14px;">Aucun invité dans cette liste</div>';}
   else{
     [['confirme','✅ Confirmés'],['invite','📩 Invités'],['absent','❌ Absents']].forEach(function(pair){
       var grp=byStatut[pair[0]];if(!grp.length)return;
-      html+='<div class="guest-event-hdr">'+pair[1]+' ('+grp.length+')</div>';
+      var grpP=gListPersons(grp);
+      html+='<div class="guest-event-hdr">'+pair[1]+' — '+grp.length+' entrée'+(grp.length!==1?'s':'')+' · <strong>'+grpP+' pers.</strong></div>';
       grp.forEach(function(gu){
+        var plus=parseInt(gu.plus)||0;
         var statCls={invite:'gs-invite',confirme:'gs-confirme',absent:'gs-absent'}[gu.statut];
-        var evtLabel={hlel:'🕌',civil:'💒',both:'🕌💒'}[gu.event]||'';
+        var evtLabel={henna:'🌿',hlel:'🕌',maire:'💒',both:'🕌💒'}[gu.event]||'';
         html+='<div class="guest-card">'+
           '<div class="guest-avatar '+(gu.liste==='Riad'?'ga-riad':'ga-carla')+'">'+gu.nom.charAt(0).toUpperCase()+'</div>'+
-          '<div class="guest-info"><div class="guest-name">'+esc(gu.nom)+'</div>'+
-          '<div class="guest-meta">'+evtLabel+' '+(gu.notes?'· '+gu.notes:'')+'</div></div>'+
+          '<div class="guest-info">'+
+            '<div class="guest-name">'+esc(gu.nom)+(plus>0?'<span class="guest-plus">+'+plus+'</span>':'')+'</div>'+
+            '<div class="guest-meta">'+evtLabel+' '+(1+plus)+' personne'+(plus>0?'s':'')+(gu.notes?' · '+gu.notes:'')+'</div>'+
+          '</div>'+
           '<span class="guest-stat '+statCls+'">'+(gu.statut==='confirme'?'✅':gu.statut==='absent'?'❌':'📩')+'</span>'+
           '<div class="guest-actions">'+
             '<button class="btn-guest-stat" onclick="editGuest(\''+gu.id+'\')">✏️</button>'+
@@ -1001,7 +1019,7 @@ function switchGuestTab(tab){curGuestTab=tab;renderGuests();}
 function openAddGuest(){
   editGuestId=null;
   g('guestModalTitle').textContent='Nouvel invité';
-  g('gNom').value='';g('gNotes').value='';
+  g('gNom').value='';g('gNotes').value='';g('gPlus').value='';
   document.querySelectorAll('#gListeChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===curGuestTab);});
   document.querySelectorAll('#gEventChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===curGuestEvent);});
   document.querySelectorAll('#gStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val==='invite');});
@@ -1012,7 +1030,7 @@ function editGuest(id){
   var gu=(ST.guests[curGuestEvent]||[]).find(function(x){return x.id===id;});if(!gu)return;
   editGuestId=id;
   g('guestModalTitle').textContent='Modifier l\'invité';
-  g('gNom').value=gu.nom||'';g('gNotes').value=gu.notes||'';
+  g('gNom').value=gu.nom||'';g('gNotes').value=gu.notes||'';g('gPlus').value=gu.plus||0;
   document.querySelectorAll('#gListeChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.liste);});
   document.querySelectorAll('#gEventChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.event);});
   document.querySelectorAll('#gStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.statut);});
@@ -1027,7 +1045,7 @@ function saveGuest(){
   var nom=g('gNom').value.trim();if(!nom){toast('⚠️ Nom obligatoire');return;}
   if(!ST.guests)ST.guests={henna:[],hlel:[],maire:[]};
   if(!ST.guests[curGuestEvent])ST.guests[curGuestEvent]=[];
-  var gu={id:editGuestId||uid(),nom:nom,liste:getGSel('gListeChoices')||curGuestTab,event:getGSel('gEventChoices')||curGuestEvent,statut:getGSel('gStatChoices')||'invite',notes:g('gNotes').value.trim()};
+  var gu={id:editGuestId||uid(),nom:nom,liste:getGSel('gListeChoices')||curGuestTab,event:getGSel('gEventChoices')||curGuestEvent,statut:getGSel('gStatChoices')||'invite',notes:g('gNotes').value.trim(),plus:parseInt(g('gPlus').value)||0};
   if(editGuestId){var idx=ST.guests[curGuestEvent].findIndex(function(x){return x.id===editGuestId;});if(idx>-1)ST.guests[curGuestEvent][idx]=gu;}
   else{ST.guests[curGuestEvent].push(gu);}
   saveData();closeGuestModal();renderGuests();renderDashboard();toast(editGuestId?'✅ Modifié':'✅ Invité ajouté');
