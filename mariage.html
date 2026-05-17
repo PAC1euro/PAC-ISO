@@ -600,7 +600,11 @@ function refreshData(showFeedback){
       if(d&&d.categories){
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
-        ST=d;migrateGuests();saveLocal();renderDashboard();
+        var prevGuests=ST.guests;ST=d;
+        var hadOld=['henna','hlel','maire'].some(function(ev){return toArr(ST.guests&&ST.guests[ev]).length>0;});
+        migrateGuests();
+        if(hadOld)saveData(); else saveLocal();
+        renderDashboard();
         if(showFeedback)toast('✅ Synchronisé');
       }else if(showFeedback){toast('⚠️ Aucune donnée cloud');}
     })
@@ -629,7 +633,10 @@ function startRealtime(){
         var d=msg.data;
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
-        ST=d;migrateGuests();saveLocal();renderDashboard();
+        var hadOld2=['henna','hlel','maire'].some(function(ev){return toArr(d.guests&&d.guests[ev]).length>0;});
+        ST=d;migrateGuests();
+        if(hadOld2)saveData(); else saveLocal();
+        renderDashboard();
         if(curCatId&&g('viewCategory').classList.contains('on'))renderCategory(curCatId);
       }catch(err){}
     });
@@ -646,7 +653,7 @@ function updDots(){for(var i=0;i<4;i++)g('pd'+i).classList.toggle('filled',i<pin
 function checkPin(){var s=localStorage.getItem(PIN_KEY);if(!s){g('pinSubText').textContent='Créez votre PIN';pinMode='setup';pinInput='';updDots();return;}if(hashPin(pinInput)===s){unlockApp();}else{g('pinErr').textContent='PIN incorrect';pinInput='';updDots();}}
 function confirmPin(){localStorage.setItem(PIN_KEY,hashPin(pinInput));toast('✅ PIN créé');unlockApp();}
 function showSetup(){pinMode='setup';pinInput='';updDots();g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';g('pinErr').textContent='';}
-function unlockApp(){g('pinScreen').style.display='none';g('app').style.display='block';loadLocal();migrateGuests();if(!ST.categories.length){ST.categories=JSON.parse(JSON.stringify(DEFAULT_CATS));saveLocal();}loadFromFb();startRealtime();renderDashboard();showView('dashboard');}
+function unlockApp(){g('pinScreen').style.display='none';g('app').style.display='block';loadLocal();migrateGuests();if(!ST.categories.length){ST.categories=JSON.parse(JSON.stringify(DEFAULT_CATS));}saveLocal();loadFromFb();startRealtime();renderDashboard();showView('dashboard');}
 function lock(){stopRealtime();g('app').style.display='none';g('pinScreen').style.display='flex';pinInput='';pinMode='check';updDots();g('pinSubText').textContent='Entrez votre code PIN';g('pinErr').textContent='';}
 
 // ── VIEWS ────────────────────────────────────────────────────────────────────
@@ -955,12 +962,18 @@ function closePq(){g('pqModal').classList.remove('show');}
 // ── GUESTS ────────────────────────────────────────────────────────────────────
 var curGuestEvent='henna',curGuestTab='Riad',editGuestId=null;
 
+function toArr(x){if(!x)return[];if(Array.isArray(x))return x;if(typeof x==='object')return Object.values(x);return[];}
 function migrateGuests(){
   if(!ST.guests){ST.guests={all:[]};return;}
-  if(ST.guests.all)return;
-  var all=[],seen={};
+  // Check if old-format keys have data that needs migrating
+  var hasOld=['henna','hlel','maire'].some(function(ev){return toArr(ST.guests[ev]).length>0;});
+  if(!hasOld&&ST.guests.all)return; // nothing to migrate
+  // Merge existing all[] with any old-format data
+  var seen={},all=[];
+  toArr(ST.guests.all).forEach(function(gu){if(gu&&gu.id){seen[gu.id]=gu;all.push(gu);}});
   ['henna','hlel','maire'].forEach(function(ev){
-    (ST.guests[ev]||[]).forEach(function(gu){
+    toArr(ST.guests[ev]).forEach(function(gu){
+      if(!gu||!gu.id)return;
       if(seen[gu.id]){
         if(seen[gu.id].events.indexOf(ev)<0)seen[gu.id].events.push(ev);
       }else{
@@ -977,7 +990,13 @@ function migrateGuests(){
 function gAllForEvent(eventId){
   if(!ST.guests)return[];
   migrateGuests();
-  return ST.guests.all.filter(function(x){return(x.events||[]).indexOf(eventId)>-1;});
+  if(ST.guests.all){
+    return toArr(ST.guests.all).filter(function(x){
+      if(!x)return false;
+      return(x.events||(x.event?[x.event]:[])).indexOf(eventId)>-1;
+    });
+  }
+  return toArr(ST.guests[eventId]); // fallback ancien format
 }
 function openGuests(eventId){
   curGuestEvent=eventId;curGuestTab='Riad';
