@@ -479,12 +479,11 @@ textarea.finput{min-height:64px;resize:vertical;}
     <div class="schoice sel" data-val="Riad" onclick="pickGListe(this)">👨‍👩‍👧 Liste Riad</div>
     <div class="schoice" data-val="Carla" onclick="pickGListe(this)">👨‍👩‍👦 Liste Carla</div>
   </div>
-  <label class="flabel">Présent à</label>
+  <label class="flabel">Présent à <span style="font-size:11px;color:var(--muted);font-weight:400;">(plusieurs possibles)</span></label>
   <div class="stat-choices" id="gEventChoices">
     <div class="schoice sel" data-val="henna" onclick="pickGEvent(this)">🌿 Henna</div>
     <div class="schoice" data-val="hlel" onclick="pickGEvent(this)">🕌 Hlel</div>
     <div class="schoice" data-val="maire" onclick="pickGEvent(this)">💒 Mairie</div>
-    <div class="schoice" data-val="both" onclick="pickGEvent(this)">Les deux</div>
   </div>
   <label class="flabel">Statut</label>
   <div class="stat-choices" id="gStatChoices">
@@ -601,7 +600,7 @@ function refreshData(showFeedback){
       if(d&&d.categories){
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
-        ST=d;saveLocal();renderDashboard();
+        ST=d;migrateGuests();saveLocal();renderDashboard();
         if(showFeedback)toast('✅ Synchronisé');
       }else if(showFeedback){toast('⚠️ Aucune donnée cloud');}
     })
@@ -630,7 +629,7 @@ function startRealtime(){
         var d=msg.data;
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
-        ST=d;saveLocal();renderDashboard();
+        ST=d;migrateGuests();saveLocal();renderDashboard();
         if(curCatId&&g('viewCategory').classList.contains('on'))renderCategory(curCatId);
       }catch(err){}
     });
@@ -647,7 +646,7 @@ function updDots(){for(var i=0;i<4;i++)g('pd'+i).classList.toggle('filled',i<pin
 function checkPin(){var s=localStorage.getItem(PIN_KEY);if(!s){g('pinSubText').textContent='Créez votre PIN';pinMode='setup';pinInput='';updDots();return;}if(hashPin(pinInput)===s){unlockApp();}else{g('pinErr').textContent='PIN incorrect';pinInput='';updDots();}}
 function confirmPin(){localStorage.setItem(PIN_KEY,hashPin(pinInput));toast('✅ PIN créé');unlockApp();}
 function showSetup(){pinMode='setup';pinInput='';updDots();g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';g('pinErr').textContent='';}
-function unlockApp(){g('pinScreen').style.display='none';g('app').style.display='block';loadLocal();if(!ST.categories.length){ST.categories=JSON.parse(JSON.stringify(DEFAULT_CATS));saveLocal();}loadFromFb();startRealtime();renderDashboard();showView('dashboard');}
+function unlockApp(){g('pinScreen').style.display='none';g('app').style.display='block';loadLocal();migrateGuests();if(!ST.categories.length){ST.categories=JSON.parse(JSON.stringify(DEFAULT_CATS));saveLocal();}loadFromFb();startRealtime();renderDashboard();showView('dashboard');}
 function lock(){stopRealtime();g('app').style.display='none';g('pinScreen').style.display='flex';pinInput='';pinMode='check';updDots();g('pinSubText').textContent='Entrez votre code PIN';g('pinErr').textContent='';}
 
 // ── VIEWS ────────────────────────────────────────────────────────────────────
@@ -684,11 +683,11 @@ function renderDashboard(){
     var isOpen=openGroups[grp.id];
     var grpTotal=0;cats.forEach(function(cat){cat.items.forEach(function(it){grpTotal+=Number(it.estime)||0;});});
     var grpGuestStr='';
-    if(grp.id!=='meuble'){var gl=(ST.guests&&ST.guests[grp.id])||[];var gtp=gListPersons(gl);grpGuestStr=gtp>0?' · 👥 '+gtp:'·  👥 0';}
+    if(grp.id!=='meuble'){var gl=gAllForEvent(grp.id);var gtp=gListPersons(gl);grpGuestStr=gtp>0?' · 👥 '+gtp:' · 👥 0';}
     html+='<div class="group-hdr '+grp.cls+(isOpen?'':' closed')+'" id="grphdr_'+grp.id+'" onclick="toggleGroup(\''+grp.id+'\')"><span>'+grp.label+' — '+fmt(grpTotal)+grpGuestStr+'</span><span class="grp-chevron">▾</span></div>';
     html+='<div class="grp-body'+(isOpen?'':' closed')+'" id="grpbody_'+grp.id+'">';
     if(grp.id!=='meuble'){
-      var gList=(ST.guests&&ST.guests[grp.id])||[];
+      var gList=gAllForEvent(grp.id);
       var gConf=gListPersons(gList.filter(function(x){return x.statut==='confirme';}));
       var gAbsent=gListPersons(gList.filter(function(x){return x.statut==='absent';}));
       var gTotal=gListPersons(gList);
@@ -955,10 +954,35 @@ function closePq(){g('pqModal').classList.remove('show');}
 
 // ── GUESTS ────────────────────────────────────────────────────────────────────
 var curGuestEvent='henna',curGuestTab='Riad',editGuestId=null;
+
+function migrateGuests(){
+  if(!ST.guests){ST.guests={all:[]};return;}
+  if(ST.guests.all)return;
+  var all=[],seen={};
+  ['henna','hlel','maire'].forEach(function(ev){
+    (ST.guests[ev]||[]).forEach(function(gu){
+      if(seen[gu.id]){
+        if(seen[gu.id].events.indexOf(ev)<0)seen[gu.id].events.push(ev);
+      }else{
+        var ng=Object.assign({},gu);
+        if(gu.event==='both')ng.events=['hlel','maire'];
+        else ng.events=[gu.event||ev];
+        delete ng.event;
+        seen[gu.id]=ng;all.push(ng);
+      }
+    });
+  });
+  ST.guests={all:all};
+}
+function gAllForEvent(eventId){
+  if(!ST.guests)return[];
+  migrateGuests();
+  return ST.guests.all.filter(function(x){return(x.events||[]).indexOf(eventId)>-1;});
+}
 function openGuests(eventId){
   curGuestEvent=eventId;curGuestTab='Riad';
-  if(!ST.guests)ST.guests={henna:[],hlel:[],maire:[]};
-  if(!ST.guests[eventId])ST.guests[eventId]=[];
+  if(!ST.guests)ST.guests={all:[]};
+  migrateGuests();
   showView('guests');
 }
 function gPersons(gu){return 1+(parseInt(gu.plus)||0);}
@@ -968,7 +992,7 @@ function renderGuests(){
   var evtLabels={henna:'🌿 Henna — Carla',hlel:'🕌 Hlel',maire:'💒 Mairie'};
   g('topbarTitle').textContent='👥 Invités';
   g('topbarSub').textContent=evtLabels[curGuestEvent]||curGuestEvent;
-  var all=ST.guests[curGuestEvent]||[];
+  var all=gAllForEvent(curGuestEvent);
   var totalP=gListPersons(all);
   var confList=all.filter(function(x){return x.statut==='confirme';});
   var absentList=all.filter(function(x){return x.statut==='absent';});
@@ -999,7 +1023,7 @@ function renderGuests(){
       grp.forEach(function(gu){
         var plus=parseInt(gu.plus)||0;
         var statCls={invite:'gs-invite',confirme:'gs-confirme',absent:'gs-absent'}[gu.statut];
-        var evtLabel={henna:'🌿',hlel:'🕌',maire:'💒',both:'🕌💒'}[gu.event]||'';
+        var evtLabel=(gu.events||[]).map(function(e){return{henna:'🌿',hlel:'🕌',maire:'💒'}[e]||'';}).join('');
         html+='<div class="guest-card">'+
           '<div class="guest-avatar '+(gu.liste==='Riad'?'ga-riad':'ga-carla')+'">'+gu.nom.charAt(0).toUpperCase()+'</div>'+
           '<div class="guest-info">'+
@@ -1029,32 +1053,40 @@ function openAddGuest(){
   setTimeout(function(){g('gNom').focus();},100);
 }
 function editGuest(id){
-  var gu=(ST.guests[curGuestEvent]||[]).find(function(x){return x.id===id;});if(!gu)return;
+  migrateGuests();
+  var gu=(ST.guests.all||[]).find(function(x){return x.id===id;});if(!gu)return;
   editGuestId=id;
   g('guestModalTitle').textContent='Modifier l\'invité';
   g('gNom').value=gu.nom||'';g('gNotes').value=gu.notes||'';g('gPlus').value=gu.plus||0;
   document.querySelectorAll('#gListeChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.liste);});
-  document.querySelectorAll('#gEventChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.event);});
+  var evts=gu.events||[gu.event||curGuestEvent];
+  document.querySelectorAll('#gEventChoices .schoice').forEach(function(el){el.classList.toggle('sel',evts.indexOf(el.dataset.val)>-1);});
   document.querySelectorAll('#gStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.statut);});
   g('guestModal').classList.add('show');
 }
 function closeGuestModal(){g('guestModal').classList.remove('show');}
 function pickGListe(el){document.querySelectorAll('#gListeChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
-function pickGEvent(el){document.querySelectorAll('#gEventChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+function pickGEvent(el){
+  el.classList.toggle('sel');
+  var any=document.querySelectorAll('#gEventChoices .schoice.sel').length>0;
+  if(!any)el.classList.add('sel');
+}
 function pickGStat(el){document.querySelectorAll('#gStatChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
 function getGSel(groupId){var el=document.querySelector('#'+groupId+' .sel');return el?el.dataset.val:'';}
+function getGEvents(){return Array.from(document.querySelectorAll('#gEventChoices .schoice.sel')).map(function(el){return el.dataset.val;});}
 function saveGuest(){
   var nom=g('gNom').value.trim();if(!nom){toast('⚠️ Nom obligatoire');return;}
-  if(!ST.guests)ST.guests={henna:[],hlel:[],maire:[]};
-  if(!ST.guests[curGuestEvent])ST.guests[curGuestEvent]=[];
-  var gu={id:editGuestId||uid(),nom:nom,liste:getGSel('gListeChoices')||curGuestTab,event:getGSel('gEventChoices')||curGuestEvent,statut:getGSel('gStatChoices')||'invite',notes:g('gNotes').value.trim(),plus:parseInt(g('gPlus').value)||0};
-  if(editGuestId){var idx=ST.guests[curGuestEvent].findIndex(function(x){return x.id===editGuestId;});if(idx>-1)ST.guests[curGuestEvent][idx]=gu;}
-  else{ST.guests[curGuestEvent].push(gu);}
+  if(!ST.guests)ST.guests={all:[]};migrateGuests();
+  var events=getGEvents();if(!events.length)events=[curGuestEvent];
+  var gu={id:editGuestId||uid(),nom:nom,liste:getGSel('gListeChoices')||curGuestTab,events:events,statut:getGSel('gStatChoices')||'invite',notes:g('gNotes').value.trim(),plus:parseInt(g('gPlus').value)||0};
+  if(editGuestId){var idx=ST.guests.all.findIndex(function(x){return x.id===editGuestId;});if(idx>-1)ST.guests.all[idx]=gu;}
+  else{ST.guests.all.push(gu);}
   saveData();closeGuestModal();renderGuests();renderDashboard();toast(editGuestId?'✅ Modifié':'✅ Invité ajouté');
 }
 function delGuest(id){
   if(!confirm('Supprimer cet invité ?'))return;
-  ST.guests[curGuestEvent]=ST.guests[curGuestEvent].filter(function(x){return x.id!==id;});
+  migrateGuests();
+  ST.guests.all=ST.guests.all.filter(function(x){return x.id!==id;});
   saveData();renderGuests();renderDashboard();toast('🗑️ Supprimé');
 }
 
