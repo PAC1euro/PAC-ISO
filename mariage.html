@@ -164,6 +164,32 @@ textarea.finput{min-height:64px;resize:vertical;}
 .sync-ok{background:var(--green);}
 .sync-off{background:#cbd5e1;}
 
+/* GUEST LIST */
+.guest-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.guest-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;border:2px solid #e2e8f0;color:#475569;background:#fff;}
+.guest-tab.on{border-color:#8b5e3c;background:#f5e6d8;color:#8b5e3c;}
+.guest-event-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin:14px 0 8px;}
+.guest-card{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:6px;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;align-items:center;gap:10px;}
+.guest-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;}
+.ga-riad{background:#f5e6d8;color:#8b5e3c;}
+.ga-carla{background:#dbeafe;color:#1e40af;}
+.guest-info{flex:1;}
+.guest-name{font-size:14px;font-weight:800;}
+.guest-meta{font-size:11px;color:#94a3b8;margin-top:1px;}
+.guest-stat{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.gs-invite{background:#f1f5f9;color:#475569;}
+.gs-confirme{background:#d1fae5;color:#065f46;}
+.gs-absent{background:#fee2e2;color:#991b1b;}
+.guest-actions{display:flex;gap:4px;}
+.btn-guest-stat{border:none;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;background:#f1f5f9;color:#475569;}
+.guest-summary{background:linear-gradient(135deg,#8b5e3c,#c9956c);border-radius:12px;padding:12px 14px;color:#fff;margin-bottom:12px;display:flex;gap:12px;}
+.guest-sum-block{flex:1;text-align:center;}
+.guest-sum-n{font-size:20px;font-weight:900;}
+.guest-sum-l{font-size:10px;opacity:.8;font-weight:700;text-transform:uppercase;}
+.btn-guest-list{background:#fff;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;color:#8b5e3c;font-size:12px;font-weight:800;padding:8px 14px;cursor:pointer;width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-guest-list:hover{background:#f5e6d8;}
+.guest-list-btn-row{display:flex;gap:8px;margin:8px 0 2px;}
+
 /* VIEWS & TOAST */
 .view{display:none;}
 .view.on{display:block;}
@@ -352,6 +378,51 @@ textarea.finput{min-height:64px;resize:vertical;}
 </div>
 </div>
 
+<!-- GUEST VIEW -->
+<div class="view" id="viewGuests">
+<div class="content">
+  <div id="guestSummary"></div>
+  <div class="guest-tabs">
+    <div class="guest-tab on" id="gtRiad" onclick="switchGuestTab('Riad')">👨‍👩‍👧 Liste Riad</div>
+    <div class="guest-tab" id="gtCarla" onclick="switchGuestTab('Carla')">👨‍👩‍👦 Liste Carla</div>
+  </div>
+  <div id="guestList"></div>
+  <button class="btn-add-item" onclick="openAddGuest()">＋ Ajouter un invité</button>
+</div>
+</div>
+
+<!-- GUEST MODAL -->
+<div class="modal-bg" id="guestModal" onclick="if(event.target===this)closeGuestModal()">
+<div class="modal">
+  <h2 id="guestModalTitle">Nouvel invité</h2>
+  <label class="flabel">Nom *</label>
+  <input class="finput" id="gNom" placeholder="Prénom Nom"/>
+  <label class="flabel">Liste</label>
+  <div class="stat-choices" id="gListeChoices">
+    <div class="schoice sel" data-val="Riad" onclick="pickGListe(this)">👨‍👩‍👧 Liste Riad</div>
+    <div class="schoice" data-val="Carla" onclick="pickGListe(this)">👨‍👩‍👦 Liste Carla</div>
+  </div>
+  <label class="flabel">Présent à</label>
+  <div class="stat-choices" id="gEventChoices">
+    <div class="schoice sel" data-val="hlel" onclick="pickGEvent(this)">🕌 Hlel</div>
+    <div class="schoice" data-val="civil" onclick="pickGEvent(this)">💒 Civil</div>
+    <div class="schoice" data-val="both" onclick="pickGEvent(this)">Les deux</div>
+  </div>
+  <label class="flabel">Statut</label>
+  <div class="stat-choices" id="gStatChoices">
+    <div class="schoice sel" data-val="invite" onclick="pickGStat(this)">📩 Invité</div>
+    <div class="schoice" data-val="confirme" onclick="pickGStat(this)">✅ Confirmé</div>
+    <div class="schoice" data-val="absent" onclick="pickGStat(this)">❌ Absent</div>
+  </div>
+  <label class="flabel">Notes</label>
+  <textarea class="finput" id="gNotes" placeholder="Allergies, régime, remarques..."></textarea>
+  <div class="mbrow">
+    <button class="btn-cancel" onclick="closeGuestModal()">Annuler</button>
+    <button class="btn-save" onclick="saveGuest()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -364,7 +435,7 @@ textarea.finput{min-height:64px;resize:vertical;}
 var STORE_KEY='mariage_v2';
 var PIN_KEY='mariage_pin';
 var FB_KEY='mariage_fb_url';
-var ST={categories:[],meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};
+var ST={categories:[],guests:{hlel:[],civil:[]},meta:{date_hlel:'',date_civil:'',lieu_hlel:'Marrakech',lieu_civil:'Cannes / Cassis',epargne:0}};
 var curCatId=null,editItemId=null,pendingPhotos=[];
 var pinInput='',pinMode='check';
 
@@ -392,7 +463,7 @@ var DEFAULT_CATS=[
   {id:'civil_photo',emoji:'📷',name:'Photo & Vidéo (Civil)',group:'civil',items:[]},
   {id:'civil_tenue',emoji:'👔',name:'Tenue (Civil)',group:'civil',items:[]},
   {id:'civil_repas',emoji:'🍾',name:'Repas / Réception (Civil)',group:'civil',items:[]},
-  {id:'alliances',emoji:'💍',name:'Alliances & Bijoux',group:'civil',items:[]},
+  {id:'alliances',emoji:'💍',name:'Alliances & Bijoux',group:'hlel',items:[]},
   {id:'ameublement',emoji:'🛋️',name:'Ameublement',group:'apres',items:[]},
   {id:'divers',emoji:'✨',name:'Divers',group:'apres',items:[]}
 ];
@@ -432,6 +503,7 @@ function showView(v,catId){
   if(v==='dashboard'){g('topbarTitle').textContent='💍 Notre Mariage';g('topbarSub').textContent='';renderDashboard();}
   else if(v==='category'&&catId){curCatId=catId;renderCategory(catId);}
   else if(v==='settings'){g('topbarTitle').textContent='⚙️ Paramètres';g('topbarSub').textContent='';renderSettings();}
+  else if(v==='guests'){renderGuests();}
 }
 function goBack(){showView('dashboard');}
 
@@ -454,6 +526,17 @@ function renderDashboard(){
   GROUPS.forEach(function(grp){
     var cats=ST.categories.filter(function(c){return c.group===grp.id;});
     html+='<div class="group-hdr '+grp.cls+'">'+grp.label+'</div>';
+    if(grp.id==='hlel'||grp.id==='civil'){
+      var gList=(ST.guests&&ST.guests[grp.id])||[];
+      var gConf=gList.filter(function(x){return x.statut==='confirme';}).length;
+      var gAbsent=gList.filter(function(x){return x.statut==='absent';}).length;
+      html+='<div onclick="openGuests(\''+grp.id+'\')" style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,.07);cursor:pointer;display:flex;align-items:center;gap:12px;">'+
+        '<div style="font-size:26px;">👥</div>'+
+        '<div style="flex:1;"><div style="font-size:14px;font-weight:800;">Liste des invités</div>'+
+        '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">'+gList.length+' invité'+(gList.length!==1?'s':'')+' · ✅ '+gConf+' confirmé'+(gConf!==1?'s':'')+' · ❌ '+gAbsent+' absent'+(gAbsent!==1?'s':'')+'</div></div>'+
+        '<div style="font-size:13px;color:#8b5e3c;font-weight:700;">Voir →</div>'+
+      '</div>';
+    }
     cats.forEach(function(cat){
       var ce=0,cr=0,ni=cat.items.length;
       cat.items.forEach(function(it){ce+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')cr+=Number(it.reel||it.estime)||0;});
@@ -665,6 +748,102 @@ function showPourquoi(){
   g('pqModal').classList.add('show');
 }
 function closePq(){g('pqModal').classList.remove('show');}
+
+// ── GUESTS ────────────────────────────────────────────────────────────────────
+var curGuestEvent='hlel',curGuestTab='Riad',editGuestId=null;
+function openGuests(eventId){
+  curGuestEvent=eventId;curGuestTab='Riad';
+  if(!ST.guests)ST.guests={hlel:[],civil:[]};
+  if(!ST.guests[eventId])ST.guests[eventId]=[];
+  showView('guests');
+}
+function renderGuests(){
+  var eventLabel={hlel:'🕌 Hlel — Marrakech',civil:'💒 Mariage Civil'}[curGuestEvent];
+  g('topbarTitle').textContent='👥 Invités';
+  g('topbarSub').textContent=eventLabel;
+  var all=ST.guests[curGuestEvent]||[];
+  var total=all.length,conf=all.filter(function(x){return x.statut==='confirme';}).length,absent=all.filter(function(x){return x.statut==='absent';}).length;
+  var riad=all.filter(function(x){return x.liste==='Riad';}).length;
+  var carla=all.filter(function(x){return x.liste==='Carla';}).length;
+  g('guestSummary').innerHTML='<div class="guest-summary">'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+total+'</div><div class="guest-sum-l">Total</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+conf+'</div><div class="guest-sum-l">Confirmés</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+absent+'</div><div class="guest-sum-l">Absents</div></div>'+
+    '<div class="guest-sum-block"><div class="guest-sum-n">'+(total-conf-absent)+'</div><div class="guest-sum-l">En attente</div></div>'+
+  '</div>'+
+  '<div style="background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);font-size:13px;display:flex;justify-content:space-between;">'+
+    '<span>👨‍👩‍👧 Liste Riad : <strong>'+riad+'</strong></span>'+
+    '<span>👨‍👩‍👦 Liste Carla : <strong>'+carla+'</strong></span>'+
+  '</div>';
+  g('gtRiad').classList.toggle('on',curGuestTab==='Riad');
+  g('gtCarla').classList.toggle('on',curGuestTab==='Carla');
+  var filtered=all.filter(function(x){return x.liste===curGuestTab;});
+  var byStatut={confirme:filtered.filter(function(x){return x.statut==='confirme';}),invite:filtered.filter(function(x){return x.statut==='invite';}),absent:filtered.filter(function(x){return x.statut==='absent';})};
+  var html='';
+  if(!filtered.length){html='<div style="text-align:center;padding:28px;color:#94a3b8;font-size:14px;">Aucun invité dans cette liste</div>';}
+  else{
+    [['confirme','✅ Confirmés'],['invite','📩 Invités'],['absent','❌ Absents']].forEach(function(pair){
+      var grp=byStatut[pair[0]];if(!grp.length)return;
+      html+='<div class="guest-event-hdr">'+pair[1]+' ('+grp.length+')</div>';
+      grp.forEach(function(gu){
+        var statCls={invite:'gs-invite',confirme:'gs-confirme',absent:'gs-absent'}[gu.statut];
+        var evtLabel={hlel:'🕌',civil:'💒',both:'🕌💒'}[gu.event]||'';
+        html+='<div class="guest-card">'+
+          '<div class="guest-avatar '+(gu.liste==='Riad'?'ga-riad':'ga-carla')+'">'+gu.nom.charAt(0).toUpperCase()+'</div>'+
+          '<div class="guest-info"><div class="guest-name">'+esc(gu.nom)+'</div>'+
+          '<div class="guest-meta">'+evtLabel+' '+(gu.notes?'· '+gu.notes:'')+'</div></div>'+
+          '<span class="guest-stat '+statCls+'">'+(gu.statut==='confirme'?'✅':gu.statut==='absent'?'❌':'📩')+'</span>'+
+          '<div class="guest-actions">'+
+            '<button class="btn-guest-stat" onclick="editGuest(\''+gu.id+'\')">✏️</button>'+
+            '<button class="btn-guest-stat" style="color:var(--red);" onclick="delGuest(\''+gu.id+'\')">🗑️</button>'+
+          '</div>'+
+        '</div>';
+      });
+    });
+  }
+  g('guestList').innerHTML=html;
+}
+function switchGuestTab(tab){curGuestTab=tab;renderGuests();}
+function openAddGuest(){
+  editGuestId=null;
+  g('guestModalTitle').textContent='Nouvel invité';
+  g('gNom').value='';g('gNotes').value='';
+  document.querySelectorAll('#gListeChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===curGuestTab);});
+  document.querySelectorAll('#gEventChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===curGuestEvent);});
+  document.querySelectorAll('#gStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val==='invite');});
+  g('guestModal').classList.add('show');
+  setTimeout(function(){g('gNom').focus();},100);
+}
+function editGuest(id){
+  var gu=(ST.guests[curGuestEvent]||[]).find(function(x){return x.id===id;});if(!gu)return;
+  editGuestId=id;
+  g('guestModalTitle').textContent='Modifier l\'invité';
+  g('gNom').value=gu.nom||'';g('gNotes').value=gu.notes||'';
+  document.querySelectorAll('#gListeChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.liste);});
+  document.querySelectorAll('#gEventChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.event);});
+  document.querySelectorAll('#gStatChoices .schoice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===gu.statut);});
+  g('guestModal').classList.add('show');
+}
+function closeGuestModal(){g('guestModal').classList.remove('show');}
+function pickGListe(el){document.querySelectorAll('#gListeChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+function pickGEvent(el){document.querySelectorAll('#gEventChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+function pickGStat(el){document.querySelectorAll('#gStatChoices .schoice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+function getGSel(groupId){var el=document.querySelector('#'+groupId+' .sel');return el?el.dataset.val:'';}
+function saveGuest(){
+  var nom=g('gNom').value.trim();if(!nom){toast('⚠️ Nom obligatoire');return;}
+  if(!ST.guests)ST.guests={hlel:[],civil:[]};
+  if(!ST.guests[curGuestEvent])ST.guests[curGuestEvent]=[];
+  var gu={id:editGuestId||uid(),nom:nom,liste:getGSel('gListeChoices')||curGuestTab,event:getGSel('gEventChoices')||curGuestEvent,statut:getGSel('gStatChoices')||'invite',notes:g('gNotes').value.trim()};
+  if(editGuestId){var idx=ST.guests[curGuestEvent].findIndex(function(x){return x.id===editGuestId;});if(idx>-1)ST.guests[curGuestEvent][idx]=gu;}
+  else{ST.guests[curGuestEvent].push(gu);}
+  saveData();closeGuestModal();renderGuests();renderDashboard();toast(editGuestId?'✅ Modifié':'✅ Invité ajouté');
+}
+function delGuest(id){
+  if(!confirm('Supprimer cet invité ?'))return;
+  ST.guests[curGuestEvent]=ST.guests[curGuestEvent].filter(function(x){return x.id!==id;});
+  saveData();renderGuests();renderDashboard();toast('🗑️ Supprimé');
+}
+
 function editEpargne(){var v=prompt('Montant de côté (€) :',Number(ST.meta.epargne)||0);if(v===null)return;var n=Number(v.replace(/[^0-9]/g,''));ST.meta.epargne=n;saveData();renderDashboard();toast('💰 Mise à jour !');}
 
 
