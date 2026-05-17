@@ -31,6 +31,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--da
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .back-btn{background:rgba(255,255,255,.1);border:none;color:#faf8f5;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;}
 .icon-btn{background:rgba(255,255,255,.1);border:none;color:#faf8f5;border-radius:8px;padding:7px 10px;font-size:16px;cursor:pointer;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.icon-btn.spinning{animation:spin .7s linear infinite;}
 .topbar-right{display:flex;gap:8px;}
 
 /* LAYOUT */
@@ -253,6 +255,7 @@ textarea.finput{min-height:64px;resize:vertical;}
     </div>
   </div>
   <div class="topbar-right">
+    <button class="icon-btn" id="syncBtn" onclick="refreshData()" title="Rafraîchir">🔄</button>
     <button class="icon-btn" onclick="showView('settings')">⚙️</button>
     <button class="icon-btn" onclick="lock()">🔒</button>
   </div>
@@ -508,7 +511,24 @@ function saveLocal(){localStorage.setItem(STORE_KEY,JSON.stringify(ST));}
 function getFbUrl(){return localStorage.getItem(FB_KEY)||'';}
 function getFbPath(){var url=getFbUrl().replace(/\/$/,'');var pin=localStorage.getItem(PIN_KEY)||'default';return url+'/mariage_'+pin+'.json';}
 function saveData(){saveLocal();var url=getFbUrl();if(url){var payload=JSON.parse(JSON.stringify(ST));payload.categories.forEach(function(cat){cat.items.forEach(function(it){it._photos_local=true;it.photos=[];});});fetch(getFbPath(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});}}
-function loadFromFb(){var url=getFbUrl();if(!url)return;fetch(getFbPath()).then(function(r){return r.json();}).then(function(d){if(d&&d.categories){var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}ST=d;saveLocal();renderDashboard();toast('☁️ Données synchronisées');}}).catch(function(){});}
+function refreshData(){
+  var btn=g('syncBtn');
+  if(btn)btn.classList.add('spinning');
+  var url=getFbUrl();
+  if(!url){if(btn)btn.classList.remove('spinning');toast('⚠️ Firebase non configuré');return;}
+  fetch(getFbPath())
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(btn)btn.classList.remove('spinning');
+      if(d&&d.categories){
+        var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+        if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
+        ST=d;saveLocal();renderDashboard();toast('✅ Synchronisé');
+      }else{toast('⚠️ Aucune donnée cloud');}
+    })
+    .catch(function(){if(btn)btn.classList.remove('spinning');toast('❌ Erreur de connexion');});
+}
+function loadFromFb(){refreshData();}
 
 // ── PIN ──────────────────────────────────────────────────────────────────────
 function pinKey(k){if(pinInput.length>=4)return;pinInput+=k;updDots();if(pinInput.length===4){if(pinMode==='setup')confirmPin();else checkPin();}}
