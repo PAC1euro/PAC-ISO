@@ -1154,7 +1154,6 @@ function postToMonday(racStr,totalRac){
     if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
     var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
     var gPortailUrl=(S._lat&&S._lon&&fullAddr.trim())?'https://www.geoportail.gouv.fr/carte?c='+S._lon+','+S._lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&q='+encodeURIComponent(fullAddr.trim())+'&permalink=yes':'';
-    var cvStr=JSON.stringify(JSON.stringify(cv));
     var lines=[
       '━━━ 👤 CLIENT ━━━',
       '• Civilité : '+(S.civilite||'—')+' | Statut : '+(_mStatut[S.statut]||S.statut||'—'),
@@ -1211,25 +1210,66 @@ function postToMonday(racStr,totalRac){
       gPortailUrl?'• Géoportail : '+gPortailUrl:''
     ].filter(function(l){return l!==false&&l!==null&&l!==undefined&&l!=='';}).join('\n');
 
-    function doCreate(groupId){
-      var q1='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
-      fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q1})})
+    function fetchMondayCols(cb){
+      var saved=getMondayCfg();
+      if(saved.colMap&&Object.keys(saved.colMap).length>3){cb(saved.colMap);return;}
+      fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:'query{boards(ids:['+cfg.boardId+']){columns{id title type}}}'})})
       .then(function(r){return r.json();})
       .then(function(d){
-        if(d&&d.errors){
-          var es=JSON.stringify(d.errors);
-          console.error('Monday create_item error:',es);
-          showMonStatus('❌ Monday : erreur API — '+es.slice(0,100));
-          return;
-        }
-        var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
-        if(id){
-          showMonStatus('🟣 Monday : fiche créée ✅ (id '+id+')');
-          var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';
-          fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});
-        }else{showMonStatus('❌ Monday : pas d\'ID retourné');console.error('Monday: pas d\'ID',JSON.stringify(d));}
+        var cols=(d.data&&d.data.boards&&d.data.boards[0]&&d.data.boards[0].columns)||[];
+        var map={};
+        cols.forEach(function(c){if(c.id!=='name')map[c.title.toLowerCase().trim()]={id:c.id,type:c.type};});
+        var cfg2=getMondayCfg();cfg2.colMap=map;
+        localStorage.setItem('pac_monday_cfg',JSON.stringify(cfg2));
+        cb(map);
       })
-      .catch(function(e){console.error('Monday fetch error:',e);showMonStatus('❌ Monday : erreur réseau');});
+      .catch(function(){cb({});});
+    }
+    function enrichCv(colMap){
+      var racVal=hasPAC&&!nonPAC?(S.racPac===0?1:S.racPac):null;
+      var mprEtat=S.mprVerif?({courrier:'Courrier commandé',verifie:'Vérifié'}[S.mprVerif]||S.mprVerif):null;
+      var flds=[
+        {tt:['street view','streetview'],v:streetViewUrl,f:function(c,v){return c.type==='link'?{url:v,text:'Street View'}:v;}},
+        {tt:['géoportail','geoportail'],v:gPortailUrl,f:function(c,v){return c.type==='link'?{url:v,text:'Géoportail'}:v;}},
+        {tt:['hsp','hauteur sous plafond','hauteur plafond','hauteur'],v:S.hauteurPlafond,f:function(c,v){return(c.type==='numbers'||c.type==='numeric')?Number(v)||0:v;}},
+        {tt:['type de radiateur','type radiateur','radiateur','type rad'],v:S.typeRadiateur,f:function(c,v){return v;}},
+        {tt:['rac annoncé','rac annonce','rac pac','rac client'],v:racVal,f:function(c,v){return Number(v)||0;}},
+        {tt:['email mpr','mail mpr'],v:S.mprMail,f:function(c,v){return c.type==='email'?{email:v,text:v}:v;}},
+        {tt:['mdp mpr','mot de passe mpr'],v:S.mprMdp,f:function(c,v){return v;}},
+        {tt:['etat mpr','état mpr','statut mpr'],v:mprEtat,f:function(c,v){return v;}},
+        {tt:['tel mpr','téléphone mpr','phone mpr'],v:S.telephone,f:function(c,v){return c.type==='phone'?{phone:v.replace(/\s/g,''),countryShortName:'FR'}:v;}},
+      ];
+      flds.forEach(function(f){
+        if(f.v==null||f.v===''||f.v===0&&f.v!==0)return;
+        for(var i=0;i<f.tt.length;i++){
+          var col=colMap[f.tt[i]];
+          if(col&&!cv[col.id]){cv[col.id]=f.f(col,f.v);break;}
+        }
+      });
+    }
+    function doCreate(groupId){
+      fetchMondayCols(function(colMap){
+        enrichCv(colMap);
+        var cvStr=JSON.stringify(JSON.stringify(cv));
+        var q1='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
+        fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q1})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.errors){
+            var es=JSON.stringify(d.errors);
+            console.error('Monday create_item error:',es);
+            showMonStatus('❌ Monday : erreur API — '+es.slice(0,100));
+            return;
+          }
+          var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
+          if(id){
+            showMonStatus('🟣 Monday : fiche créée ✅ (id '+id+')');
+            var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';
+            fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});
+          }else{showMonStatus('❌ Monday : pas d\'ID retourné');console.error('Monday: pas d\'ID',JSON.stringify(d));}
+        })
+        .catch(function(e){console.error('Monday fetch error:',e);showMonStatus('❌ Monday : erreur réseau');});
+      });
     }
 
     var cachedGroup=cfg.group||cfg.groupPac;
