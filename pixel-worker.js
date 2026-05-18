@@ -52,7 +52,7 @@ function buildCommentaire(data) {
 
 async function createLead(data, env) {
   const TOKEN = env.PIXEL_TOKEN || '';
-  const UA    = 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+  const UA    = 'STDR_' + TOKEN.toUpperCase() + '_PXALLUAIJLEADS';
   const PROJECT_TYPE_ID = env.PIXEL_PROJECT_ID || 'F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
 
   if (!TOKEN) throw new Error('PIXEL_TOKEN manquant — à configurer dans Cloudflare Variables');
