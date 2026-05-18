@@ -79,23 +79,36 @@ async function createDossier(data, env) {
   });
   cookies = mergeCookies(cookies, p2.headers.get('set-cookie') || '');
 
-  // 3. Follow redirect
-  const loc1 = p2.headers.get('location');
-  if (loc1) {
-    const p3 = await fetch(loc1.startsWith('http') ? loc1 : `${BASE}${loc1}`, {
-      headers: { 'User-Agent': UA, 'Cookie': cookies }
+  // 3. Follow ALL redirects after login (can be multiple hops)
+  let nextUrl = p2.headers.get('location');
+  if (!nextUrl) throw new Error('Pas de redirection après login — identifiants rejetés');
+  let hops = 0;
+  while (nextUrl && hops++ < 6) {
+    const fullUrl = nextUrl.startsWith('http') ? nextUrl : `${BASE}${nextUrl}`;
+    if (fullUrl.includes('/Account/Login')) throw new Error('Connexion échouée — identifiants incorrects ou compte bloqué');
+    const hop = await fetch(fullUrl, {
+      headers: { 'User-Agent': UA, 'Cookie': cookies, 'Accept': 'text/html,application/xhtml+xml' },
+      redirect: 'manual'
     });
-    cookies = mergeCookies(cookies, p3.headers.get('set-cookie') || '');
+    cookies = mergeCookies(cookies, hop.headers.get('set-cookie') || '');
+    if (hop.status === 301 || hop.status === 302) {
+      nextUrl = hop.headers.get('location');
+    } else {
+      nextUrl = null;
+    }
   }
 
   // 4. Load create form → CSRF token
   const p4 = await fetch(`${BASE}/Dossiers/isolation/fiche/create`, {
-    headers: { 'User-Agent': UA, 'Cookie': cookies, 'Referer': BASE }
+    headers: { 'User-Agent': UA, 'Cookie': cookies, 'Referer': BASE, 'Accept': 'text/html,application/xhtml+xml' }
   });
   cookies = mergeCookies(cookies, p4.headers.get('set-cookie') || '');
   const createHtml = await p4.text();
+  if (createHtml.includes('/Account/Login') && !createHtml.includes('FicheISO_VM')) {
+    throw new Error('Session invalide après login — redirection vers login détectée sur le formulaire');
+  }
   const csrfToken = extractToken(createHtml);
-  if (!csrfToken) throw new Error('Token CSRF formulaire introuvable — session non valide');
+  if (!csrfToken) throw new Error(`Token CSRF introuvable — HTML reçu: ${createHtml.slice(0, 200)}`);
 
   // 5. Build commentaire
   const parts = [];
