@@ -59,6 +59,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--da
 .group-henna{background:#fde8d8;color:#9a3412;}
 .group-hlel{background:var(--border);color:var(--accent);}
 .group-maire{background:#dbeafe;color:#1e40af;}
+.group-villa{background:#d1fae5;color:#065f46;}
 .group-meuble{background:#f4f4f5;color:#71717a;}
 
 /* CATEGORY CARDS */
@@ -81,6 +82,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--da
 .cat-hero.gh-henna{background:#9a3412;}
 .cat-hero.gh-hlel{background:#1c1917;}
 .cat-hero.gh-maire{background:#1e3a8a;}
+.cat-hero.gh-villa{background:#064e3b;}
 .cat-hero.gh-meuble{background:#27272a;}
 .cat-hero-emoji{font-size:40px;}
 .cat-hero-name{font-size:18px;font-weight:800;}
@@ -354,8 +356,10 @@ textarea.finput{min-height:64px;resize:vertical;}
     <label class="flabel">Lieu Henna</label><input class="finput" id="setLieuHenna" placeholder="ex: Marrakech"/>
     <label class="flabel">Date du Hlel</label><input class="finput" id="setDateHlel" type="date"/>
     <label class="flabel">Lieu Hlel</label><input class="finput" id="setLieuHlel" placeholder="ex: Marrakech"/>
-    <label class="flabel">Date Mairie</label><input class="finput" id="setDateMaire" type="date"/>
-    <label class="flabel">Lieu Mairie</label><input class="finput" id="setLieuMaire" placeholder="ex: Cannes / Cassis"/>
+    <label class="flabel">Date Mariage Civil</label><input class="finput" id="setDateMaire" type="date"/>
+    <label class="flabel">Lieu Mariage Civil</label><input class="finput" id="setLieuMaire" placeholder="ex: Mairie de Paris"/>
+    <label class="flabel">Date Villa Sud</label><input class="finput" id="setDateVilla" type="date"/>
+    <label class="flabel">Lieu Villa Sud</label><input class="finput" id="setLieuVilla" placeholder="ex: Cannes / Cassis"/>
     <button class="btn-sec" onclick="saveMeta()">💾 Enregistrer</button>
   </div>
   <div class="setting-block">
@@ -437,7 +441,8 @@ textarea.finput{min-height:64px;resize:vertical;}
   <div class="stat-choices" id="cGroupChoices">
     <div class="schoice sel" data-val="henna" onclick="pickGroup(this)">🌿 Henna</div>
     <div class="schoice" data-val="hlel" onclick="pickGroup(this)">🕌 Hlel</div>
-    <div class="schoice" data-val="maire" onclick="pickGroup(this)">💒 Mairie</div>
+    <div class="schoice" data-val="maire" onclick="pickGroup(this)">💒 Mariage Civil</div>
+    <div class="schoice" data-val="villa" onclick="pickGroup(this)">🌊 Villa Sud</div>
     <div class="schoice" data-val="meuble" onclick="pickGroup(this)">🛋️ Ameublement</div>
   </div>
   <div class="mbrow">
@@ -490,7 +495,8 @@ textarea.finput{min-height:64px;resize:vertical;}
   <div class="stat-choices" id="gEventChoices">
     <div class="schoice sel" data-val="henna" onclick="pickGEvent(this)">🌿 Henna</div>
     <div class="schoice" data-val="hlel" onclick="pickGEvent(this)">🕌 Hlel</div>
-    <div class="schoice" data-val="maire" onclick="pickGEvent(this)">💒 Mairie</div>
+    <div class="schoice" data-val="maire" onclick="pickGEvent(this)">💒 Mariage Civil</div>
+    <div class="schoice" data-val="villa" onclick="pickGEvent(this)">🌊 Villa Sud</div>
   </div>
   <label class="flabel">Statut</label>
   <div class="stat-choices" id="gStatChoices">
@@ -521,7 +527,7 @@ var PIN_KEY='mariage_pin';
 var FB_KEY='mariage_fb_url';
 var FB_DEFAULT='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
 if(!localStorage.getItem(FB_KEY))localStorage.setItem(FB_KEY,FB_DEFAULT);
-var openGroups={henna:false,hlel:false,maire:false,meuble:false};
+var openGroups={henna:false,hlel:false,maire:false,villa:false,meuble:false};
 function toggleGroup(id){
   openGroups[id]=!openGroups[id];
   var hdr=g('grphdr_'+id),body=g('grpbody_'+id);
@@ -532,7 +538,7 @@ function toggleGroup(id){
   if(open)body.style.maxHeight=body.scrollHeight+500+'px';
   else body.style.maxHeight='0';
 }
-var ST={categories:[],guests:{henna:[],hlel:[],maire:[]},meta:{date_henna:'',date_hlel:'',date_maire:'',lieu_henna:'',lieu_hlel:'Marrakech',lieu_maire:'Mairie',epargne:0}};
+var ST={categories:[],guests:{henna:[],hlel:[],maire:[],villa:[]},meta:{date_henna:'',date_hlel:'',date_maire:'',date_villa:'',lieu_henna:'',lieu_hlel:'Marrakech',lieu_maire:'Mairie de Paris',lieu_villa:'Cannes / Cassis',epargne:0}};
 var curCatId=null,editItemId=null,pendingPhotos=[];
 var pinInput='',pinMode='check';
 
@@ -540,7 +546,8 @@ var pinInput='',pinMode='check';
 var GROUPS=[
   {id:'henna',label:'🌿 Henna — Carla',cls:'group-henna',heroCls:'gh-henna'},
   {id:'hlel',label:'🕌 Hlel',cls:'group-hlel',heroCls:'gh-hlel'},
-  {id:'maire',label:'💒 Mairie',cls:'group-maire',heroCls:'gh-maire'},
+  {id:'maire',label:'💒 Mariage Civil · Paris',cls:'group-maire',heroCls:'gh-maire'},
+  {id:'villa',label:'🌊 Villa Sud — Cannes / Cassis',cls:'group-villa',heroCls:'gh-villa'},
   {id:'meuble',label:'🛋️ Ameublement',cls:'group-meuble',heroCls:'gh-meuble'}
 ];
 
@@ -562,10 +569,17 @@ var DEFAULT_CATS=[
   {id:'pool',emoji:'🏊',name:'Pool Party — Veille du Hlel',group:'hlel',items:[]},
   {id:'tenue_hlel',emoji:'👗',name:'Tenue & Beauté (Hlel)',group:'hlel',items:[]},
   {id:'alliances',emoji:'💍',name:'Alliances & Bijoux',group:'hlel',items:[]},
-  {id:'civil_lieu',emoji:'💒',name:'Lieu & Organisation Mairie',group:'maire',items:[]},
-  {id:'civil_photo',emoji:'📷',name:'Photo & Vidéo (Mairie)',group:'maire',items:[]},
-  {id:'civil_tenue',emoji:'👔',name:'Tenue (Mairie)',group:'maire',items:[]},
-  {id:'civil_repas',emoji:'🍾',name:'Repas / Réception',group:'maire',items:[]},
+  {id:'civil_lieu',emoji:'💒',name:'Mairie & Organisation',group:'maire',items:[]},
+  {id:'civil_photo',emoji:'📷',name:'Photo & Vidéo (Civil)',group:'maire',items:[]},
+  {id:'civil_tenue',emoji:'👔',name:'Tenue (Civil)',group:'maire',items:[]},
+  {id:'rooftop_lieu',emoji:'🏙️',name:'Rooftop Paris — Lieu & Logistique',group:'maire',items:[]},
+  {id:'rooftop_repas',emoji:'🍾',name:'Rooftop — Traiteur & Cocktail',group:'maire',items:[]},
+  {id:'villa_loc',emoji:'🏡',name:'Location Villa',group:'villa',items:[]},
+  {id:'villa_traiteur',emoji:'🍽️',name:'Traiteur & Repas',group:'villa',items:[]},
+  {id:'villa_deco',emoji:'🎨',name:'Décoration',group:'villa',items:[]},
+  {id:'villa_photo',emoji:'📸',name:'Photo & Vidéo',group:'villa',items:[]},
+  {id:'villa_animation',emoji:'🎵',name:'Animation & Musique',group:'villa',items:[]},
+  {id:'villa_divers',emoji:'✨',name:'Divers',group:'villa',items:[]},
   {id:'ameublement',emoji:'🛋️',name:'Ameublement',group:'meuble',items:[]},
   {id:'divers',emoji:'✨',name:'Divers',group:'meuble',items:[]}
 ];
@@ -618,7 +632,7 @@ function refreshData(showFeedback){
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
         ST=d;
-        var hadOld=['henna','hlel','maire'].some(function(ev){return toArr(ST.guests&&ST.guests[ev]).length>0;});
+        var hadOld=['henna','hlel','maire','villa'].some(function(ev){return toArr(ST.guests&&ST.guests[ev]).length>0;});
         migrateGuests();
         fbGuestCount=toArr(ST.guests&&ST.guests.all).length;
         if(hadOld)saveData(); else saveLocal();
@@ -651,7 +665,7 @@ function startRealtime(){
         var d=msg.data;
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
-        var hadOld2=['henna','hlel','maire'].some(function(ev){return toArr(d.guests&&d.guests[ev]).length>0;});
+        var hadOld2=['henna','hlel','maire','villa'].some(function(ev){return toArr(d.guests&&d.guests[ev]).length>0;});
         ST=d;migrateGuests();
         fbGuestCount=toArr(ST.guests&&ST.guests.all).length;
         if(hadOld2)saveData(); else saveLocal();
@@ -695,7 +709,8 @@ function renderDashboard(){
   var info=[];
   if(ST.meta.date_henna)info.push('🌿 Henna : '+fmtDate(ST.meta.date_henna));
   if(ST.meta.date_hlel)info.push('🕌 Hlel : '+fmtDate(ST.meta.date_hlel));
-  if(ST.meta.date_maire)info.push('💒 Mairie : '+fmtDate(ST.meta.date_maire));
+  if(ST.meta.date_maire)info.push('💒 Civil : '+fmtDate(ST.meta.date_maire));
+  if(ST.meta.date_villa)info.push('🌊 Villa : '+fmtDate(ST.meta.date_villa));
   g('heroSub').textContent=info.join('  ·  ');
   g('heroConfirme').textContent=fmt(t.reel);
   g('heroReste').textContent=fmt(Math.max(0,t.estime-t.reel));
@@ -985,12 +1000,12 @@ function toArr(x){if(!x)return[];if(Array.isArray(x))return x;if(typeof x==='obj
 function migrateGuests(){
   if(!ST.guests){ST.guests={all:[]};return;}
   // Check if old-format keys have data that needs migrating
-  var hasOld=['henna','hlel','maire'].some(function(ev){return toArr(ST.guests[ev]).length>0;});
+  var hasOld=['henna','hlel','maire','villa'].some(function(ev){return toArr(ST.guests[ev]).length>0;});
   if(!hasOld&&ST.guests.all)return; // nothing to migrate
   // Merge existing all[] with any old-format data
   var seen={},all=[];
   toArr(ST.guests.all).forEach(function(gu){if(gu&&gu.id){seen[gu.id]=gu;all.push(gu);}});
-  ['henna','hlel','maire'].forEach(function(ev){
+  ['henna','hlel','maire','villa'].forEach(function(ev){
     toArr(ST.guests[ev]).forEach(function(gu){
       if(!gu||!gu.id)return;
       if(seen[gu.id]){
@@ -1027,7 +1042,7 @@ function gPersons(gu){return 1+(parseInt(gu.plus)||0);}
 function gListPersons(list){return list.reduce(function(s,x){return s+gPersons(x);},0);}
 
 function renderGuests(){
-  var evtLabels={henna:'🌿 Henna — Carla',hlel:'🕌 Hlel',maire:'💒 Mairie'};
+  var evtLabels={henna:'🌿 Henna — Carla',hlel:'🕌 Hlel',maire:'💒 Mariage Civil · Paris',villa:'🌊 Villa Sud'};
   g('topbarTitle').textContent='👥 Invités';
   g('topbarSub').textContent=evtLabels[curGuestEvent]||curGuestEvent;
   var all=gAllForEvent(curGuestEvent);
@@ -1061,7 +1076,7 @@ function renderGuests(){
       grp.forEach(function(gu){
         var plus=parseInt(gu.plus)||0;
         var statCls={invite:'gs-invite',confirme:'gs-confirme',absent:'gs-absent'}[gu.statut];
-        var evtLabel=(gu.events||[]).map(function(e){return{henna:'🌿',hlel:'🕌',maire:'💒'}[e]||'';}).join('');
+        var evtLabel=(gu.events||[]).map(function(e){return{henna:'🌿',hlel:'🕌',maire:'💒',villa:'🌊'}[e]||'';}).join('');
         html+='<div class="guest-card">'+
           '<div class="guest-avatar '+(gu.liste==='Riad'?'ga-riad':'ga-carla')+'">'+gu.nom.charAt(0).toUpperCase()+'</div>'+
           '<div class="guest-info">'+
@@ -1137,8 +1152,8 @@ function diagGuests(){
   var gs=ST.guests||{};
   var lines=['=== MÉMOIRE LOCALE ==='];
   if(gs.all){lines.push('Format: NOUVEAU · all['+toArr(gs.all).length+']');}
-  else{lines.push('Format: ANCIEN');['henna','hlel','maire'].forEach(function(ev){lines.push('  '+ev+': '+(toArr(gs[ev]).length)+' entrées');});}
-  var total=toArr(gs.all).length||(['henna','hlel','maire'].reduce(function(s,ev){return s+toArr(gs[ev]).length;},0));
+  else{lines.push('Format: ANCIEN');['henna','hlel','maire','villa'].forEach(function(ev){lines.push('  '+ev+': '+(toArr(gs[ev]).length)+' entrées');});}
+  var total=toArr(gs.all).length||(['henna','hlel','maire','villa'].reduce(function(s,ev){return s+toArr(gs[ev]).length;},0));
   lines.push('Total entrées: '+total);
   var raw=localStorage.getItem(STORE_KEY);
   lines.push('\n=== localStorage brut guests ===');
@@ -1156,7 +1171,7 @@ function diagFirebase(){
       var gs=data.guests||{};
       var lines=['=== FIREBASE RAW ==='];
       if(gs.all){lines.push('Format: NOUVEAU · all['+toArr(gs.all).length+']');}
-      else{['henna','hlel','maire'].forEach(function(ev){lines.push(ev+': '+toArr(gs[ev]).length+' entrées');});}
+      else{['henna','hlel','maire','villa'].forEach(function(ev){lines.push(ev+': '+toArr(gs[ev]).length+' entrées');});}
       lines.push('\nJSON guests (600 car max):');
       lines.push(JSON.stringify(gs,null,2).substring(0,600));
       d.textContent=lines.join('\n');
@@ -1177,7 +1192,7 @@ function forceRecoverGuests(){
       if(!ST.guests.all)ST.guests.all=[];
       // Pull from Firebase old format
       var seen={};toArr(ST.guests.all).forEach(function(x){if(x&&x.id)seen[x.id]=true;});
-      ['henna','hlel','maire'].forEach(function(ev){
+      ['henna','hlel','maire','villa'].forEach(function(ev){
         toArr(fbGs[ev]).forEach(function(gu){
           if(!gu||!gu.id||seen[gu.id])return;
           var ng=Object.assign({},gu);
@@ -1205,13 +1220,14 @@ function renderSettings(){
   g('setDateHenna').value=ST.meta.date_henna||'';g('setLieuHenna').value=ST.meta.lieu_henna||'';
   g('setDateHlel').value=ST.meta.date_hlel||'';g('setLieuHlel').value=ST.meta.lieu_hlel||'';
   g('setDateMaire').value=ST.meta.date_maire||'';g('setLieuMaire').value=ST.meta.lieu_maire||'';
+  g('setDateVilla').value=ST.meta.date_villa||'';g('setLieuVilla').value=ST.meta.lieu_villa||'';
 }
 function saveFbUrl(){localStorage.setItem(FB_KEY,g('fbUrl').value.trim());toast('✅ URL sauvegardée');renderSettings();if(getFbUrl()){loadFromFb();startRealtime();}}
-function saveMeta(){ST.meta.date_henna=g('setDateHenna').value;ST.meta.lieu_henna=g('setLieuHenna').value.trim();ST.meta.date_hlel=g('setDateHlel').value;ST.meta.lieu_hlel=g('setLieuHlel').value.trim();ST.meta.date_maire=g('setDateMaire').value;ST.meta.lieu_maire=g('setLieuMaire').value.trim();saveData();toast('✅ Enregistré');}
+function saveMeta(){ST.meta.date_henna=g('setDateHenna').value;ST.meta.lieu_henna=g('setLieuHenna').value.trim();ST.meta.date_hlel=g('setDateHlel').value;ST.meta.lieu_hlel=g('setLieuHlel').value.trim();ST.meta.date_maire=g('setDateMaire').value;ST.meta.lieu_maire=g('setLieuMaire').value.trim();ST.meta.date_villa=g('setDateVilla').value;ST.meta.lieu_villa=g('setLieuVilla').value.trim();saveData();toast('✅ Enregistré');}
 function changePin(){var p=g('newPin').value;if(!/^\d{4}$/.test(p)){toast('⚠️ 4 chiffres requis');return;}localStorage.setItem(PIN_KEY,hashPin(p));g('newPin').value='';toast('✅ PIN changé');}
 function exportData(){var blob=new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mariage_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
 function importData(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(d.categories){ST=d;saveData();renderDashboard();toast('✅ Importé');}}catch(e){toast('❌ Fichier invalide');}};r.readAsText(f);}
-function resetAll(){if(!confirm('Supprimer toutes les données ?'))return;if(!confirm('Confirmer ?'))return;ST={categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),guests:{henna:[],hlel:[],maire:[]},meta:{date_henna:'',date_hlel:'',date_maire:'',lieu_henna:'',lieu_hlel:'Marrakech',lieu_maire:'Mairie',epargne:0}};saveData();renderDashboard();toast('🗑️ Réinitialisé');}
+function resetAll(){if(!confirm('Supprimer toutes les données ?'))return;if(!confirm('Confirmer ?'))return;ST={categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),guests:{all:[]},meta:{date_henna:'',date_hlel:'',date_maire:'',date_villa:'',lieu_henna:'',lieu_hlel:'Marrakech',lieu_maire:'Mairie de Paris',lieu_villa:'Cannes / Cassis',epargne:0}};saveData();renderDashboard();toast('🗑️ Réinitialisé');}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 if(!localStorage.getItem(PIN_KEY)){pinMode='setup';g('pinSubText').textContent='Choisissez un PIN à 4 chiffres';}
