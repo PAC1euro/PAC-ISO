@@ -137,8 +137,19 @@ async function debugLogin(data, env) {
 
   const loginHtml = await p1.text();
   const hiddenFields = extractHiddenFields(loginHtml);
+
+  // Capturer tous les champs input du formulaire (pas seulement hidden)
+  const allInputs = [];
+  const reInput = /<input[^>]*>/gi;
+  let m;
+  while ((m = reInput.exec(loginHtml)) !== null) {
+    const nm = m[0].match(/name=["']([^"']+)["']/i);
+    const tp = m[0].match(/type=["']([^"']+)["']/i);
+    if (nm) allInputs.push({ name: nm[1], type: tp ? tp[1] : 'text' });
+  }
+
   if (!hiddenFields['__RequestVerificationToken']) {
-    return { ok: false, trace, error: 'Token login introuvable' };
+    return { ok: false, trace, error: 'Token login introuvable', allInputs };
   }
 
   // 2. POST login
@@ -159,10 +170,18 @@ async function debugLogin(data, env) {
   let setCookieAll = [];
   try { setCookieAll = p2.headers.getAll('set-cookie'); } catch(e) {}
   cookies = mergeCookies(cookies, extractCookies(p2));
+  const p2body = await p2.text();
+  // Extraire le message d'erreur du login
+  const errMatch = p2body.match(/class="[^"]*validation[^"]*"[^>]*>([\s\S]{0,300})/i)
+    || p2body.match(/<li>([\s\S]{0,150})<\/li>/i);
+  const loginError = errMatch ? errMatch[1].replace(/<[^>]+>/g, '').trim() : null;
   trace.push({
     step: '2_POST_login',
     status: p2.status,
     location: p2.headers.get('location'),
+    loginError,
+    fieldsSent: Object.keys({...hiddenFields, CodeEntreprise:'', UserName:'', Password:'', RememberMe:''}),
+    allFormInputs: allInputs,
     rawSetCookie: rawSetCookie.slice(0, 300),
     setCookieCount: setCookieAll.length,
     cookies: cookieNames(cookies)
