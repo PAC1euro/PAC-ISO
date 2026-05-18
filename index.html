@@ -259,6 +259,8 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="Passable" onclick="pick(this,'cEtatIso')"><div class="chi">🟡</div><div class="chl">Passable</div></div>
     <div class="choice" data-val="Bonne" onclick="pick(this,'cEtatIso')"><div class="chi">🟢</div><div class="chl">Bonne</div></div>
   </div>
+  <label class="flabel" style="margin-top:8px;">Note isolation</label>
+  <textarea id="noteEtatIso" placeholder="Observations sur l'état de l'isolation…" style="min-height:60px;"></textarea>
   <div class="slabel">Emplacement de la chaudière</div>
   <div class="choices c3" id="cEmplacement">
     <div class="choice" data-val="Garage" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='none'"><div class="chi">🚗</div><div class="chl">Garage</div></div>
@@ -270,16 +272,17 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="Autre" onclick="pick(this,'cEmplacement');g('emplacementAutre').style.display='block'"><div class="chi">✏️</div><div class="chl">Autre</div></div>
   </div>
   <input type="text" id="emplacementAutre" placeholder="Précisez l'emplacement..." style="display:none;margin-bottom:16px;">
-  <div class="slabel">Hauteur sous plafond</div>
-  <div style="position:relative;">
-    <input type="text" id="hauteurPlafond" placeholder="2.50" inputmode="numeric" maxlength="4" oninput="fmtHauteur(this)" style="padding-right:40px;"/>
-    <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#475569;">m</span>
-  </div>
-  <div class="slabel">Type de radiateurs</div>
+  <div class="slabel">Hauteur sous plafond <span style="font-size:11px;color:#94a3b8;font-weight:400;">(par étage)</span></div>
+  <div id="floorHeights" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+  <button type="button" onclick="addFloor()" style="width:100%;padding:10px;background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;font-size:13px;color:#64748b;cursor:pointer;margin-bottom:12px;">＋ Ajouter un étage</button>
+  <input type="hidden" id="hauteurPlafond"/>
+  <div class="slabel">Type de radiateurs <span style="font-size:11px;color:#94a3b8;font-weight:400;">(plusieurs possibles)</span></div>
   <div class="choices c3" id="cRadiateur">
-    <div class="choice" data-val="Fonte" onclick="pick(this,'cRadiateur')"><div class="chi">⚫</div><div class="chl">Fonte</div></div>
-    <div class="choice" data-val="Métal" onclick="pick(this,'cRadiateur')"><div class="chi">🔘</div><div class="chl">Métal</div></div>
-    <div class="choice" data-val="Aluminium" onclick="pick(this,'cRadiateur')"><div class="chi">🪨</div><div class="chl">Aluminium</div></div>
+    <div class="choice" data-val="Fonte" onclick="togMulti(this,'cRadiateur')"><div class="chi">⚫</div><div class="chl">Fonte</div></div>
+    <div class="choice" data-val="Métal" onclick="togMulti(this,'cRadiateur')"><div class="chi">🔘</div><div class="chl">Métal</div></div>
+    <div class="choice" data-val="Aluminium" onclick="togMulti(this,'cRadiateur')"><div class="chi">🪨</div><div class="chl">Aluminium</div></div>
+    <div class="choice" data-val="Mixte" onclick="togMulti(this,'cRadiateur')"><div class="chi">🔀</div><div class="chl">Mixte</div></div>
+    <div class="choice" data-val="Plancher chauffant" onclick="togMulti(this,'cRadiateur')"><div class="chi">🌡️</div><div class="chl">Plancher chauffant</div></div>
   </div>
   <label class="flabel" style="margin-top:8px;">Notes PAC</label>
   <textarea id="notesPac" placeholder="Remarques techniques…"></textarea>
@@ -368,9 +371,10 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div><label class="flabel">Ville</label><input type="text" id="ville" placeholder="Paris" oninput="updMapsLink()"/></div>
   </div>
   <div id="mapEmbed" style="margin-bottom:10px;"></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-    <button type="button" id="btnMaps" onclick="openMaps()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">🌍 Google Earth</button>
-    <button type="button" id="btnGeo" onclick="openGeo()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">🗺️ Géoportail</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+    <button type="button" id="btnMaps" onclick="openMaps()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">🌍 Earth</button>
+    <button type="button" id="btnStreet" onclick="openStreetView()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📸 Street View</button>
+    <button type="button" id="btnGeo" onclick="openGeo()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">🗺️ Géoportail</button>
   </div>
   <div class="slabel">Année de construction</div>
   <div class="choices c2" id="cAnnee">
@@ -418,7 +422,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
 var FIREBASE_URL='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
-var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
+var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',noteEtatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
@@ -481,7 +485,7 @@ function calcFinal(){
   S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
-    S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=gSel('cRadiateur');S.notesPac=gv('notesPac');
+    S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');S.noteEtatIso=gv('noteEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;syncFloorHeights();S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=getMulSel('cRadiateur').join(', ');S.notesPac=gv('notesPac');
     var eligChauf=['Gaz','Fioul','Chaudière à bois','Chaudière à charbon'].indexOf(chauf)>-1;
     S.pacOk=eligChauf;
     if(eligChauf){if(surfPac<70||surfPac>250){S.racPac=99999;S.surfOk=false;}else{if(surfPac<90)S.racPac+=5000;else if(surfPac>190)S.racPac+=3500;S.racPac+=racZ(zone);S.racPac+=racC(couleur);}}
@@ -561,7 +565,7 @@ function genPDF(){
 +'<div class="row"><span class="l">Date de naissance</span><span class="v">'+dob+'</span></div>'
 +'<div class="row"><span class="l">Téléphone</span><span class="v">'+S.telephone+'</span></div>'
 +'<div class="row"><span class="l">Email</span><span class="v">'+(S.email||'—')+'</span></div>'
-+'<div class="row"><span class="l">Adresse</span><span class="v">'+S.adresse+', '+S.cp+' '+S.ville+'</span></div>'
++'<div class="row"><span class="l">Adresse</span><span class="v" style="font-size:15px;font-weight:700;">'+S.adresse+', '+S.cp+' '+S.ville+'</span></div>'
 +(S.anneeConstruction?'<div class="row"><span class="l">Année construction</span><span class="v">'+S.anneeConstruction+'</span></div>':'')
 +'<div class="sec">💰 DÉCLARATION FISCALE</div>'
 +'<div class="row"><span class="l">N° Déclarant 1</span><span class="v">'+S.numDeclarant+'</span></div>'
@@ -575,7 +579,7 @@ function genPDF(){
 +'<div class="row"><span class="l">Dpt / Zone</span><span class="v">'+S.dept+' — Zone '+S.zone+'</span></div>'
 +(hasPAC?'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'+(S.etatIso?'<div class="row"><span class="l">État isolation</span><span class="v">'+S.etatIso+'</span></div>':'')+(S.emplacementChaudiere?'<div class="row"><span class="l">Emplacement chaudière</span><span class="v">'+S.emplacementChaudiere+'</span></div>':'')+(S.hauteurPlafond?'<div class="row"><span class="l">Hauteur plafond</span><span class="v">'+S.hauteurPlafond+'</span></div>':'')+(S.typeRadiateur?'<div class="row"><span class="l">Radiateurs</span><span class="v">'+S.typeRadiateur+'</span></div>':'')+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(nonPAC?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</span></div>':'')
 +(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface</span><span class="v">'+S.surfIso+' m²</span></div><div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
-+(S.notesPac||S.notesIso?'<div class="sec">📝 NOTES</div>'+(S.notesPac?'<div class="row"><span class="l">Notes PAC</span><span class="v">'+S.notesPac+'</span></div>':'')+(S.notesIso?'<div class="row"><span class="l">Notes ISO</span><span class="v">'+S.notesIso+'</span></div>':''):'')
++(S.notesPac||S.notesIso||S.noteEtatIso?'<div class="sec">📝 NOTES</div>'+(S.noteEtatIso?'<div class="row"><span class="l">Note isolation</span><span class="v">'+S.noteEtatIso+'</span></div>':'')+(S.notesPac?'<div class="row"><span class="l">Notes PAC</span><span class="v">'+S.notesPac+'</span></div>':'')+(S.notesIso?'<div class="row"><span class="l">Notes ISO</span><span class="v">'+S.notesIso+'</span></div>':''):'')
 +'<div class="total '+(nonPAC?'red':totalRac===0?'green':'blue')+'"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
 +'<div class="foot">Document généré automatiquement — '+date+'</div>'
 +'<script>window.onload=function(){window.print();};<\/script></body></html>';
@@ -658,14 +662,14 @@ emailjs.send('service_leads','template_2komt8b',{
   btn.textContent='❌ Erreur — Réessayer';btn.disabled=false;
   console.error('EmailJS:',err);
 });
-try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _dos={formDate:new Date().toISOString(),dossier:S.dossier,nom:S.nom,prenom:S.prenom,dateNaissance:S.dateNaissance,telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,dept:S.dept,zone:S.zone,isIDF:S.isIDF,parts:S.parts,numDeclarant:S.numDeclarant,numDeclarant2:S.numDeclarant2,rfr:S.rfr,couleur:S.couleur,chauffage:S.chauffage,surfPac:S.surfPac,ecs:S.ecs,vmc:S.vmc,etatIso:S.etatIso,emplacementChaudiere:S.emplacementChaudiere,hauteurPlafond:S.hauteurPlafond,typeRadiateur:S.typeRadiateur,compteur:S.compteur,gestes:S.gestes.join(', '),surfIso:S.surfIso,racPac:S.racPac,racIso:S.racIso,teleproNom:S.teleproNom,codeReferent:S.codeReferent,totalRac:totalRac,anneeConstruction:S.anneeConstruction};if(S._leadKey)_dos.leadKey=S._leadKey;var _base=_fb.replace(/\/$/,'');if(S._editKey){fetch(_base+'/dossiers/'+S._editKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}else{_dos.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);fetch(_base+'/dossiers.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}}}catch(e){}
+try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _dos={formDate:new Date().toISOString(),dossier:S.dossier,nom:S.nom,prenom:S.prenom,dateNaissance:S.dateNaissance,telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,dept:S.dept,zone:S.zone,isIDF:S.isIDF,parts:S.parts,numDeclarant:S.numDeclarant,numDeclarant2:S.numDeclarant2,rfr:S.rfr,couleur:S.couleur,chauffage:S.chauffage,surfPac:S.surfPac,ecs:S.ecs,vmc:S.vmc,etatIso:S.etatIso,emplacementChaudiere:S.emplacementChaudiere,hauteurPlafond:S.hauteurPlafond,typeRadiateur:S.typeRadiateur,noteEtatIso:S.noteEtatIso,compteur:S.compteur,gestes:S.gestes.join(', '),surfIso:S.surfIso,racPac:S.racPac,racIso:S.racIso,teleproNom:S.teleproNom,codeReferent:S.codeReferent,totalRac:totalRac,anneeConstruction:S.anneeConstruction};if(S._leadKey)_dos.leadKey=S._leadKey;var _base=_fb.replace(/\/$/,'');if(S._editKey){fetch(_base+'/dossiers/'+S._editKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}else{_dos.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);fetch(_base+'/dossiers.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}}}catch(e){}
 postToMonday(racStr,totalRac);
 }
 var cur=1,fromResult=false;
 function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'&&s===3){next=6;}else if(S.dossier==='PAC+ISO'&&s===3){next=5;}if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);}
 function pv(s){var prev=s-1;if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)prev=5;else if(s===6)prev=4;}else if(S.dossier==='PAC'){if(s===6)prev=3;}else if(S.dossier==='PAC+ISO'){if(s===5)prev=3;else if(s===6)prev=5;}if(fromResult&&s===5){fromResult=false;show(7);return;}show(prev);}
 function editIso(){fromResult=true;show(5);}
-function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;if(n===5){var isISO=S.dossier==='ISO';g('regionToggleISO').style.display=isISO?'block':'none';if(!isISO){var rEls=document.querySelectorAll('#cRegion .choice');for(var j=0;j<rEls.length;j++)rEls[j].classList.remove('sel');if(S.isIDF){var idfEl=document.querySelector('#cRegion .choice[data-val="idf"]');if(idfEl)idfEl.classList.add('sel');}else{var provEl=document.querySelector('#cRegion .choice[data-val="prov"]');if(provEl)provEl.classList.add('sel');}}}updProg();window.scrollTo(0,0);}
+function show(n){var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');g('step'+n).classList.add('active');cur=n;if(n===3&&g('floorHeights')&&g('floorHeights').children.length===0)initFloors();if(n===5){var isISO=S.dossier==='ISO';g('regionToggleISO').style.display=isISO?'block':'none';if(!isISO){var rEls=document.querySelectorAll('#cRegion .choice');for(var j=0;j<rEls.length;j++)rEls[j].classList.remove('sel');if(S.isIDF){var idfEl=document.querySelector('#cRegion .choice[data-val="idf"]');if(idfEl)idfEl.classList.add('sel');}else{var provEl=document.querySelector('#cRegion .choice[data-val="prov"]');if(provEl)provEl.classList.add('sel');}}}updProg();window.scrollTo(0,0);}
 function pickRegion(el){pick(el,'cRegion');S.isIDF=el.getAttribute('data-val')==='idf';previewCouleur();}
 function chkAnnee(){var v=Number(g('anneeConstruction').value);if(!v||v<1800||v>new Date().getFullYear()){g('anneeAlert').innerHTML='';return;}var age=new Date().getFullYear()-v;if(age>=15)g('anneeAlert').innerHTML='<div class="alert ag">✅ <strong>+ de 15 ans</strong> — '+age+' ans</div>';else g('anneeAlert').innerHTML='<div class="alert ar">❌ <strong>- de 15 ans</strong> — '+age+' ans</div>';}
 var _addrTimer=null,_addrFeatures=[],_geoLon=null,_geoLat=null;
@@ -720,7 +724,23 @@ function cpInput(val){
   }
 }
 document.addEventListener('click',function(e){var l=g('adresseList');if(l&&e.target!==g('adresse'))l.classList.remove('show');});
-function updMapsLink(){var a=gv('adresse'),cp=gv('cp'),v=gv('ville');var full=(a+' '+cp+' '+v).trim();var btn=g('btnMaps'),btnG=g('btnGeo'),embed=g('mapEmbed');if(a&&cp&&v&&full.length>5){var enc=encodeURIComponent(full);btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&t=k&z=19&output=embed" width="100%" height="220" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';}else{btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';embed.innerHTML='';}}
+function updMapsLink(){
+  var a=gv('adresse'),cp=gv('cp'),v=gv('ville');
+  var full=(a+' '+cp+' '+v).trim();
+  var btn=g('btnMaps'),btnS=g('btnStreet'),btnG=g('btnGeo'),embed=g('mapEmbed');
+  if(a&&cp&&v&&full.length>5){
+    var enc=encodeURIComponent(full);
+    btn.setAttribute('data-addr',full);btn.style.borderColor='#1a56db';btn.style.color='#1a56db';
+    if(btnS){btnS.setAttribute('data-addr',full);btnS.style.borderColor='#7c3aed';btnS.style.color='#7c3aed';}
+    btnG.setAttribute('data-addr',full);btnG.style.borderColor='#059669';btnG.style.color='#059669';
+    embed.innerHTML='<iframe src="https://maps.google.com/maps?q='+enc+'&t=k&z=19&output=embed" width="100%" height="220" frameborder="0" style="border-radius:10px;border:1.5px solid #bfdbfe;" allowfullscreen loading="lazy"></iframe>';
+  }else{
+    btn.setAttribute('data-addr','');btn.style.borderColor='#e2e8f0';btn.style.color='#475569';
+    if(btnS){btnS.setAttribute('data-addr','');btnS.style.borderColor='#e2e8f0';btnS.style.color='#475569';}
+    btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';
+    embed.innerHTML='';
+  }
+}}
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
@@ -735,13 +755,74 @@ function openGeo(){
     })
     .catch(function(){win.location.href='https://www.geoportail.gouv.fr/';});
 }
+function openStreetView(){
+  var addr=g('btnStreet')&&g('btnStreet').getAttribute('data-addr')||'';
+  if(!addr)return;
+  if(_geoLat&&_geoLon){
+    window.open('https://www.google.com/maps/@'+_geoLat+','+_geoLon+',3a,75y,90t/data=!3m4!1e1!3m2!1sGOOGLE_ID!2e0','_blank');
+    return;
+  }
+  window.open('https://www.google.com/maps?layer=c&q='+encodeURIComponent(addr),'_blank');
+}
+var _floorLabels=['RDC','1er étage','2ème étage','3ème étage','4ème étage','5ème étage'];
+var _floorCount=0;
+function initFloors(){
+  _floorCount=0;
+  g('floorHeights').innerHTML='';
+  addFloor();
+}
+function addFloor(){
+  var lbl=_floorLabels[_floorCount]||(_floorCount+1)+'ème étage';
+  var idx=_floorCount;
+  var row=document.createElement('div');
+  row.style.cssText='display:flex;align-items:center;gap:8px;';
+  row.id='floor_'+idx;
+  row.innerHTML='<span style="font-size:12px;font-weight:600;color:#475569;min-width:80px;">'+lbl+'</span>'+
+    '<div style="position:relative;flex:1;">'+
+    '<input type="text" id="fh_'+idx+'" placeholder="2.50" inputmode="decimal" maxlength="4" oninput="fmtHauteur(this);syncFloorHeights()" style="padding-right:30px;"/>'+
+    '<span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#475569;">m</span>'+
+    '</div>'+
+    (idx>0?'<button type="button" onclick="removeFloor('+idx+')" style="padding:8px 10px;background:#fee2e2;border:none;border-radius:8px;cursor:pointer;font-size:14px;color:#dc2626;">✕</button>':'');
+  g('floorHeights').appendChild(row);
+  _floorCount++;
+}
+function removeFloor(idx){
+  var row=g('floor_'+idx);if(row)row.remove();
+  syncFloorHeights();
+}
+function syncFloorHeights(){
+  var parts=[];
+  for(var i=0;i<_floorCount;i++){
+    var el=g('fh_'+i);
+    if(el&&el.closest('#floorHeights')&&el.value){
+      var lbl=_floorLabels[i]||i+'e';
+      parts.push(lbl+': '+el.value+'m');
+    }
+  }
+  var hidden=g('hauteurPlafond');if(hidden)hidden.value=parts.join(' / ');
+}
+function prefillFloors(val){
+  if(!val)return;
+  // Support old single value like "2.50" or new format "RDC: 2.50m / 1er étage: 2.70m"
+  g('floorHeights').innerHTML='';_floorCount=0;
+  var parts=val.split('/');
+  parts.forEach(function(p,i){
+    addFloor();
+    var m=p.match(/([\d.]+)m/);
+    if(m){var inp=g('fh_'+i);if(inp)inp.value=m[1];}
+  });
+  if(parts.length===0)addFloor();
+  syncFloorHeights();
+}
+function togMulti(el,grp){el.classList.toggle('sel');}
+function getMulSel(grp){var els=document.querySelectorAll('#'+grp+' .sel');return Array.from(els).map(function(e){return e.getAttribute('data-val');});}
 function updProg(){var flow=S.dossier==='ISO'?[1,5,4,6,7]:S.dossier==='PAC'?[1,2,3,4,6,7]:[1,2,3,4,5,6,7];var pos=flow.indexOf(cur)+1,tot=flow.length;var pct=Math.round(((pos-1)/Math.max(tot-1,1))*100);g('pFill').style.width=pct+'%';g('pLbl').textContent='Étape '+pos+' sur '+tot;g('pPct').textContent=pct+'%';var h='';for(var i=1;i<=tot;i++)h+='<div class="dot'+(i<pos?' done':i===pos?' on':'')+'" ></div>';g('dots').innerHTML=h;}
 function fmtDOB(el){var v=el.value.replace(/\D/g,'');if(v.length>4)v=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);else if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);el.value=v;}
 function valid(s){hideE(s);if(s===1&&!gSel('cDossier')){showE(1);return false;}return true;}
 function showE(n){g('e'+n).classList.add('show');}
 function hideE(n){g('e'+n).classList.remove('show');}
 function pickFoyer(el){var all=document.querySelectorAll('#cFoyer .choice,#cFoyer2 .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');S.parts=Number(el.getAttribute('data-val'));previewCouleur();}
-function pick(el,grp){var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');}
+function pick(el,grp){var wasSelected=el.classList.contains('sel');var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');if(!wasSelected)el.classList.add('sel');}
 function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';
 }
 function fmtHauteur(el){var v=el.value.replace(/[^0-9]/g,'');if(v.length===0){el.value='';return;}if(v.length===1){el.value=v;return;}if(v.length===2){el.value=v[0]+'.'+v[1];return;}el.value=v[0]+'.'+v.slice(1,3);}
@@ -941,7 +1022,8 @@ function prefillFromDossier(d,editKey){
   if(d.compteur)_pickVal('cCompt',d.compteur);
   if(d.ecs)_pickVal('cECS',d.ecs);
   if(d.emplacementChaudiere){var _empVals=['Garage','Chaufferie','Cuisine','Cave','Sous-sol','Buanderie'];if(_empVals.indexOf(d.emplacementChaudiere)>-1){_pickVal('cEmplacement',d.emplacementChaudiere);}else{var _eAut=document.querySelector('#cEmplacement .choice[data-val="Autre"]');if(_eAut)pick(_eAut,'cEmplacement');g('emplacementAutre').style.display='block';_pf('emplacementAutre',d.emplacementChaudiere);}}
-  if(d.hauteurPlafond)_pf('hauteurPlafond',d.hauteurPlafond);
+  if(d.hauteurPlafond)prefillFloors(d.hauteurPlafond);
+  _pf('noteEtatIso',d.noteEtatIso);
   _pf('notesPac',d.notesPac);
   if(d.parts){S.parts=Number(d.parts);var pEl=document.querySelector('#cFoyer .choice[data-val="'+d.parts+'"],#cFoyer2 .choice[data-val="'+d.parts+'"]');if(pEl)pickFoyer(pEl);var pEl2=document.querySelector('#cFoyerS2 .choice[data-val="'+d.parts+'"],#cFoyer2S2 .choice[data-val="'+d.parts+'"]');if(pEl2)pEl2.classList.add('sel');}
   if(d.rfr){_pf('rfr',d.rfr);_pf('rfrS2',d.rfr);previewCouleur();}
