@@ -231,8 +231,10 @@ async function createDossier(data, env) {
   set('FicheISO_VM.ComplAdresseChantier', '');
   set('FicheISO_VM.CodePostalChantier', data.cp);
   set('FicheISO_VM.VilleChantier', data.ville);
-  set('FicheISO_VM.TypeChauffage', '1');
-  set('FicheISO_VM.TypeEnergie', '');
+  const _tcMap = {'Gaz':'1','Fioul':'1','Chaudière à bois':'1','Chaudière à charbon':'1','Électrique':'2','Autre':'1'};
+  const _teMap = {'Gaz':'Gaz','Fioul':'Fioul','Chaudière à bois':'Bois','Chaudière à charbon':'Charbon','Électrique':'','Autre':'Autre'};
+  set('FicheISO_VM.TypeChauffage', _tcMap[data.chauffage] || '1');
+  set('FicheISO_VM.TypeEnergie', _teMap[data.chauffage] || '');
   set('FicheISO_VM.ParcelleCadastral', '');
   set('FicheISO_VM.NbrFoyer', '1');
   set('FicheISO_VM.NbrPersonneAuFoyer', data.parts || '1');
@@ -246,7 +248,7 @@ async function createDossier(data, env) {
   set('FicheISO_VM.SurfacePlafond', '');
   set('FicheISO_VM.SurfaceVideSanitaire', '');
   set('Fiche_VM.TypeLead', 'Form');
-  set('Fiche_VM.Campagne', 'PREMIUM ENERGY - H1&H2 2K MAX');
+  set('Fiche_VM.Campagne', data.campagne || '');
   set('Fiche_VM.FournisseurLeadId', '');
   set('FicheISO_Statut_VM.WorkflowStatutId', '443f3db6-ff41-423b-933e-de2411fb824b');
   set('Fiche_VM.OperateurId', 'f2d9f341-2573-40e1-8b70-4f480b1555e4');
@@ -270,10 +272,13 @@ async function createDossier(data, env) {
   const p5 = await fetch(`${BASE}/Dossiers/isolation/fiche/create`, {
     method: 'POST',
     headers: {
-      'User-Agent': UA,
+      ...baseHdrs,
       'Cookie': cookies,
       'Content-Type': 'application/x-www-form-urlencoded',
       'Referer': `${BASE}/Dossiers/isolation/fiche/create`,
+      'Origin': BASE,
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
     },
     body: postBody.toString(),
     redirect: 'manual'
@@ -282,7 +287,7 @@ async function createDossier(data, env) {
   if (p5.status === 302) {
     const loc = p5.headers.get('location') || '';
     if (loc.toLowerCase().includes('/account/login')) {
-      throw new Error('Session invalide à la soumission — redirection login. Réessaye.');
+      throw new Error('Session invalide — redirect: ' + loc + ' | cookies: ' + cookies.slice(0, 80));
     }
     const idMatch = loc.match(/id=([a-f0-9-]+)/i);
     const id = idMatch ? idMatch[1] : null;
