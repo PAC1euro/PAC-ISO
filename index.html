@@ -156,10 +156,13 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <p>Chaque dossier soumis sera créé automatiquement dans votre board Monday.</p>
     <div class="mon-step"><strong>Étape 1 — Token API</strong>Profil (avatar en bas à gauche) → <strong>Administration → API</strong> → Copier le token personnel</div>
     <div class="mon-step"><strong>Étape 2 — ID du Board</strong>Ouvrir le board → URL : monday.com/boards/<strong style="color:#6d28d9;">XXXXXXXXXX</strong> → Copier ce numéro</div>
+    <div class="mon-step"><strong>Étape 3 — ID Groupe PAC 171</strong>Dans votre board → cliquer sur le nom du groupe PAC → URL ou paramètres → copier l'ID</div>
     <div class="mon-lbl">Token API</div>
     <input class="mon-input" id="monToken" placeholder="eyJhbGciOiJIUzI1NiJ9…"/>
     <div class="mon-lbl">ID du Board</div>
     <input class="mon-input" id="monBoardId" placeholder="1234567890" type="number"/>
+    <div class="mon-lbl">ID Groupe PAC 171 (dossiers PAC &amp; PAC+ISO)</div>
+    <input class="mon-input" id="monGroupPac" placeholder="new_group_12345"/>
     <div class="mon-actions">
       <button class="mon-cancel" onclick="closeMondayCfg()">Annuler</button>
       <button class="mon-save" onclick="saveMondayCfg()">💾 Enregistrer</button>
@@ -887,10 +890,10 @@ function updMapsLink(){
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
-  var geoUrl=function(lon,lat,q){
-    return'https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&q='+encodeURIComponent(q||addr)+'&permalink=yes';
+  var mkGeoUrl=function(label){
+    return'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(label||addr)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';
   };
-  if(_geoLon&&_geoLat){window.open(geoUrl(_geoLon,_geoLat,addr),'_blank');return;}
+  if(_geoLon&&_geoLat){window.open(mkGeoUrl(addr),'_blank');return;}
   var win=window.open('','_blank');
   fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(addr)+'&limit=1')
     .then(function(r){return r.json();})
@@ -899,10 +902,10 @@ function openGeo(){
         var c=d.features[0].geometry.coordinates;
         var label=d.features[0].properties.label||addr;
         _geoLon=c[0];_geoLat=c[1];
-        win.location.href=geoUrl(c[0],c[1],label);
-      }else{win.location.href='https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';}
+        win.location.href=mkGeoUrl(label);
+      }else{win.location.href=mkGeoUrl(addr);}
     })
-    .catch(function(){win.location.href='https://www.geoportail.gouv.fr/';});
+    .catch(function(){win.location.href=mkGeoUrl(addr);});
 }
 function openStreetView(){
   var addr=g('btnStreet')&&g('btnStreet').getAttribute('data-addr')||'';
@@ -1056,10 +1059,10 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){clearFormDraft();_resultSent=false;location.reload();}
-function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936'};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');return s||DEF;}catch(e){return DEF;}}
-function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monModal').classList.add('show');}
+function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',groupPac:'topics'};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');return s||DEF;}catch(e){return DEF;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.groupPac||'';g('monModal').classList.add('show');}
 function closeMondayCfg(){g('monModal').classList.remove('show');}
-function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b}));}updMonBtn();closeMondayCfg();}
+function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,groupPac:gp||'topics'}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
 function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
 function showMonStatus(msg,url){
@@ -1115,8 +1118,11 @@ function postToMonday(racStr,totalRac){
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
     if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
+    var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
+    var gPortailUrl=fullAddr.trim()?'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(fullAddr.trim())+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes':'';
     var cvStr=JSON.stringify(JSON.stringify(cv));
-    var q1='mutation{create_item(board_id:5093379936,group_id:"topics",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
+    var groupId=(S.dossier==='PAC'||S.dossier==='PAC+ISO')?(cfg.groupPac||'topics'):'topics';
+    var q1='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
     var lines=[
       '━━━ 👤 CLIENT ━━━',
       '• Nom / Prénom : '+S.prenom+' '+S.nom,
@@ -1159,7 +1165,11 @@ function postToMonday(racStr,totalRac){
       '━━━ 👤 TÉLÉPROSPECTEUR ━━━',
       S.teleproNom?'• Nom : '+S.teleproNom:'• Nom : —',
       S.codeReferent?'• Code référent : '+S.codeReferent:'',
-      '• Date : '+new Date().toLocaleDateString('fr-FR')
+      '• Date : '+new Date().toLocaleDateString('fr-FR'),
+      '',
+      '━━━ 🗺️ LIENS CARTOGRAPHIQUES ━━━',
+      streetViewUrl?'• Street View : '+streetViewUrl:'',
+      gPortailUrl?'• Géoportail : '+gPortailUrl:''
     ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\n');
     fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
     .then(function(r){return r.json();}).then(function(d){
