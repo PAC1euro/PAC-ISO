@@ -189,6 +189,9 @@ async function createDossier(data, env) {
   const csrfToken = extractToken(createHtml);
   if (!csrfToken) throw new Error(`Token CSRF introuvable — HTML: ${createHtml.slice(0, 200)}`);
 
+  // Extraire tous les champs cachés du formulaire create (incluent tokens ASP.NET requis)
+  const createHidden = extractHiddenFields(createHtml);
+
   // 5. Commentaire
   const parts = [];
   if (data.dossier) parts.push('Dossier: ' + data.dossier);
@@ -201,73 +204,78 @@ async function createDossier(data, env) {
   if (data.codeReferent) parts.push('Référent: ' + data.codeReferent);
   const commentaire = parts.join(' | ');
 
-  // 6. POST dossier
-  const form = new FormData();
-  const a = (k, v) => form.append(k, v != null ? String(v) : '');
+  // 6. POST dossier — URLSearchParams (comme le login) + tous les champs cachés du form
   const typeOp = (data.ecs === 'Ballon indépendant') ? 'Chauffage & ECS' : 'Chauffage';
-  a('FicheISO_VM.TypeOperationCEE', typeOp);
-  a('Fiche_VM.Civilite', data.civilite || 'M.');
-  a('Fiche_VM.Nom', data.nom);
-  a('Fiche_VM.Prenom', data.prenom);
-  a('FicheISO_VM.Civilite', data.civilite || '');
-  a('FicheISO_VM.Nom', data.nom);
-  a('FicheISO_VM.Prenom', data.prenom);
-  a('Fiche_VM.Adresse', data.adresse);
-  a('Fiche_VM.ComplAdresse', '');
-  a('Fiche_VM.CodePostal', data.cp);
-  a('Fiche_VM.Ville', data.ville);
-  a('Fiche_VM.Mail', data.email);
-  a('Fiche_VM.TelFixe', '');
-  a('Fiche_VM.TelMobile', data.telephone);
-  a('FicheISO_VM.MemeAdresse', 'true');
-  a('FicheISO_VM.AdresseChantier', data.adresse);
-  a('FicheISO_VM.ComplAdresseChantier', '');
-  a('FicheISO_VM.CodePostalChantier', data.cp);
-  a('FicheISO_VM.VilleChantier', data.ville);
-  a('FicheISO_VM.TypeChauffage', '1');
-  a('FicheISO_VM.TypeEnergie', '');
   const statutMap = { 'prop_occ': '1', 'prop_bail': '2', 'locataire': '3' };
-  a('FicheISO_VM.TypeHabitation', statutMap[data.statut] || '1');
-  a('FicheISO_VM.ParcelleCadastral', '');
-  a('FicheISO_VM.RevenuFiscal', data.rfr ? String(data.rfr).replace('.', ',') : '0,00');
-  a('FicheISO_VM.NbrFoyer', '1');
-  a('FicheISO_VM.NbrPersonneAuFoyer', data.parts || '1');
-  a('FicheISO_VM.AgeBatiment', '3');
-  a('FicheISO_VM.SurfaceComblesSoufle', '');
-  a('FicheISO_VM.SurfaceComblesDeroule', '');
-  a('FicheISO_VM.SurfaceRampant', '');
-  a('FicheISO_VM.SurfaceMur', '');
-  a('FicheISO_VM.SurfaceMurExterieur', '');
-  a('FicheISO_VM.SurfacePignon', '');
-  a('FicheISO_VM.SurfacePlafond', '');
-  a('FicheISO_VM.SurfaceVideSanitaire', '');
-  a('Fiche_VM.TypeLead', 'Form');
-  a('Fiche_VM.Campagne', 'PREMIUM ENERGY - H1&H2 2K MAX');
-  a('Fiche_VM.FournisseurLeadId', '');
-  a('FicheISO_Statut_VM.WorkflowStatutId', '443f3db6-ff41-423b-933e-de2411fb824b');
-  a('Fiche_VM.OperateurId', 'f2d9f341-2573-40e1-8b70-4f480b1555e4');
-  a('Fiche_VM.AdministrateurId', '');
-  a('Fiche_VM.Commentaire', commentaire);
-  a('FicheISO_VM.Id', '00000000-0000-0000-0000-000000000000');
-  a('FicheISO_VM.OrganismeId', '');
-  a('FicheISO_VM.AnneeImpot', '');
-  a('FicheISO_VM.AnneeRevenu', data.dateNaissance ? data.dateNaissance.slice(-4) : '');
-  a('Fiche_VM.BeneficiePrimeCEE', 'False');
-  a('RetenirAvisFiscal', 'False');
-  a('AvisFiscauxJson', '');
-  a('AvisFiscal_Multi_VM.NumFiscal1', data.numDeclarant || '');
-  a('AvisFiscal_Multi_VM.RefFiscal1', '');
-  form.append('__RequestVerificationToken', csrfToken);
+
+  // Partir des champs cachés de la page create, puis surcharger avec nos valeurs
+  const formFields = { ...createHidden };
+  const set = (k, v) => { formFields[k] = v != null ? String(v) : ''; };
+
+  set('FicheISO_VM.TypeOperationCEE', typeOp);
+  set('Fiche_VM.Civilite', data.civilite || 'M.');
+  set('Fiche_VM.Nom', data.nom);
+  set('Fiche_VM.Prenom', data.prenom);
+  set('FicheISO_VM.Civilite', data.civilite || '');
+  set('FicheISO_VM.Nom', data.nom);
+  set('FicheISO_VM.Prenom', data.prenom);
+  set('Fiche_VM.Adresse', data.adresse);
+  set('Fiche_VM.ComplAdresse', '');
+  set('Fiche_VM.CodePostal', data.cp);
+  set('Fiche_VM.Ville', data.ville);
+  set('Fiche_VM.Mail', data.email);
+  set('Fiche_VM.TelFixe', '');
+  set('Fiche_VM.TelMobile', data.telephone);
+  set('FicheISO_VM.MemeAdresse', 'true');
+  set('FicheISO_VM.AdresseChantier', data.adresse);
+  set('FicheISO_VM.ComplAdresseChantier', '');
+  set('FicheISO_VM.CodePostalChantier', data.cp);
+  set('FicheISO_VM.VilleChantier', data.ville);
+  set('FicheISO_VM.TypeChauffage', '1');
+  set('FicheISO_VM.TypeEnergie', '');
+  set('FicheISO_VM.ParcelleCadastral', '');
+  set('FicheISO_VM.NbrFoyer', '1');
+  set('FicheISO_VM.NbrPersonneAuFoyer', data.parts || '1');
+  set('FicheISO_VM.AgeBatiment', '3');
+  set('FicheISO_VM.SurfaceComblesSoufle', '');
+  set('FicheISO_VM.SurfaceComblesDeroule', '');
+  set('FicheISO_VM.SurfaceRampant', '');
+  set('FicheISO_VM.SurfaceMur', '');
+  set('FicheISO_VM.SurfaceMurExterieur', '');
+  set('FicheISO_VM.SurfacePignon', '');
+  set('FicheISO_VM.SurfacePlafond', '');
+  set('FicheISO_VM.SurfaceVideSanitaire', '');
+  set('Fiche_VM.TypeLead', 'Form');
+  set('Fiche_VM.Campagne', 'PREMIUM ENERGY - H1&H2 2K MAX');
+  set('Fiche_VM.FournisseurLeadId', '');
+  set('FicheISO_Statut_VM.WorkflowStatutId', '443f3db6-ff41-423b-933e-de2411fb824b');
+  set('Fiche_VM.OperateurId', 'f2d9f341-2573-40e1-8b70-4f480b1555e4');
+  set('Fiche_VM.AdministrateurId', '');
+  set('Fiche_VM.Commentaire', commentaire);
+  set('FicheISO_VM.Id', '00000000-0000-0000-0000-000000000000');
+  set('FicheISO_VM.OrganismeId', '');
+  set('FicheISO_VM.AnneeImpot', '');
+  set('FicheISO_VM.AnneeRevenu', data.dateNaissance ? data.dateNaissance.slice(-4) : '');
+  set('Fiche_VM.BeneficiePrimeCEE', 'False');
+  set('RetenirAvisFiscal', 'False');
+  set('AvisFiscauxJson', '');
+  set('AvisFiscal_Multi_VM.NumFiscal1', data.numDeclarant || '');
+  set('AvisFiscal_Multi_VM.RefFiscal1', '');
+  set('__RequestVerificationToken', csrfToken);
+  set('FicheISO_VM.TypeHabitation', statutMap[data.statut] || '1');
+  set('FicheISO_VM.RevenuFiscal', data.rfr ? String(data.rfr).replace('.', ',') : '0,00');
+
+  const postBody = new URLSearchParams(formFields);
 
   const p5 = await fetch(`${BASE}/Dossiers/isolation/fiche/create`, {
     method: 'POST',
     headers: {
       'User-Agent': UA,
       'Cookie': cookies,
+      'Content-Type': 'application/x-www-form-urlencoded',
       'Referer': `${BASE}/Dossiers/isolation/fiche/create`,
-      'Origin': BASE,
     },
-    body: form,
+    body: postBody.toString(),
     redirect: 'manual'
   });
 
