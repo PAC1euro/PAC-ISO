@@ -1,5 +1,5 @@
 // Cloudflare Worker — Pixel CRM API (IJLeads)
-// Variables d'env : PIXEL_TOKEN (optionnel, sinon valeur par défaut)
+// Variable d'env requise : PIXEL_TOKEN (fourni par Pixel CRM)
 
 export default {
   async fetch(request, env) {
@@ -24,40 +24,69 @@ export default {
   }
 };
 
+function buildCommentaire(data) {
+  const parts = [];
+  if (data.dossier)    parts.push('Dossier: ' + data.dossier);
+  if (data.couleur)    parts.push('Couleur ANAH: ' + data.couleur);
+  if (data.zone)       parts.push('Zone: ' + data.zone);
+  if (data.chauffage)  parts.push('Chauffage: ' + data.chauffage);
+  if (data.surfPac)    parts.push('Surface: ' + data.surfPac + 'm²');
+  if (data.racPac !== undefined) parts.push('RAC PAC: ' + (data.racPac === 0 ? '1€' : data.racPac + '€'));
+  if (data.teleproNom) parts.push('Téléprospecteur: ' + data.teleproNom);
+  if (data.codeReferent) parts.push('Référent: ' + data.codeReferent);
+  return parts.join(' | ');
+}
+
 async function createLead(data, env) {
-  const TOKEN = env.PIXEL_TOKEN || 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+  const TOKEN = env.PIXEL_TOKEN || '';
   const UA    = 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
   const PROJECT_TYPE_ID = 'F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
 
-  const tcMap = { 'Gaz':1, 'Fioul':1, 'Chaudière à bois':1, 'Chaudière à charbon':1, 'Électrique':2, 'Autre':1 };
-  const thMap = { 'prop_occ':1, 'prop_bail':2, 'locataire':3 };
-  // TypeOperationCEE : 2=Chauffage, 3=Chauffage & ECS
-  const typeOp = (data.ecs === 'Ballon indépendant') ? 3 : 2;
+  if (!TOKEN) throw new Error('PIXEL_TOKEN manquant — à configurer dans Cloudflare Variables');
+
+  // TypeChauffage : 1=Combustible, 2=Electrique, 3=Individuel
+  const tcMap = { 'Gaz':1, 'Fioul':1, 'Chaudière à bois':1, 'Chaudière à charbon':1, 'Électrique':2, 'Autre':3 };
+  // TypeHabitation : 1=Propriétaire occupant, 2=Locataire, 3=Propriétaire bailleur
+  const thMap = { 'prop_occ':1, 'locataire':2, 'prop_bail':3 };
+  // TypeOperationCEE : 1=Isolation, 2=Chauffage
+  const typeOp = (data.ecs === 'Ballon indépendant') ? 2 : 2;
+  // TypeLogement : 0=Maison individuelle, 1=Appartement
+  const typeLog = 0;
 
   const body = {
     ProjectTypeId:      PROJECT_TYPE_ID,
     TypeOperationCEE:   typeOp,
-    Civilite1:          data.civilite || 'M.',
-    Nom1:               data.nom      || '',
-    Prenom1:            data.prenom   || '',
-    Adresse:            data.adresse  || '',
-    CodePostal:         data.cp       || '',
-    Ville:              data.ville    || '',
+    TypeLogement:       typeLog,
+    DealId:             data.dossier    || '',
+    Civilite1:          data.civilite   || 'M.',
+    Nom1:               data.nom        || '',
+    Prenom1:            data.prenom     || '',
+    Mail:               data.email      || '',
+    Adresse:            data.adresse    || '',
+    CodePostal:         data.cp         || '',
+    Ville:              data.ville      || '',
     TelFixe:            '',
-    TelMobile:          data.telephone || '',
+    TelMobile:          data.telephone  || '',
     AgeBatiment:        3,
     TypeHabitation:     thMap[data.statut] || 1,
-    TypeLogement:       1,
     TypeChauffage:      tcMap[data.chauffage] || 1,
-    DealId:             data.dossier  || '',
+    NbrPersonneAuFoyer: data.parts ? Number(data.parts) : undefined,
+    RevenuFiscal:       data.rfr  ? Number(String(data.rfr).replace(',', '.')) : undefined,
+    NumFiscal1:         data.numDeclarant  || '',
+    RefFiscal1:         data.refFiscal1   || '',
+    TypeLead:           'Form',
+    Commentaires:       buildCommentaire(data),
   };
+
+  // Supprimer les champs undefined
+  Object.keys(body).forEach(k => { if (body[k] === undefined) delete body[k]; });
 
   const resp = await fetch('https://crm.pixel-crm.com/api/IJLeads', {
     method: 'POST',
     headers: {
-      'Content-Type':         'application/json',
-      'User-Agent':           UA,
-      'XINTNRGLEAD-TOKEN':    TOKEN,
+      'Content-Type':      'application/json',
+      'User-Agent':        UA,
+      'XINTNRGLEAD-TOKEN': TOKEN,
     },
     body: JSON.stringify(body)
   });
@@ -70,7 +99,6 @@ async function createLead(data, env) {
     throw new Error(`API Pixel ${resp.status} — ${txt.slice(0, 300)}`);
   }
 
-  const id = json?.Id || json?.id || json?.DossierId || json?.dossierId
-          || json?.PixelDealId || null;
+  const id = json?.Id || json?.id || json?.DossierId || json?.dossierId || json?.PixelDealId || null;
   return { ok: true, id, raw: json ?? txt.slice(0, 300) };
 }
