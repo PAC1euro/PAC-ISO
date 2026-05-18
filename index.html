@@ -1114,7 +1114,7 @@ function showMonStatus(msg,url){
   }
 }
 function postToMonday(racStr,totalRac){
-  try{
+  function run(){try{
     var cfg=getMondayCfg();
     var hdrs={'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'};
     var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
@@ -1287,7 +1287,14 @@ function postToMonday(racStr,totalRac){
       doCreate(gId);
     })
     .catch(function(){doCreate('topics');});
-  }catch(e){console.error('Monday exception:',e);}
+  }catch(e){console.error('Monday exception:',e);}}
+  if(!S._lat&&!S._lon&&(S.adresse||S.cp||S.ville)){
+    var _addr=[S.adresse,S.cp,S.ville].filter(Boolean).join(' ');
+    fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(_addr)+'&limit=1')
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.features&&d.features.length>0){S._lon=d.features[0].geometry.coordinates[0];S._lat=d.features[0].geometry.coordinates[1];}run();})
+    .catch(function(){run();});
+  }else{run();}
 }
 function _pf(id,val){var el=g(id);if(el&&val!==undefined&&val!==null&&val!=='')el.value=val;}
 function _pickVal(grp,val){if(!val)return;var el=document.querySelector('#'+grp+' .choice[data-val="'+val+'"]');if(el)pick(el,grp);}
