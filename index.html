@@ -890,10 +890,10 @@ function updMapsLink(){
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
-  var mkGeoUrl=function(label){
-    return'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(label||addr)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';
+  var mkGeoUrl=function(lon,lat,label){
+    return'https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&q='+encodeURIComponent(label||addr)+'&permalink=yes';
   };
-  if(_geoLon&&_geoLat){window.open(mkGeoUrl(addr),'_blank');return;}
+  if(_geoLon&&_geoLat){window.open(mkGeoUrl(_geoLon,_geoLat,addr),'_blank');return;}
   var win=window.open('','_blank');
   fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(addr)+'&limit=1')
     .then(function(r){return r.json();})
@@ -902,10 +902,10 @@ function openGeo(){
         var c=d.features[0].geometry.coordinates;
         var label=d.features[0].properties.label||addr;
         _geoLon=c[0];_geoLat=c[1];
-        win.location.href=mkGeoUrl(label);
-      }else{win.location.href=mkGeoUrl(addr);}
+        win.location.href=mkGeoUrl(c[0],c[1],label);
+      }else{win.location.href='https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';}
     })
-    .catch(function(){win.location.href=mkGeoUrl(addr);});
+    .catch(function(){win.location.href='https://www.geoportail.gouv.fr/';});
 }
 function openStreetView(){
   var addr=g('btnStreet')&&g('btnStreet').getAttribute('data-addr')||'';
@@ -1086,15 +1086,19 @@ function showMonStatus(msg,url){
 function postToMonday(racStr,totalRac){
   try{
     var cfg=getMondayCfg();
+    var hdrs={'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'};
     var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
     var nonPAC=hasPAC&&(!S.pacOk||!S.surfOk);
+    var isPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO';
     var itemName=(S.prenom+' '+S.nom+' — '+S.dossier+' — RAC '+racStr).replace(/["\\\n]/g,' ');
     var _mChauf={'Gaz':'GAZ','Fioul':'FIOUL','Chaudière à bois':'CHAUDIERE BOIS','Chaudière à charbon':'CHARBON','Électrique':'RADIATEURS ELEC','Autre':'AUTRE'};
     var _mEmpl={'Chaufferie':'CHAUFFERIE','Sous-sol':'SOUS SOL','Garage':'GARAGE','Cuisine':'CUISINE','Buanderie':'BUANDERIE','Cave':'AUTRE','Autre':'AUTRE'};
     var _mECS={'Liée à la chaudière':'LIÉ A LA CHAUDIERE','Ballon indépendant':'BALON ELECTRIQUE'};
     var _mCompt={'Monophasé':'MONOPHASÉ','Triphasé':'TRIPHASÉ'};
     var _mCouleur={'Bleu':'BLEU','Jaune':'JAUNE','Violet':'VIOLET','Rose':'ROSE'};
+    var _mStatut={'prop_occ':'PROPRIÉTAIRE OCCUPANT','prop_bail':'PROPRIÉTAIRE BAILLEUR','locataire':'LOCATAIRE'};
     var cv={};
+    if(S.civilite)cv['text_mkxbcivil']=S.civilite;
     if(S.prenom)cv['text_mkxbqtwa']=S.prenom;
     if(S.telephone)cv['phone_mkxbpxwp']={phone:S.telephone.replace(/\s/g,''),countryShortName:'FR'};
     if(S.email&&S.email.indexOf('@')>0)cv['email_mkxkgs76']={email:S.email,text:S.email};
@@ -1119,37 +1123,36 @@ function postToMonday(racStr,totalRac){
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
     if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
     var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
-    var gPortailUrl=fullAddr.trim()?'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(fullAddr.trim())+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes':'';
+    var gPortailUrl=(S._lat&&S._lon&&fullAddr.trim())?'https://www.geoportail.gouv.fr/carte?c='+S._lon+','+S._lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&q='+encodeURIComponent(fullAddr.trim())+'&permalink=yes':'';
     var cvStr=JSON.stringify(JSON.stringify(cv));
-    var groupId=(S.dossier==='PAC'||S.dossier==='PAC+ISO')?(cfg.groupPac||'topics'):'topics';
-    var q1='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
     var lines=[
       '━━━ 👤 CLIENT ━━━',
+      '• Civilité : '+(S.civilite||'—')+' | Statut : '+(_mStatut[S.statut]||S.statut||'—'),
       '• Nom / Prénom : '+S.prenom+' '+S.nom,
       S.dateNaissance?'• Date de naissance : '+S.dateNaissance:'',
       '• Téléphone : '+S.telephone,
       '• Email : '+(S.email||'—'),
-      '• Adresse : '+S.adresse,
-      '• CP / Ville : '+S.cp+' '+S.ville,
-      S.anneeConstruction?'• Année construction : '+S.anneeConstruction:'',
+      '• Adresse : '+fullAddr.trim(),
+      S.anneeConstruction?'• Année de construction : '+S.anneeConstruction:'',
       '',
       '━━━ 💰 DÉCLARATION FISCALE ━━━',
       '• N° Déclarant 1 : '+(S.numDeclarant||'—'),
       S.numDeclarant2?'• N° Déclarant 2 : '+S.numDeclarant2:'',
       '• RFR : '+fmt(S.rfr),
       '• Parts fiscales : '+S.parts+' part(s)',
-      '• Région : '+(S.isIDF?'Île-de-France':'Province'),
+      '• Zone : '+(S.zone||'—')+' | Région : '+(S.isIDF?'Île-de-France':'Province'),
       '• Couleur ANAH : '+S.couleur,
       '',
       hasPAC?'━━━ 🔥 POMPE À CHALEUR ━━━':'',
       hasPAC?'• Chauffage actuel : '+(S.chauffage||'—'):'',
       hasPAC?'• Surface chauffée : '+(S.surfPac?S.surfPac+' m²':'—'):'',
+      hasPAC&&S.hauteurPlafond?'• Hauteur sous plafond (HSP) : '+S.hauteurPlafond:'',
+      hasPAC&&S.typeRadiateur?'• Type de radiateurs : '+S.typeRadiateur:'',
       hasPAC?'• Compteur : '+(S.compteur||'—'):'',
       hasPAC?'• Eau chaude (ECS) : '+(S.ecs||'—'):'',
+      hasPAC&&S.vmc?'• VMC : '+S.vmc:'',
       hasPAC&&S.etatIso?'• État isolation : '+S.etatIso:'',
       hasPAC&&S.emplacementChaudiere?'• Emplacement chaudière : '+S.emplacementChaudiere:'',
-      hasPAC&&S.hauteurPlafond?'• Hauteur plafond : '+S.hauteurPlafond:'',
-      hasPAC&&S.typeRadiateur?'• Radiateurs : '+S.typeRadiateur:'',
       hasPAC?'• RAC PAC : '+(nonPAC?'Non éligible — Voir Resp. technique':S.racPac===0?'1€':fmt(S.racPac)):'',
       S.notesPac?'• Notes PAC : '+S.notesPac:'',
       '',
@@ -1170,14 +1173,45 @@ function postToMonday(racStr,totalRac){
       '━━━ 🗺️ LIENS CARTOGRAPHIQUES ━━━',
       streetViewUrl?'• Street View : '+streetViewUrl:'',
       gPortailUrl?'• Géoportail : '+gPortailUrl:''
-    ].filter(function(l){return l!==false&&l!==null&&l!==undefined;}).join('\n');
-    fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q1})})
-    .then(function(r){return r.json();}).then(function(d){
-      if(d&&d.errors){console.error('Monday create_item error:',JSON.stringify(d.errors));showMonStatus('❌ Monday : erreur API — '+JSON.stringify(d.errors).slice(0,80));}
-      var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
-      if(id){showMonStatus('🟣 Monday : fiche créée ✅ (id '+id+')');var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:{'Content-Type':'application/json','Authorization':cfg.token,'API-Version':'2023-10'},body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});}
-      else if(!d||!d.errors){showMonStatus('❌ Monday : pas d\'ID retourné');console.error('Monday: pas d\'ID retourné',JSON.stringify(d));}
-    }).catch(function(e){console.error('Monday fetch error:',e);showMonStatus('❌ Monday : erreur réseau');});
+    ].filter(function(l){return l!==false&&l!==null&&l!==undefined&&l!=='';}).join('\n');
+
+    function doCreate(groupId){
+      var q1='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+cvStr+'){id}}';
+      fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q1})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d&&d.errors){
+          var es=JSON.stringify(d.errors);
+          console.error('Monday create_item error:',es);
+          showMonStatus('❌ Monday : erreur API — '+es.slice(0,100));
+          return;
+        }
+        var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
+        if(id){
+          showMonStatus('🟣 Monday : fiche créée ✅ (id '+id+')');
+          var q2='mutation{create_update(item_id:'+id+',body:'+JSON.stringify(lines)+'){id}}';
+          fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q2})}).catch(function(e){console.error('Monday update error:',e);});
+        }else{showMonStatus('❌ Monday : pas d\'ID retourné');console.error('Monday: pas d\'ID',JSON.stringify(d));}
+      })
+      .catch(function(e){console.error('Monday fetch error:',e);showMonStatus('❌ Monday : erreur réseau');});
+    }
+
+    var cachedGroup=isPAC?cfg.groupPac:cfg.groupIso;
+    if(cachedGroup&&cachedGroup!=='topics'){doCreate(cachedGroup);return;}
+    var targetNum=isPAC?'171':'174';
+    fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:'query{boards(ids:['+cfg.boardId+']){groups{id title}}}'})})
+    .then(function(r){return r.json();})
+    .then(function(gd){
+      var groups=(gd.data&&gd.data.boards&&gd.data.boards[0]&&gd.data.boards[0].groups)||[];
+      var found=null;
+      for(var i=0;i<groups.length;i++){if(groups[i].title&&groups[i].title.indexOf(targetNum)>=0){found=groups[i];break;}}
+      var gId=found?found.id:(groups[0]?groups[0].id:'topics');
+      var cfg2=getMondayCfg();
+      if(isPAC)cfg2.groupPac=gId;else cfg2.groupIso=gId;
+      localStorage.setItem('pac_monday_cfg',JSON.stringify(cfg2));
+      doCreate(gId);
+    })
+    .catch(function(){doCreate('topics');});
   }catch(e){console.error('Monday exception:',e);}
 }
 function _pf(id,val){var el=g(id);if(el&&val!==undefined&&val!==null&&val!=='')el.value=val;}
