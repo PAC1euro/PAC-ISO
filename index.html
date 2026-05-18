@@ -713,28 +713,101 @@ try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _
 postToMonday(racStr,totalRac);
 postToPixel();
 }
-var PIXEL_WORKER_URL='https://pixel-proxy.maxime-48e.workers.dev/';
-function testPixel(){fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({probe:true})}).then(function(r){return r.json();}).then(function(d){console.log(JSON.stringify(d,null,2));alert('Voir console F12 pour résultat');}).catch(function(e){console.error(e);});}
-function postToPixel(){
-  if(!PIXEL_WORKER_URL)return;
-  var payload={
-    nom:S.nom,prenom:S.prenom,civilite:S.civilite||'M.',statut:S.statut||'prop_occ',
-    telephone:S.telephone,email:S.email,
-    adresse:S.adresse,cp:S.cp,ville:S.ville,
-    rfr:S.rfr,parts:S.parts,numDeclarant:S.numDeclarant,
-    dossier:S.dossier,couleur:S.couleur,zone:S.zone,
-    chauffage:S.chauffage,ecs:S.ecs,surfPac:S.surfPac,
-    racPac:S.racPac,racIso:S.racIso,
-    teleproNom:S.teleproNom,codeReferent:S.codeReferent,
-    dateNaissance:S.dateNaissance
+var PIXEL_TOKEN='ee0dc8a7-41a9-45fe-a820-7d7d009a6868';
+var PIXEL_UA='STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+var PIXEL_PROJECT_ID='F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
+function buildPixelBody(){
+  var tcMap={'Gaz':1,'Fioul':1,'Chaudière à bois':1,'Chaudière à charbon':1,'Électrique':2,'Autre':3};
+  var thMap={'prop_occ':1,'locataire':2,'prop_bail':3};
+  var commentParts=[];
+  if(S.dossier)commentParts.push('Dossier: '+S.dossier);
+  if(S.couleur)commentParts.push('Couleur ANAH: '+S.couleur);
+  if(S.zone)commentParts.push('Zone: '+S.zone);
+  if(S.chauffage)commentParts.push('Chauffage: '+S.chauffage);
+  if(S.surfPac)commentParts.push('Surface: '+S.surfPac+'m²');
+  if(S.racPac!==undefined)commentParts.push('RAC PAC: '+(S.racPac===0?'1€':S.racPac+'€'));
+  if(S.teleproNom)commentParts.push('Téléprospecteur: '+S.teleproNom);
+  if(S.codeReferent)commentParts.push('Référent: '+S.codeReferent);
+  var body={
+    ProjectTypeId:PIXEL_PROJECT_ID,
+    TypeOperationCEE:2,
+    TypeLogement:0,
+    DealId:S.dossier||'',
+    Civilite1:S.civilite||'M.',
+    Nom1:S.nom||'',
+    Prenom1:S.prenom||'',
+    Mail:S.email||'',
+    Adresse:S.adresse||'',
+    CodePostal:S.cp||'',
+    Ville:S.ville||'',
+    TelMobile:S.telephone||'',
+    AgeBatiment:3,
+    TypeHabitation:thMap[S.statut]||1,
+    TypeChauffage:tcMap[S.chauffage]||1,
+    TypeLead:'Form',
+    Commentaires:commentParts.join(' | ')
   };
-  fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche créée ✅',d.url||null);}
-      else{showMonStatus('🟦 Pixel CRM : erreur — '+(d.error||'?'));}
-    })
-    .catch(function(e){showMonStatus('🟦 Pixel CRM : erreur réseau');console.error('Pixel:',e);});
+  if(S.parts)body.NbrPersonneAuFoyer=Number(S.parts);
+  if(S.rfr)body.RevenuFiscal=Number(String(S.rfr).replace(',','.'));
+  if(S.numDeclarant)body.NumFiscal1=S.numDeclarant;
+  if(S.refFiscal1)body.RefFiscal1=S.refFiscal1;
+  return body;
+}
+function showPixelManualPanel(body){
+  var tcLabels={1:'Combustible',2:'Électrique',3:'Hybride'};
+  var thLabels={1:'Prop. occupant',2:'Locataire',3:'Prop. bailleur'};
+  var lines=[
+    'Civilité : '+(body.Civilite1||''),
+    'Nom : '+(body.Nom1||''),
+    'Prénom : '+(body.Prenom1||''),
+    'Téléphone : '+(body.TelMobile||''),
+    'Email : '+(body.Mail||''),
+    'Adresse : '+(body.Adresse||''),
+    'CP : '+(body.CodePostal||''),
+    'Ville : '+(body.Ville||''),
+    '---',
+    'N° dossier : '+(body.DealId||''),
+    'Type opération : Chauffage & ECS',
+    'Type chauffage : '+(tcLabels[body.TypeChauffage]||body.TypeChauffage),
+    'Occupation : '+(thLabels[body.TypeHabitation]||body.TypeHabitation),
+    body.NbrPersonneAuFoyer?'Nb personnes : '+body.NbrPersonneAuFoyer:'',
+    body.RevenuFiscal?'Revenu fiscal : '+body.RevenuFiscal+' €':'',
+    body.NumFiscal1?'N° fiscal : '+body.NumFiscal1:'',
+  ].filter(Boolean).join('\n');
+  var panel=g('sendStatusPanel');
+  if(!panel)return;
+  var wrap=document.createElement('div');
+  wrap.style.cssText='padding:10px 14px;background:#fff7ed;border-top:1px solid #fed7aa;';
+  wrap.innerHTML='<div style="font-size:12px;font-weight:bold;color:#c2410c;margin-bottom:6px;">⚠️ Pixel CRM : CORS bloqué — saisir manuellement</div>'
+    +'<pre style="font-size:11px;color:#374151;white-space:pre-wrap;margin:0 0 6px 0;">'+lines+'</pre>'
+    +'<button onclick="navigator.clipboard.writeText(this.previousSibling.textContent).then(function(){alert(\'Copié !\');}).catch(function(){alert(\'Copie manuelle : Ctrl+A puis Ctrl+C\');})" style="font-size:11px;padding:3px 10px;border:1px solid #f97316;border-radius:6px;background:#fff;color:#c2410c;cursor:pointer;">📋 Copier</button>';
+  panel.appendChild(wrap);
+  panel.style.display='block';
+}
+function postToPixel(){
+  if(!PIXEL_TOKEN)return;
+  var body=buildPixelBody();
+  // Simple request (no preflight): token in URL, text/plain — server processes even if CORS blocks response
+  fetch('https://crm.pixel-crm.com/api/IJLeads?XINTNRGLEAD-TOKEN='+encodeURIComponent(PIXEL_TOKEN),{
+    method:'POST',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(body)
+  }).catch(function(){});
+  // Primary: full CORS request — works once William enables CORS headers on their API
+  fetch('https://crm.pixel-crm.com/api/IJLeads',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
+    body:JSON.stringify(body)
+  })
+  .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
+  .then(function(d){
+    if(d.ok){
+      var j=null;try{j=JSON.parse(d.txt);}catch(e){}
+      var id=j&&(j.Id||j.id||j.DossierId||j.PixelDealId)||null;
+      showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(id?' (id '+id+')':''));
+    }else{showMonStatus('🟦 Pixel CRM : erreur '+d.status+' — '+d.txt.slice(0,200));}
+  })
+  .catch(function(e){showPixelManualPanel(body);console.error('Pixel:',e);});
 }
 
 function saveFormDraft(){
@@ -1213,7 +1286,7 @@ function postToMonday(racStr,totalRac){
 
     function fetchMondayCols(cb){
       var saved=getMondayCfg();
-      if(saved.colMap&&Object.keys(saved.colMap).length>3){cb(saved.colMap);return;}
+      if(saved.colMap&&saved.colMap['type de radiateurs']&&Object.keys(saved.colMap).length>3){cb(saved.colMap);return;}
       fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:'query{boards(ids:['+cfg.boardId+']){columns{id title type}}}'})})
       .then(function(r){return r.json();})
       .then(function(d){
@@ -1233,7 +1306,10 @@ function postToMonday(racStr,totalRac){
         {tt:['street view','streetview'],v:streetViewUrl,f:function(c,v){return c.type==='link'?{url:v,text:'Street View'}:v;}},
         {tt:['géoportail','geoportail'],v:gPortailUrl,f:function(c,v){return c.type==='link'?{url:v,text:'Géoportail'}:v;}},
         {tt:['hsp','hauteur sous plafond','hauteur plafond','hauteur'],v:S.hauteurPlafond,f:function(c,v){return(c.type==='numbers'||c.type==='numeric')?Number(v)||0:v;}},
-        {tt:['type de radiateur','type radiateur','radiateur','type rad'],v:S.typeRadiateur,f:function(c,v){return v;}},
+        {tt:['type de radiateurs','type de radiateur','type radiateur','radiateur','type rad'],v:S.typeRadiateur,f:function(c,v){
+          if(c.type==='dropdown'){var labs=v.split(',').map(function(s){return s.trim();}).filter(Boolean);return {labels:labs};}
+          return v;
+        }},
         {tt:['rac annoncé','rac annonce','rac pac','rac client'],v:racVal,f:function(c,v){return Number(v)||0;}},
         {tt:['email mpr','mail mpr'],v:S.mprMail,f:function(c,v){return c.type==='email'?{email:v,text:v}:v;}},
         {tt:['mdp mpr','mot de passe mpr'],v:S.mprMdp,f:function(c,v){return v;}},
