@@ -670,7 +670,7 @@ try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _
 postToMonday(racStr,totalRac);
 postToPixel();
 }
-var PIXEL_WORKER_URL='';// ← Colle ici l'URL de ton Worker après déploiement
+var PIXEL_WORKER_URL='https://pixel-proxy.maxime-48e.workers.dev/';
 function postToPixel(){
   if(!PIXEL_WORKER_URL)return;
   var payload={
