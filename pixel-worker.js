@@ -155,13 +155,12 @@ async function debugLogin(data, env) {
     return { ok: false, trace, error: 'Token login introuvable', allInputs, loginFormHtml };
   }
 
-  // 2. POST login
+  // 2. POST login — noms réels : Input.CustomerCode / Input.UserName / Input.Password
   const loginBody = new URLSearchParams({
     ...hiddenFields,
-    'CodeEntreprise': CODE,
-    'UserName': USER,
-    'Password': PASS,
-    'RememberMe': 'false'
+    'Input.CustomerCode': CODE,
+    'Input.UserName': USER,
+    'Input.Password': PASS,
   });
   const p2 = await fetch(`${BASE}/Account/Login`, {
     method: 'POST',
@@ -280,13 +279,12 @@ async function createDossier(data, env) {
     throw new Error('Token login introuvable — page: ' + loginHtml.slice(0, 120));
   }
 
-  // 2. POST login
+  // 2. POST login — noms réels : Input.CustomerCode / Input.UserName / Input.Password
   const loginBody = new URLSearchParams({
     ...hiddenFields,
-    'CodeEntreprise': CODE,
-    'UserName': USER,
-    'Password': PASS,
-    'RememberMe': 'false'
+    'Input.CustomerCode': CODE,
+    'Input.UserName': USER,
+    'Input.Password': PASS,
   });
   const p2 = await fetch(`${BASE}/Account/Login`, {
     method: 'POST',
