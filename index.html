@@ -744,14 +744,14 @@ function updMapsLink(){
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
-  var geoUrl=function(lon,lat){return'https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';};
+  var geoUrl=function(lon,lat){return'https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=20&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&m='+lon+','+lat+'&permalink=yes';};
   if(_geoLon&&_geoLat){window.open(geoUrl(_geoLon,_geoLat),'_blank');return;}
   var win=window.open('','_blank');
   fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(addr)+'&limit=1')
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.features&&d.features.length>0){var c=d.features[0].geometry.coordinates;_geoLon=c[0];_geoLat=c[1];win.location.href=geoUrl(c[0],c[1]);}
-      else{win.location.href='https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=18&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';}
+      else{win.location.href='https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=20&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';}
     })
     .catch(function(){win.location.href='https://www.geoportail.gouv.fr/';});
 }
@@ -759,10 +759,19 @@ function openStreetView(){
   var addr=g('btnStreet')&&g('btnStreet').getAttribute('data-addr')||'';
   if(!addr)return;
   if(_geoLat&&_geoLon){
-    window.open('https://www.google.com/maps/@'+_geoLat+','+_geoLon+',3a,75y,90t/data=!3m4!1e1!3m2!1sGOOGLE_ID!2e0','_blank');
+    window.open('https://www.google.com/maps?q=&layer=c&cbll='+_geoLat+','+_geoLon+'&cbp=11,0,0,0,0','_blank');
     return;
   }
-  window.open('https://www.google.com/maps?layer=c&q='+encodeURIComponent(addr),'_blank');
+  var win=window.open('','_blank');
+  fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(addr)+'&limit=1')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.features&&d.features.length>0){
+        var c=d.features[0].geometry.coordinates;_geoLon=c[0];_geoLat=c[1];
+        win.location.href='https://www.google.com/maps?q=&layer=c&cbll='+c[1]+','+c[0]+'&cbp=11,0,0,0,0';
+      }else{win.location.href='https://www.google.com/maps?layer=c&q='+encodeURIComponent(addr);}
+    })
+    .catch(function(){win.location.href='https://www.google.com/maps?layer=c&q='+encodeURIComponent(addr);});
 }
 var _floorLabels=['RDC','1er étage','2ème étage','3ème étage','4ème étage','5ème étage'];
 var _floorCount=0;
