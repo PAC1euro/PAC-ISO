@@ -94,29 +94,31 @@ async function createDossier(data, env) {
   });
   cookies = mergeCookies(cookies, p2.headers.get('set-cookie') || '');
 
-  // 3. Follow ALL redirects after login (can be multiple hops)
+  // 3. Gérer la réponse du login (302 redirect OU 200 direct)
   let nextUrl = p2.headers.get('location');
   if (!nextUrl) {
-    const body = await p2.text();
-    const errMatch = body.match(/class="[^"]*validation-summary[^"]*"[^>]*>([\s\S]{0,300})/i)
-      || body.match(/class="[^"]*alert[^"]*"[^>]*>([\s\S]{0,200})/i)
-      || body.match(/<li>([\s\S]{0,150})<\/li>/i);
-    const snippet = errMatch ? errMatch[1].replace(/<[^>]+>/g, '').trim() : body.slice(0, 200);
-    throw new Error('Login échoué (200) — ' + snippet);
-  }
-  let hops = 0;
-  while (nextUrl && hops++ < 6) {
-    const fullUrl = nextUrl.startsWith('http') ? nextUrl : `${BASE}${nextUrl}`;
-    if (fullUrl.includes('/Account/Login')) throw new Error('Connexion échouée — identifiants incorrects ou compte bloqué');
-    const hop = await fetch(fullUrl, {
-      headers: { 'User-Agent': UA, 'Cookie': cookies, 'Accept': 'text/html,application/xhtml+xml' },
-      redirect: 'manual'
-    });
-    cookies = mergeCookies(cookies, hop.headers.get('set-cookie') || '');
-    if (hop.status === 301 || hop.status === 302) {
-      nextUrl = hop.headers.get('location');
-    } else {
-      nextUrl = null;
+    // Certains serveurs répondent 200 avec la page dashboard directement
+    const p2body = await p2.text();
+    // Si la page contient encore le formulaire de login → vraie erreur
+    if (p2body.includes('name="Password"') || p2body.includes('id="Password"')) {
+      const errMatch = p2body.match(/class="[^"]*validation[^"]*"[^>]*>([\s\S]{0,200})/i)
+        || p2body.match(/<li>([\s\S]{0,100})<\/li>/i);
+      const msg = errMatch ? errMatch[1].replace(/<[^>]+>/g,'').trim() : 'Identifiants rejetés';
+      throw new Error('Login échoué — ' + msg);
+    }
+    // Sinon on est connecté (200 + dashboard) → on continue directement
+  } else {
+    // Suivre toutes les redirections 302
+    let hops = 0;
+    while (nextUrl && hops++ < 6) {
+      const fullUrl = nextUrl.startsWith('http') ? nextUrl : `${BASE}${nextUrl}`;
+      if (fullUrl.includes('/Account/Login')) throw new Error('Connexion échouée — redirection vers login');
+      const hop = await fetch(fullUrl, {
+        headers: { 'User-Agent': UA, 'Cookie': cookies, 'Accept': 'text/html,application/xhtml+xml' },
+        redirect: 'manual'
+      });
+      cookies = mergeCookies(cookies, hop.headers.get('set-cookie') || '');
+      nextUrl = (hop.status === 301 || hop.status === 302) ? hop.headers.get('location') : null;
     }
   }
 
