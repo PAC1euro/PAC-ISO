@@ -216,11 +216,19 @@ async function createDossier(data, env) {
 
   if (p5.status === 302) {
     const loc = p5.headers.get('location') || '';
+    // Si redirection vers login = session invalide, dossier non créé
+    if (loc.toLowerCase().includes('/account/login')) {
+      throw new Error('Session invalide à la soumission — redirection login. Réessaye.');
+    }
     const idMatch = loc.match(/id=([a-f0-9-]+)/i);
     const id = idMatch ? idMatch[1] : null;
-    return { ok: true, id, url: id ? `${BASE}/Dossiers/Isolation/Fiche/N_EditMain?id=${id}` : `${BASE}${loc}` };
+    if (!id) throw new Error('Soumission acceptée mais pas d\'ID retourné — redirect: ' + loc);
+    return { ok: true, id, url: `${BASE}/Dossiers/Isolation/Fiche/N_EditMain?id=${id}` };
   }
 
+  // Réponse 200 = erreur de validation Pixel CRM
   const txt = await p5.text();
-  throw new Error(`Réponse inattendue (${p5.status}) — ${txt.slice(0, 300)}`);
+  const valErr = txt.match(/class="[^"]*field-validation-error[^"]*"[^>]*>([^<]{1,150})/i)
+    || txt.match(/class="[^"]*validation-summary[^"]*"[\s\S]{0,100}<li>([^<]{1,150})/i);
+  throw new Error('Validation Pixel CRM — ' + (valErr ? valErr[1].trim() : `HTTP ${p5.status} — ${txt.slice(0,200)}`));
 }
