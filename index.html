@@ -755,7 +755,7 @@ function postToPixel(){
   if(S.refFiscal1)body.RefFiscal1=S.refFiscal1;
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
-    headers:{'Content-Type':'application/json','User-Agent':PIXEL_UA,'XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
+    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
     body:JSON.stringify(body)
   })
   .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
@@ -766,16 +766,7 @@ function postToPixel(){
       showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(id?' (id '+id+')':''));
     }else{showMonStatus('🟦 Pixel CRM : erreur '+d.status+' — '+d.txt.slice(0,200));}
   })
-  .catch(function(e){
-    // CORS bloqué → fallback Worker
-    fetch('https://pixel-proxy.maxime-48e.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:S.nom,prenom:S.prenom,civilite:S.civilite||'M.',statut:S.statut||'prop_occ',telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,rfr:S.rfr,parts:S.parts,numDeclarant:S.numDeclarant,refFiscal1:S.refFiscal1,dossier:S.dossier,couleur:S.couleur,zone:S.zone,chauffage:S.chauffage,ecs:S.ecs,surfPac:S.surfPac,racPac:S.racPac,teleproNom:S.teleproNom,codeReferent:S.codeReferent})})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche créée ✅');}
-      else{showMonStatus('🟦 Pixel CRM : erreur — '+(d.error||'?'));}
-    })
-    .catch(function(){showMonStatus('🟦 Pixel CRM : erreur réseau');});
-  });
+  .catch(function(e){showMonStatus('🟦 Pixel CRM : erreur réseau/CORS');console.error('Pixel:',e);});
 }
 
 function saveFormDraft(){
