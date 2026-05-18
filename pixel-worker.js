@@ -112,11 +112,12 @@ async function createDossier(data, env) {
   // 6. POST dossier
   const form = new FormData();
   const a = (k, v) => form.append(k, v != null ? String(v) : '');
-  a('FicheISO_VM.TypeOperationCEE', 'Chauffage');
-  a('Fiche_VM.Civilite', 'M.');
+  const typeOp = (data.ecs === 'Ballon indépendant') ? 'Chauffage & ECS' : 'Chauffage';
+  a('FicheISO_VM.TypeOperationCEE', typeOp);
+  a('Fiche_VM.Civilite', data.civilite || 'M.');
   a('Fiche_VM.Nom', data.nom);
   a('Fiche_VM.Prenom', data.prenom);
-  a('FicheISO_VM.Civilite', '');
+  a('FicheISO_VM.Civilite', data.civilite || '');
   a('FicheISO_VM.Nom', data.nom);
   a('FicheISO_VM.Prenom', data.prenom);
   a('Fiche_VM.Adresse', data.adresse);
@@ -133,7 +134,8 @@ async function createDossier(data, env) {
   a('FicheISO_VM.VilleChantier', data.ville);
   a('FicheISO_VM.TypeChauffage', '1');
   a('FicheISO_VM.TypeEnergie', '');
-  a('FicheISO_VM.TypeHabitation', '1');
+  const statutMap = {'prop_occ':'1','prop_bail':'2','locataire':'3'};
+  a('FicheISO_VM.TypeHabitation', statutMap[data.statut] || '1');
   a('FicheISO_VM.ParcelleCadastral', '');
   a('FicheISO_VM.RevenuFiscal', data.rfr ? String(data.rfr).replace('.', ',') : '0,00');
   a('FicheISO_VM.NbrFoyer', '1');
@@ -148,7 +150,7 @@ async function createDossier(data, env) {
   a('FicheISO_VM.SurfacePlafond', '');
   a('FicheISO_VM.SurfaceVideSanitaire', '');
   a('Fiche_VM.TypeLead', 'Form');
-  a('Fiche_VM.Campagne', '');
+  a('Fiche_VM.Campagne', 'PREMIUM ENERGY - H1&H2 2K MAX');
   a('Fiche_VM.FournisseurLeadId', '');
   a('FicheISO_Statut_VM.WorkflowStatutId', '443f3db6-ff41-423b-933e-de2411fb824b');
   a('Fiche_VM.OperateurId', 'f2d9f341-2573-40e1-8b70-4f480b1555e4');
