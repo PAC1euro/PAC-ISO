@@ -714,6 +714,7 @@ postToMonday(racStr,totalRac);
 postToPixel();
 }
 var PIXEL_WORKER_URL='https://pixel-proxy.maxime-48e.workers.dev/';
+function testPixel(){fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({probe:true})}).then(function(r){return r.json();}).then(function(d){console.log(JSON.stringify(d,null,2));alert('Voir console F12 pour résultat');}).catch(function(e){console.error(e);});}
 function postToPixel(){
   if(!PIXEL_WORKER_URL)return;
   var payload={
