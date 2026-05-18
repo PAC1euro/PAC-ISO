@@ -96,7 +96,14 @@ async function createDossier(data, env) {
 
   // 3. Follow ALL redirects after login (can be multiple hops)
   let nextUrl = p2.headers.get('location');
-  if (!nextUrl) throw new Error('Pas de redirection après login — identifiants rejetés');
+  if (!nextUrl) {
+    const body = await p2.text();
+    const errMatch = body.match(/class="[^"]*validation-summary[^"]*"[^>]*>([\s\S]{0,300})/i)
+      || body.match(/class="[^"]*alert[^"]*"[^>]*>([\s\S]{0,200})/i)
+      || body.match(/<li>([\s\S]{0,150})<\/li>/i);
+    const snippet = errMatch ? errMatch[1].replace(/<[^>]+>/g, '').trim() : body.slice(0, 200);
+    throw new Error('Login échoué (200) — ' + snippet);
+  }
   let hops = 0;
   while (nextUrl && hops++ < 6) {
     const fullUrl = nextUrl.startsWith('http') ? nextUrl : `${BASE}${nextUrl}`;
