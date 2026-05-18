@@ -243,13 +243,27 @@ async function debugLogin(data, env) {
     { ...baseHdrs, 'Referer': BASE },
     cookies
   );
+  // Extraire tous les inputs + selects du formulaire de création
+  const createInputs = [];
+  const reCI = /<input[^>]*>/gi; let mCI;
+  while ((mCI = reCI.exec(createHtml)) !== null) {
+    const nm = mCI[0].match(/name=["']([^"']+)["']/i);
+    const tp = mCI[0].match(/type=["']([^"']+)["']/i);
+    if (nm) createInputs.push({ name: nm[1], type: tp ? tp[1] : 'text' });
+  }
+  const createSelects = [];
+  const reSel = /<select[^>]*name=["']([^"']+)["'][^>]*>/gi; let mSel;
+  while ((mSel = reSel.exec(createHtml)) !== null) createSelects.push(mSel[1]);
+
   trace.push({
     step: '4_GET_create',
     cookiesSent: cookieNames(c4),
     cookiesAfter: cookieNames(c4all),
     hasForm: createHtml.includes('FicheISO_VM'),
     hasLogin: createHtml.includes('/Account/Login'),
-    csrfFound: !!extractToken(createHtml)
+    csrfFound: !!extractToken(createHtml),
+    createInputs,
+    createSelects
   });
 
   return { ok: true, trace, apiResults, cookiesForPost: cookieNames(c4) };
