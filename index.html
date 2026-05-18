@@ -740,7 +740,7 @@ function updMapsLink(){
     btnG.setAttribute('data-addr','');btnG.style.borderColor='#e2e8f0';btnG.style.color='#475569';
     embed.innerHTML='';
   }
-}}
+}
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
