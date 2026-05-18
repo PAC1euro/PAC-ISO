@@ -266,6 +266,40 @@ async function debugLogin(data, env) {
     createSelects
   });
 
+  // 5. Test POST create avec données minimales
+  const csrfTest = extractToken(createHtml);
+  const hiddenTest = extractHiddenFields(createHtml);
+  const testBody = new URLSearchParams({
+    ...hiddenTest,
+    '__RequestVerificationToken': csrfTest,
+    'Fiche_VM.Nom': 'TEST', 'Fiche_VM.Prenom': 'TEST',
+    'Fiche_VM.TelMobile': '0600000000', 'Fiche_VM.Adresse': '1 rue test',
+    'Fiche_VM.CodePostal': '75001', 'Fiche_VM.Ville': 'Paris',
+    'FicheISO_VM.TypeOperationCEE': 'Chauffage',
+    'FicheISO_VM.TypeChauffage': '1', 'FicheISO_VM.TypeEnergie': 'Gaz',
+    'FicheISO_VM.TypeHabitation': '1', 'FicheISO_VM.AgeBatiment': '3',
+    'FicheISO_VM.NbrPersonneAuFoyer': '1', 'FicheISO_VM.RevenuFiscal': '0,00',
+    'Fiche_VM.TypeLead': 'Form',
+    'FicheISO_Statut_VM.WorkflowStatutId': '443f3db6-ff41-423b-933e-de2411fb824b',
+    'Fiche_VM.OperateurId': 'f2d9f341-2573-40e1-8b70-4f480b1555e4',
+  });
+  const p5test = await fetch(`${BASE}/Dossiers/isolation/fiche/create`, {
+    method: 'POST',
+    headers: { ...baseHdrs, 'Cookie': c4, 'Content-Type': 'application/x-www-form-urlencoded', 'Referer': `${BASE}/Dossiers/isolation/fiche/create`, 'Origin': BASE },
+    body: testBody.toString(), redirect: 'manual'
+  });
+  const p5txt = await p5test.text();
+  // Extraire erreurs inline (data-valmsg-for avec contenu)
+  const inlineErrors = [...p5txt.matchAll(/data-valmsg-for="([^"]+)"[^>]*>([^<]{2,150})<\/span>/ig)]
+    .map(m => m[1] + ': ' + m[2].trim());
+  trace.push({
+    step: '5_POST_create_test',
+    status: p5test.status,
+    location: p5test.headers.get('location'),
+    inlineErrors,
+    bodyStart: p5txt.slice(0, 400)
+  });
+
   return { ok: true, trace, apiResults, cookiesForPost: cookieNames(c4) };
 }
 
