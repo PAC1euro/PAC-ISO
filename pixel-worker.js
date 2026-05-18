@@ -41,8 +41,21 @@ function mergeCookies(existing, setCookieHeader) {
 }
 
 function extractToken(html) {
-  const m = html.match(/name="__RequestVerificationToken"[^>]*value="([^"]+)"/);
+  let m = html.match(/name="__RequestVerificationToken"[^>]*value="([^"]+)"/);
+  if (!m) m = html.match(/value="([^"]+)"[^>]*name="__RequestVerificationToken"/);
   return m ? m[1] : null;
+}
+
+function extractHiddenFields(html) {
+  const fields = {};
+  const re = /<input[^>]+type=["']?hidden["']?[^>]*>/gi;
+  let tag;
+  while ((tag = re.exec(html)) !== null) {
+    const nm = tag[0].match(/name=["']([^"']+)["']/i);
+    const vl = tag[0].match(/value=["']([^"']*)["']/i);
+    if (nm) fields[nm[1]] = vl ? vl[1] : '';
+  }
+  return fields;
 }
 
 async function createDossier(data, env) {
@@ -52,20 +65,22 @@ async function createDossier(data, env) {
   const USER = env.PIXEL_USER || 'MAXIME';
   const PASS = env.PIXEL_PASSWORD || 'Maxime.paciso1';
 
-  // 1. Login page → CSRF token
+  // 1. Login page → tous les champs cachés + CSRF token
   const p1 = await fetch(`${BASE}/Account/Login`, {
-    headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml' }
+    headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,*/*', 'Accept-Language': 'fr-FR,fr;q=0.9' }
   });
   let cookies = mergeCookies('', p1.headers.get('set-cookie') || '');
-  const loginToken = extractToken(await p1.text());
-  if (!loginToken) throw new Error('Token login introuvable');
+  const loginHtml = await p1.text();
+  const hiddenFields = extractHiddenFields(loginHtml);
+  if (!hiddenFields['__RequestVerificationToken']) throw new Error('Token login introuvable — page reçue: ' + loginHtml.slice(0, 120));
 
-  // 2. POST login
+  // 2. POST login avec tous les champs cachés
   const loginBody = new URLSearchParams({
-    '__RequestVerificationToken': loginToken,
+    ...hiddenFields,
     'CodeEntreprise': CODE,
     'UserName': USER,
-    'Password': PASS
+    'Password': PASS,
+    'RememberMe': 'false'
   });
   const p2 = await fetch(`${BASE}/Account/Login`, {
     method: 'POST',
