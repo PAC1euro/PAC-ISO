@@ -353,6 +353,10 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="stitle">Informations du client</div>
   <div class="ssub">Coordonnées et adresse du chantier</div>
   <div class="slabel">Identité</div>
+  <div class="choices c2" id="cCivil" style="margin-bottom:12px;">
+    <div class="choice" data-val="M." onclick="pick(this,'cCivil')"><div class="chi">👨</div><div class="chl">M.</div></div>
+    <div class="choice" data-val="Mme" onclick="pick(this,'cCivil')"><div class="chi">👩</div><div class="chl">Mme</div></div>
+  </div>
   <div class="row2">
     <div><label class="flabel">Nom</label><input type="text" id="nom" placeholder="Dupont"/></div>
     <div><label class="flabel">Prénom</label><input type="text" id="prenom" placeholder="Jean"/></div>
@@ -378,6 +382,12 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <button type="button" id="btnMaps" onclick="openMaps()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">🌍 Earth</button>
     <button type="button" id="btnStreet" onclick="openStreetView()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">📸 Street View</button>
     <button type="button" id="btnGeo" onclick="openGeo()" style="padding:11px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;font-size:11px;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">🗺️ Géoportail</button>
+  </div>
+  <div class="slabel">Statut d'occupation</div>
+  <div class="choices c3" id="cStatut" style="margin-bottom:14px;">
+    <div class="choice" data-val="prop_occ" onclick="pick(this,'cStatut')"><div class="chi">🏠</div><div class="chl">Propriétaire occupant</div></div>
+    <div class="choice" data-val="prop_bail" onclick="pick(this,'cStatut')"><div class="chi">🔑</div><div class="chl">Propriétaire bailleur</div></div>
+    <div class="choice" data-val="locataire" onclick="pick(this,'cStatut')"><div class="chi">📋</div><div class="chl">Locataire</div></div>
   </div>
   <div class="slabel">Année de construction</div>
   <div class="choices c2" id="cAnnee">
@@ -425,7 +435,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
 var FIREBASE_URL='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
-var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',noteEtatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
+var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',noteEtatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',civilite:'',statut:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
@@ -485,7 +495,7 @@ function calcFinal(){
   var rfr=Number(g('rfr').value),parts=S.parts,zone=S.zone,couleur=calcCouleur(rfr,parts,S.isIDF),chauf=gSel('cChauf'),surfPac=Number(g('surfPac').value)||0,surfIso=Number(g('surfIso').value)||0;
   var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
   S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;
-  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
+  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.civilite=gSel('cCivil');S.statut=gSel('cStatut');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
     S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');S.noteEtatIso=gv('noteEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;syncFloorHeights();S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=getMulSel('cRadiateur').join(', ');S.notesPac=gv('notesPac');
@@ -674,11 +684,12 @@ var PIXEL_WORKER_URL='https://pixel-proxy.maxime-48e.workers.dev/';
 function postToPixel(){
   if(!PIXEL_WORKER_URL)return;
   var payload={
-    nom:S.nom,prenom:S.prenom,telephone:S.telephone,email:S.email,
+    nom:S.nom,prenom:S.prenom,civilite:S.civilite||'M.',statut:S.statut||'prop_occ',
+    telephone:S.telephone,email:S.email,
     adresse:S.adresse,cp:S.cp,ville:S.ville,
     rfr:S.rfr,parts:S.parts,numDeclarant:S.numDeclarant,
     dossier:S.dossier,couleur:S.couleur,zone:S.zone,
-    chauffage:S.chauffage,surfPac:S.surfPac,
+    chauffage:S.chauffage,ecs:S.ecs,surfPac:S.surfPac,
     racPac:S.racPac,racIso:S.racIso,
     teleproNom:S.teleproNom,codeReferent:S.codeReferent,
     dateNaissance:S.dateNaissance
@@ -726,6 +737,8 @@ function loadFormDraft(){
       'notesIso','notesPac','noteEtatIso','teleproNom','codeReferent'];
     fi.forEach(function(k){var el=g(k);if(el&&d[k]!=null)el.value=d[k];});
     if(d.dossier)_rChip('cDossier',d.dossier);
+    if(d.civilite)_rChip('cCivil',d.civilite);
+    if(d.statut)_rChip('cStatut',d.statut);
     if(d.chauffage)_rChip('cChauf',d.chauffage);
     if(d.compteur)_rChip('cCompt',d.compteur);
     if(d.ecs)_rChip('cECS',d.ecs);
