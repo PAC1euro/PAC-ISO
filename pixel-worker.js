@@ -33,7 +33,9 @@ function extractCookies(response) {
   } catch(e) {}
   const raw = response.headers.get('set-cookie') || '';
   if (!raw) return [];
-  return raw.split(/,(?=[^ ]*?=)/);
+  // Sépare sur , suivi d'un nom de cookie (lettre/point/underscore puis =)
+  // Gère ", name=" ET ",name=" sans casser les dates "Mon, 18 May"
+  return raw.split(/,\s*(?=[A-Za-z_.][^;,= ]*\s*=)/);
 }
 
 // Fusionne des cookies existants avec de nouveaux (tableau de strings Set-Cookie)
@@ -290,7 +292,8 @@ async function createDossier(data, env) {
   if (p5.status === 302) {
     const loc = p5.headers.get('location') || '';
     if (loc.toLowerCase().includes('/account/login')) {
-      throw new Error('Session invalide — redirect: ' + loc + ' | cookies: ' + cookies.slice(0, 80));
+      const cookieNames = cookies.split('; ').map(c => c.split('=')[0]).join(' | ');
+      throw new Error('Session invalide | cookies présents: [' + cookieNames + ']');
     }
     const idMatch = loc.match(/id=([a-f0-9-]+)/i);
     const id = idMatch ? idMatch[1] : null;
