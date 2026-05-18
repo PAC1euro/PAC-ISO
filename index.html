@@ -193,7 +193,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="PAC+ISO" onclick="pick(this,'cDossier')"><div class="chi">⚡</div><div class="chl">PAC + ISO</div><div class="chs">Dossier complet</div></div>
   </div>
   <div class="err" id="e1">⚠ Veuillez sélectionner un type de dossier.</div>
-  <div class="brow"><button class="btn bp" onclick="nx(1)">Suivant →</button></div>
+  <div class="brow"><button class="btn bp" type="button" onclick="nx(1)">Suivant →</button></div>
 </div>
 
 <div class="step" id="step2">
@@ -237,7 +237,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div id="plafondTableS2"></div>
   <div id="racPreviewS2"></div>
   <div class="err" id="e2">⚠ Veuillez compléter tous les champs.</div>
-  <div class="brow"><button class="btn bs" onclick="pv(2)">← Retour</button><button class="btn bp" onclick="nx(2)">Suivant →</button></div>
+  <div class="brow"><button class="btn bs" type="button" onclick="pv(2)">← Retour</button><button class="btn bp" type="button" onclick="nx(2)">Suivant →</button></div>
 </div>
 <input type="hidden" id="dept"/>
 <div id="zoneBox" style="display:none;"></div>
@@ -290,7 +290,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <label class="flabel" style="margin-top:8px;">Notes PAC</label>
   <textarea id="notesPac" placeholder="Remarques techniques…"></textarea>
   <div class="err" id="e3">⚠ Veuillez compléter tous les champs.</div>
-  <div class="brow"><button class="btn bs" onclick="pv(3)">← Retour</button><button class="btn bp" onclick="nx(3)">Suivant →</button></div>
+  <div class="brow"><button class="btn bs" type="button" onclick="pv(3)">← Retour</button><button class="btn bp" type="button" onclick="nx(3)">Suivant →</button></div>
 </div>
 
 <div class="step" id="step4">
@@ -315,7 +315,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div id="couleurBloc"></div>
   <div id="plafondTable"></div>
   <div class="err" id="e4">⚠ Sélectionnez les parts et saisissez le RFR.</div>
-  <div class="brow"><button class="btn bs" onclick="pv(4)">← Retour</button><button class="btn bp" onclick="nx(4)">Suivant →</button></div>
+  <div class="brow"><button class="btn bs" type="button" onclick="pv(4)">← Retour</button><button class="btn bp" type="button" onclick="nx(4)">Suivant →</button></div>
 </div>
 
 <div class="step" id="step5">
@@ -345,7 +345,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <label class="flabel">Notes isolation</label>
   <textarea id="notesIso" placeholder="Type de murs, état existant…"></textarea>
   <div class="err" id="e5">⚠ Sélectionnez au moins 2 gestes et renseignez la surface.</div>
-  <div class="brow"><button class="btn bs" onclick="pv(5)">← Retour</button><button class="btn bp" onclick="nx(5)">Suivant →</button></div>
+  <div class="brow"><button class="btn bs" type="button" onclick="pv(5)">← Retour</button><button class="btn bp" type="button" onclick="nx(5)">Suivant →</button></div>
 </div>
 
 <div class="step" id="step6">
@@ -409,7 +409,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <label class="flabel">Code référent (facultatif)</label>
   <input type="text" id="codeReferent" placeholder="Ex: REF-001"/>
   <div class="err" id="e6">⚠ Veuillez remplir tous les champs obligatoires.</div>
-  <div class="brow"><button class="btn bs" onclick="pv(6)">← Retour</button><button class="btn bp" onclick="nx(6)">Voir les résultats →</button></div>
+  <div class="brow"><button class="btn bs" type="button" onclick="pv(6)">← Retour</button><button class="btn bp" type="button" onclick="nx(6)">Voir les résultats →</button></div>
 </div>
 
 <div class="step" id="step7">
@@ -782,7 +782,19 @@ function loadFormDraft(){
   }catch(e){console.error('loadFormDraft:',e);}
 }
 function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=5;else if(s===5)next=4;else if(s===4)next=6;}else if(S.dossier==='PAC'&&s===3){next=6;}else if(S.dossier==='PAC+ISO'&&s===3){next=5;}if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);saveFormDraft();}
-function pv(s){var prev=s-1;if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)prev=5;else if(s===6)prev=4;}else if(S.dossier==='PAC'){if(s===6)prev=3;}else if(S.dossier==='PAC+ISO'){if(s===5)prev=3;else if(s===6)prev=5;}if(fromResult&&s===5){fromResult=false;show(7);return;}show(prev);saveFormDraft();}
+function pv(s){
+  var prev=s-1;
+  if(S.dossier==='ISO'){if(s===5)prev=1;else if(s===4)prev=5;else if(s===6)prev=4;}
+  else if(S.dossier==='PAC'){if(s===6)prev=3;}
+  else if(S.dossier==='PAC+ISO'){if(s===5)prev=3;else if(s===6)prev=5;}
+  if(fromResult&&s===5){fromResult=false;show(7);return;}
+  var steps=document.querySelectorAll('.step');
+  for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');
+  var t=document.getElementById('step'+prev);
+  if(t){t.classList.add('active');}
+  cur=prev;window.scrollTo(0,0);
+  try{saveFormDraft();}catch(e){}
+}
 function editIso(){fromResult=true;show(5);}
 function show(n){
   try{
