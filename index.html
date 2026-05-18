@@ -697,7 +697,11 @@ function postToPixel(){
   fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(d.id?' ('+d.id.slice(0,8)+'…)':''));}
+      if(d.ok){
+        var pixelMsg='🟦 Pixel CRM : fiche créée ✅';
+        if(d.url){var a=document.createElement('a');a.href=d.url;a.target='_blank';a.style.cssText='color:#60a5fa;display:block;font-size:11px;margin-top:4px;word-break:break-all;';a.textContent='Ouvrir dans Pixel CRM →';var el=g('monStatusMsg');showMonStatus(pixelMsg);if(el)el.appendChild(a);}
+        else{showMonStatus(pixelMsg);}
+      }
       else{showMonStatus('🟦 Pixel CRM : erreur — '+(d.error||'?'));}
     })
     .catch(function(e){showMonStatus('🟦 Pixel CRM : erreur réseau');console.error('Pixel:',e);});
