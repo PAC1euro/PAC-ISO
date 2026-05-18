@@ -4,6 +4,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Fiche Client — PAC Air/Eau</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -789,12 +792,8 @@ function pv(s){
   else if(S.dossier==='PAC'){if(s===6)prev=3;}
   else if(S.dossier==='PAC+ISO'){if(s===5)prev=3;else if(s===6)prev=5;}
   if(fromResult&&s===5){fromResult=false;show(7);return;}
-  var steps=document.querySelectorAll('.step');
-  for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');
-  var t=document.getElementById('step'+prev);
-  if(t){t.classList.add('active');}
-  cur=prev;window.scrollTo(0,0);
-  try{saveFormDraft();}catch(e){}
+  show(prev);
+  saveFormDraft();
 }
 function editIso(){fromResult=true;show(5);}
 function show(n){
