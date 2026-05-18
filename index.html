@@ -668,8 +668,29 @@ emailjs.send('service_leads','template_2komt8b',{
 });
 try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _dos={formDate:new Date().toISOString(),dossier:S.dossier,nom:S.nom,prenom:S.prenom,dateNaissance:S.dateNaissance,telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,dept:S.dept,zone:S.zone,isIDF:S.isIDF,parts:S.parts,numDeclarant:S.numDeclarant,numDeclarant2:S.numDeclarant2,rfr:S.rfr,couleur:S.couleur,chauffage:S.chauffage,surfPac:S.surfPac,ecs:S.ecs,vmc:S.vmc,etatIso:S.etatIso,emplacementChaudiere:S.emplacementChaudiere,hauteurPlafond:S.hauteurPlafond,typeRadiateur:S.typeRadiateur,noteEtatIso:S.noteEtatIso,compteur:S.compteur,gestes:S.gestes.join(', '),surfIso:S.surfIso,racPac:S.racPac,racIso:S.racIso,teleproNom:S.teleproNom,codeReferent:S.codeReferent,totalRac:totalRac,anneeConstruction:S.anneeConstruction};if(S._leadKey)_dos.leadKey=S._leadKey;var _base=_fb.replace(/\/$/,'');if(S._editKey){fetch(_base+'/dossiers/'+S._editKey+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}else{_dos.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);fetch(_base+'/dossiers.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(_dos)}).catch(function(){});}}}catch(e){}
 postToMonday(racStr,totalRac);
+postToPixel();
 }
-var cur=1,fromResult=false,_resultSent=false;
+var PIXEL_WORKER_URL='';// ← Colle ici l'URL de ton Worker après déploiement
+function postToPixel(){
+  if(!PIXEL_WORKER_URL)return;
+  var payload={
+    nom:S.nom,prenom:S.prenom,telephone:S.telephone,email:S.email,
+    adresse:S.adresse,cp:S.cp,ville:S.ville,
+    rfr:S.rfr,parts:S.parts,numDeclarant:S.numDeclarant,
+    dossier:S.dossier,couleur:S.couleur,zone:S.zone,
+    chauffage:S.chauffage,surfPac:S.surfPac,
+    racPac:S.racPac,racIso:S.racIso,
+    teleproNom:S.teleproNom,codeReferent:S.codeReferent,
+    dateNaissance:S.dateNaissance
+  };
+  fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(d.id?' ('+d.id.slice(0,8)+'…)':''));}
+      else{showMonStatus('🟦 Pixel CRM : erreur — '+(d.error||'?'));}
+    })
+    .catch(function(e){showMonStatus('🟦 Pixel CRM : erreur réseau');console.error('Pixel:',e);});
+}
 
 function saveFormDraft(){
   if(cur===7)return;
