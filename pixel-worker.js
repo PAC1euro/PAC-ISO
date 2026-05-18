@@ -59,8 +59,9 @@ async function fetchFollow(url, baseHeaders, cookies, maxHops = 10) {
   let currentCookies = cookies;
 
   for (let hops = 0; hops < maxHops; hops++) {
+    const cookiesSent = currentCookies; // cookies envoyés à CETTE requête
     const r = await fetch(currentUrl, {
-      headers: { ...baseHeaders, 'Cookie': currentCookies },
+      headers: { ...baseHeaders, 'Cookie': cookiesSent },
       redirect: 'manual'
     });
     currentCookies = mergeCookies(currentCookies, extractCookies(r));
@@ -73,8 +74,10 @@ async function fetchFollow(url, baseHeaders, cookies, maxHops = 10) {
       continue;
     }
 
+    // Retourner cookiesSent (pas currentCookies mis à jour) — le token CSRF du HTML
+    // est lié aux cookies ENVOYÉS, pas aux nouveaux cookies de la réponse
     const html = await r.text();
-    return { html, cookies: currentCookies, finalUrl: currentUrl };
+    return { html, cookies: cookiesSent, finalUrl: currentUrl };
   }
   throw new Error('Trop de redirections (>' + maxHops + ')');
 }

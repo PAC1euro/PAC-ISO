@@ -1243,7 +1243,10 @@ function postToMonday(racStr,totalRac){
         if(f.v==null||f.v===''||f.v===0&&f.v!==0)return;
         for(var i=0;i<f.tt.length;i++){
           var col=colMap[f.tt[i]];
-          if(col&&!cv[col.id]){cv[col.id]=f.f(col,f.v);break;}
+          if(col&&!cv[col.id]){
+            if(col.type==='color'||col.type==='status'){break;}
+            cv[col.id]=f.f(col,f.v);break;
+          }
         }
       });
     }
