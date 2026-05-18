@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Pixel CRM Test</title></head>
+<body>
+<h2>Test Pixel CRM API</h2>
+<pre id="out">En cours...</pre>
+<script>
+var TOKEN = 'ee0dc8a7-41a9-45fe-a820-7d7d009a6868';
+var UA    = 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+
+var body = {
+  ProjectTypeId:    'F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307',
+  TypeOperationCEE: 2,
+  TypeLogement:     0,
+  DealId:           'TEST-001',
+  Civilite1:        'M.',
+  Nom1:             'Test',
+  Prenom1:          'Test',
+  Mail:             'test@test.fr',
+  Adresse:          '1 rue de la Paix',
+  CodePostal:       '75001',
+  Ville:            'Paris',
+  TelMobile:        '0600000000',
+  AgeBatiment:      3,
+  TypeHabitation:   1,
+  TypeChauffage:    1,
+  TypeLead:         'Form',
+  Commentaires:     'TEST API'
+};
+
+fetch('https://crm.pixel-crm.com/api/IJLeads', {
+  method: 'POST',
+  headers: {
+    'Content-Type':      'application/json',
+    'XINTNRGLEAD-TOKEN': TOKEN
+  },
+  body: JSON.stringify(body)
+})
+.then(function(r) {
+  return r.text().then(function(t) {
+    document.getElementById('out').textContent =
+      'STATUS: ' + r.status + '\n\nRÉPONSE:\n' + t;
+  });
+})
+.catch(function(e) {
+  document.getElementById('out').textContent = 'ERREUR (probablement CORS):\n' + e.toString();
+});
+</script>
+</body>
+</html>
