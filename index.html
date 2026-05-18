@@ -714,28 +714,68 @@ try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _
 postToMonday(racStr,totalRac);
 postToPixel();
 }
-var PIXEL_WORKER_URL='https://pixel-proxy.maxime-48e.workers.dev/';
-function testPixel(){fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({probe:true})}).then(function(r){return r.json();}).then(function(d){console.log(JSON.stringify(d,null,2));alert('Voir console F12 pour résultat');}).catch(function(e){console.error(e);});}
+var PIXEL_TOKEN='ee0dc8a7-41a9-45fe-a820-7d7d009a6868';
+var PIXEL_UA='STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+var PIXEL_PROJECT_ID='F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
 function postToPixel(){
-  if(!PIXEL_WORKER_URL)return;
-  var payload={
-    nom:S.nom,prenom:S.prenom,civilite:S.civilite||'M.',statut:S.statut||'prop_occ',
-    telephone:S.telephone,email:S.email,
-    adresse:S.adresse,cp:S.cp,ville:S.ville,
-    rfr:S.rfr,parts:S.parts,numDeclarant:S.numDeclarant,
-    dossier:S.dossier,couleur:S.couleur,zone:S.zone,
-    chauffage:S.chauffage,ecs:S.ecs,surfPac:S.surfPac,
-    racPac:S.racPac,racIso:S.racIso,
-    teleproNom:S.teleproNom,codeReferent:S.codeReferent,
-    dateNaissance:S.dateNaissance
+  if(!PIXEL_TOKEN)return;
+  var tcMap={'Gaz':1,'Fioul':1,'Chaudière à bois':1,'Chaudière à charbon':1,'Électrique':2,'Autre':3};
+  var thMap={'prop_occ':1,'locataire':2,'prop_bail':3};
+  var commentParts=[];
+  if(S.dossier)commentParts.push('Dossier: '+S.dossier);
+  if(S.couleur)commentParts.push('Couleur ANAH: '+S.couleur);
+  if(S.zone)commentParts.push('Zone: '+S.zone);
+  if(S.chauffage)commentParts.push('Chauffage: '+S.chauffage);
+  if(S.surfPac)commentParts.push('Surface: '+S.surfPac+'m²');
+  if(S.racPac!==undefined)commentParts.push('RAC PAC: '+(S.racPac===0?'1€':S.racPac+'€'));
+  if(S.teleproNom)commentParts.push('Téléprospecteur: '+S.teleproNom);
+  if(S.codeReferent)commentParts.push('Référent: '+S.codeReferent);
+  var body={
+    ProjectTypeId:PIXEL_PROJECT_ID,
+    TypeOperationCEE:2,
+    TypeLogement:0,
+    DealId:S.dossier||'',
+    Civilite1:S.civilite||'M.',
+    Nom1:S.nom||'',
+    Prenom1:S.prenom||'',
+    Mail:S.email||'',
+    Adresse:S.adresse||'',
+    CodePostal:S.cp||'',
+    Ville:S.ville||'',
+    TelMobile:S.telephone||'',
+    AgeBatiment:3,
+    TypeHabitation:thMap[S.statut]||1,
+    TypeChauffage:tcMap[S.chauffage]||1,
+    TypeLead:'Form',
+    Commentaires:commentParts.join(' | ')
   };
-  fetch(PIXEL_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  if(S.parts)body.NbrPersonneAuFoyer=Number(S.parts);
+  if(S.rfr)body.RevenuFiscal=Number(String(S.rfr).replace(',','.'));
+  if(S.numDeclarant)body.NumFiscal1=S.numDeclarant;
+  if(S.refFiscal1)body.RefFiscal1=S.refFiscal1;
+  fetch('https://crm.pixel-crm.com/api/IJLeads',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','User-Agent':PIXEL_UA,'XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
+    body:JSON.stringify(body)
+  })
+  .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
+  .then(function(d){
+    if(d.ok){
+      var j=null;try{j=JSON.parse(d.txt);}catch(e){}
+      var id=j&&(j.Id||j.id||j.DossierId||j.PixelDealId)||null;
+      showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(id?' (id '+id+')':''));
+    }else{showMonStatus('🟦 Pixel CRM : erreur '+d.status+' — '+d.txt.slice(0,200));}
+  })
+  .catch(function(e){
+    // CORS bloqué → fallback Worker
+    fetch('https://pixel-proxy.maxime-48e.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:S.nom,prenom:S.prenom,civilite:S.civilite||'M.',statut:S.statut||'prop_occ',telephone:S.telephone,email:S.email,adresse:S.adresse,cp:S.cp,ville:S.ville,rfr:S.rfr,parts:S.parts,numDeclarant:S.numDeclarant,refFiscal1:S.refFiscal1,dossier:S.dossier,couleur:S.couleur,zone:S.zone,chauffage:S.chauffage,ecs:S.ecs,surfPac:S.surfPac,racPac:S.racPac,teleproNom:S.teleproNom,codeReferent:S.codeReferent})})
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche créée ✅',d.url||null);}
+      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche créée ✅');}
       else{showMonStatus('🟦 Pixel CRM : erreur — '+(d.error||'?'));}
     })
-    .catch(function(e){showMonStatus('🟦 Pixel CRM : erreur réseau');console.error('Pixel:',e);});
+    .catch(function(){showMonStatus('🟦 Pixel CRM : erreur réseau');});
+  });
 }
 
 function saveFormDraft(){
