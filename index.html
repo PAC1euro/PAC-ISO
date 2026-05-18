@@ -156,13 +156,13 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <p>Chaque dossier soumis sera créé automatiquement dans votre board Monday.</p>
     <div class="mon-step"><strong>Étape 1 — Token API</strong>Profil (avatar en bas à gauche) → <strong>Administration → API</strong> → Copier le token personnel</div>
     <div class="mon-step"><strong>Étape 2 — ID du Board</strong>Ouvrir le board → URL : monday.com/boards/<strong style="color:#6d28d9;">XXXXXXXXXX</strong> → Copier ce numéro</div>
-    <div class="mon-step"><strong>Étape 3 — ID Groupe PAC 171</strong>Dans votre board → cliquer sur le nom du groupe PAC → URL ou paramètres → copier l'ID</div>
+    <div class="mon-step"><strong>Étape 3 — ID Groupe Commercial 171/174</strong>Dans votre board → cliquer sur le nom du groupe → URL ou paramètres → copier l'ID (laissez vide pour détection automatique)</div>
     <div class="mon-lbl">Token API</div>
     <input class="mon-input" id="monToken" placeholder="eyJhbGciOiJIUzI1NiJ9…"/>
     <div class="mon-lbl">ID du Board</div>
     <input class="mon-input" id="monBoardId" placeholder="1234567890" type="number"/>
-    <div class="mon-lbl">ID Groupe PAC 171 (dossiers PAC &amp; PAC+ISO)</div>
-    <input class="mon-input" id="monGroupPac" placeholder="new_group_12345"/>
+    <div class="mon-lbl">ID Groupe Commercial 171/174 (tous les dossiers)</div>
+    <input class="mon-input" id="monGroupPac" placeholder="new_group_12345 (auto-détecté si vide)"/>
     <div class="mon-actions">
       <button class="mon-cancel" onclick="closeMondayCfg()">Annuler</button>
       <button class="mon-save" onclick="saveMondayCfg()">💾 Enregistrer</button>
@@ -1089,10 +1089,10 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){clearFormDraft();_resultSent=false;location.reload();}
-function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',groupPac:'topics'};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');return s||DEF;}catch(e){return DEF;}}
-function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.groupPac||'';g('monModal').classList.add('show');}
+function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:''};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');return s||DEF;}catch(e){return DEF;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monModal').classList.add('show');}
 function closeMondayCfg(){g('monModal').classList.remove('show');}
-function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,groupPac:gp||'topics'}));}updMonBtn();closeMondayCfg();}
+function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
 function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
 function showMonStatus(msg,url){
@@ -1232,18 +1232,17 @@ function postToMonday(racStr,totalRac){
       .catch(function(e){console.error('Monday fetch error:',e);showMonStatus('❌ Monday : erreur réseau');});
     }
 
-    var cachedGroup=isPAC?cfg.groupPac:cfg.groupIso;
-    if(cachedGroup&&cachedGroup!=='topics'){doCreate(cachedGroup);return;}
-    var targetNum=isPAC?'171':'174';
+    var cachedGroup=cfg.group||cfg.groupPac;
+    if(cachedGroup&&cachedGroup!=='topics'&&cachedGroup!==''){doCreate(cachedGroup);return;}
     fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:'query{boards(ids:['+cfg.boardId+']){groups{id title}}}'})})
     .then(function(r){return r.json();})
     .then(function(gd){
       var groups=(gd.data&&gd.data.boards&&gd.data.boards[0]&&gd.data.boards[0].groups)||[];
       var found=null;
-      for(var i=0;i<groups.length;i++){if(groups[i].title&&groups[i].title.indexOf(targetNum)>=0){found=groups[i];break;}}
+      for(var i=0;i<groups.length;i++){if(groups[i].title&&groups[i].title.indexOf('171')>=0){found=groups[i];break;}}
       var gId=found?found.id:(groups[0]?groups[0].id:'topics');
       var cfg2=getMondayCfg();
-      if(isPAC)cfg2.groupPac=gId;else cfg2.groupIso=gId;
+      cfg2.group=gId;cfg2.groupPac=gId;
       localStorage.setItem('pac_monday_cfg',JSON.stringify(cfg2));
       doCreate(gId);
     })
