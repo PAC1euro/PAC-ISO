@@ -606,7 +606,7 @@ function saveData(){
   var url=getFbUrl();
   if(url){
     var payload=JSON.parse(JSON.stringify(ST));
-    payload.categories.forEach(function(cat){cat.items.forEach(function(it){it._photos_local=true;it.photos=[];});});
+    payload.categories.forEach(function(cat){(cat.items||[]).forEach(function(it){it._photos_local=true;it.photos=[];});});
     var localCount=toArr(payload.guests&&payload.guests.all).length;
     // Ne jamais écraser Firebase si on a moins d'invités que ce qu'on sait y être
     if(fbGuestCount>0&&localCount===0)return;
@@ -630,7 +630,7 @@ function refreshData(showFeedback){
       if(btn)btn.classList.remove('spinning');
       if(d&&d.categories){
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-        if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
+        if(local){d.categories.forEach(function(rc,ci){(rc.items||[]).forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
         ST=d;
         var hadOld=['henna','hlel','maire','villa'].some(function(ev){return toArr(ST.guests&&ST.guests[ev]).length>0;});
         migrateGuests();
@@ -664,7 +664,7 @@ function startRealtime(){
         if(Date.now()-lastLocalSave<2500)return;
         var d=msg.data;
         var local=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-        if(local){d.categories.forEach(function(rc,ci){rc.items.forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
+        if(local){d.categories.forEach(function(rc,ci){(rc.items||[]).forEach(function(ri,ii){var li=local.categories[ci]&&local.categories[ci].items&&local.categories[ci].items[ii];if(li&&li.photos&&li.photos.length)ri.photos=li.photos;});});}
         var hadOld2=['henna','hlel','maire','villa'].some(function(ev){return toArr(d.guests&&d.guests[ev]).length>0;});
         ST=d;migrateGuests();
         fbGuestCount=toArr(ST.guests&&ST.guests.all).length;
@@ -702,7 +702,7 @@ function showView(v,catId){
 function goBack(){showView('dashboard');}
 
 // ── DASHBOARD ────────────────────────────────────────────────────────────────
-function calcTotals(){var e=0,r=0;ST.categories.forEach(function(c){c.items.forEach(function(it){e+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')r+=Number(it.reel||it.estime)||0;});});return{estime:e,reel:r};}
+function calcTotals(){var e=0,r=0;ST.categories.forEach(function(c){(c.items||[]).forEach(function(it){e+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')r+=Number(it.reel||it.estime)||0;});});return{estime:e,reel:r};}
 function renderDashboard(){
   var t=calcTotals();
   g('heroTotal').textContent=fmt(t.estime);
@@ -722,7 +722,7 @@ function renderDashboard(){
   GROUPS.forEach(function(grp){
     var cats=ST.categories.filter(function(c){return c.group===grp.id;});
     var isOpen=openGroups[grp.id];
-    var grpTotal=0;cats.forEach(function(cat){cat.items.forEach(function(it){grpTotal+=Number(it.estime)||0;});});
+    var grpTotal=0;cats.forEach(function(cat){(cat.items||[]).forEach(function(it){grpTotal+=Number(it.estime)||0;});});
     var grpGuestStr='';
     if(grp.id!=='meuble'){var gl=gAllForEvent(grp.id);var gtp=gListPersons(gl);grpGuestStr=gtp>0?' · 👥 '+gtp:' · 👥 0';}
     html+='<div class="group-hdr '+grp.cls+(isOpen?'':' closed')+'" id="grphdr_'+grp.id+'" onclick="toggleGroup(\''+grp.id+'\')"><span>'+grp.label+' — '+fmt(grpTotal)+grpGuestStr+'</span><span class="grp-chevron">▾</span></div>';
@@ -741,7 +741,7 @@ function renderDashboard(){
     }
     cats.forEach(function(cat){
       var ce=0,cr=0,ni=cat.items.length;
-      cat.items.forEach(function(it){ce+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')cr+=Number(it.reel||it.estime)||0;});
+      (cat.items||[]).forEach(function(it){ce+=Number(it.estime)||0;if(it.statut==='confirme'||it.statut==='paye')cr+=Number(it.reel||it.estime)||0;});
       var pct=ce>0?Math.min(100,Math.round((cr/ce)*100)):0;
       html+='<div class="cat-card" onclick="showView(\'category\',\''+cat.id+'\')">'+
         '<div class="cat-emoji">'+cat.emoji+'</div>'+
@@ -770,6 +770,7 @@ function renderCategory(catId){
   var grp=getGrp(cat.group);
   var stats={paye:{n:0,e:0},confirme:{n:0,e:0},devis:{n:0,e:0},explorer:{n:0,e:0}};
   var ce=0;
+  if(!cat.items)cat.items=[];
   cat.items.forEach(function(it){
     var estime=Number(it.estime)||0;
     var reel=Number(it.reel)||0;
@@ -967,13 +968,13 @@ function showPourquoi(){
   var t=calcTotals();
   var html='';
   GROUPS.forEach(function(grp){
-    var cats=ST.categories.filter(function(c){return c.group===grp.id&&c.items.length>0;});
+    var cats=ST.categories.filter(function(c){return c.group===grp.id&&(c.items||[]).length>0;});
     if(!cats.length)return;
-    var ge=0;cats.forEach(function(c){c.items.forEach(function(it){ge+=Number(it.estime)||0;});});
+    var ge=0;cats.forEach(function(c){(c.items||[]).forEach(function(it){ge+=Number(it.estime)||0;});});
     html+='<div class="pq-group-hdr">'+grp.label+' — '+fmt(ge)+'</div>';
     cats.forEach(function(cat){
       var ce=0,ci=[];
-      cat.items.forEach(function(it){
+      (cat.items||[]).forEach(function(it){
         ce+=Number(it.estime)||0;
         if(it.statut==='confirme'||it.statut==='paye')ci.push({nom:it.nom,v:Number(it.reel||it.estime)||0,statut:it.statut});
       });
