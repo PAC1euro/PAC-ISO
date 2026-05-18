@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PAC à 1€ — MaPrimeRénov' 2025</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f172a;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+
+a{display:block;cursor:pointer;text-decoration:none;}
+a:active{opacity:.95;}
+
+#banner{
+  width:min(100vw,100vh);
+  max-width:600px;
+  aspect-ratio:1/1;
+  background:linear-gradient(145deg,#14532d 0%,#166534 35%,#15803d 60%,#0d9488 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  padding:6%;
+}
+
+#banner::before{content:'';position:absolute;width:55%;height:55%;border-radius:50%;background:rgba(255,255,255,.05);top:-15%;right:-15%;}
+#banner::after{content:'';position:absolute;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,.05);bottom:-10%;left:-10%;}
+
+.badge{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:50px;padding:.6em 1.6em;font-size:clamp(11px,2.2vw,20px);font-weight:900;color:#fbbf24;letter-spacing:2px;text-transform:uppercase;margin-bottom:5%;}
+
+.main-title{font-size:clamp(28px,7vw,72px);font-weight:900;color:#fff;text-align:center;line-height:1.05;margin-bottom:3%;text-shadow:0 4px 20px rgba(0,0,0,.3);}
+.main-title span{color:#fbbf24;}
+
+.subtitle{font-size:clamp(12px,2.5vw,22px);color:rgba(255,255,255,.88);text-align:center;margin-bottom:5%;line-height:1.5;}
+
+.stats{display:flex;background:rgba(0,0,0,.25);border-radius:14px;overflow:hidden;margin-bottom:5%;width:100%;}
+.stat{flex:1;padding:4% 2%;text-align:center;border-right:1px solid rgba(255,255,255,.12);}
+.stat:last-child{border-right:none;}
+.stat-n{font-size:clamp(16px,4vw,40px);font-weight:900;color:#fbbf24;line-height:1;}
+.stat-l{font-size:clamp(9px,1.6vw,14px);color:rgba(255,255,255,.75);margin-top:4px;font-weight:600;}
+
+.cta{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f172a;font-size:clamp(14px,3vw,32px);font-weight:900;padding:.7em 2.5em;border-radius:100px;box-shadow:0 8px 30px rgba(251,191,36,.4);letter-spacing:.5px;margin-bottom:4%;}
+
+.trust{display:flex;gap:4%;align-items:center;flex-wrap:wrap;justify-content:center;}
+.trust-item{color:rgba(255,255,255,.8);font-size:clamp(9px,1.6vw,14px);font-weight:700;}
+
+.url{position:absolute;bottom:3%;color:rgba(255,255,255,.35);font-size:clamp(8px,1.3vw,12px);}
+</style>
+</head>
+<body>
+<a href="https://pac1euro.github.io/PAC-ISO/client.html">
+  <div id="banner">
+    <div class="badge">🌿 MaPrimeRénov' 2025</div>
+    <div class="main-title">Votre PAC installée<br/>à <span>1€ seulement</span></div>
+    <div class="subtitle">Pompe à chaleur · Isolation · MaPrimeRénov' + CEE<br/>Financé jusqu'à <strong style="color:#fbbf24;">100%</strong> par l'État · Sans avance de frais</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">1€</div><div class="stat-l">PAC installée</div></div>
+      <div class="stat"><div class="stat-n">MPR+CEE</div><div class="stat-l">Cumulables</div></div>
+      <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Gratuit</div></div>
+    </div>
+    <div class="cta">✅ Vérifier mon éligibilité →</div>
+    <div class="trust">
+      <div class="trust-item">🏛️ Agréé MaPrimeRénov'</div>
+      <div class="trust-item">🇫🇷 Entreprise française</div>
+      <div class="trust-item">🔒 Sans engagement</div>
+    </div>
+    <div class="url">pac1euro.github.io/PAC-ISO/client.html</div>
+  </div>
+</a>
+</body>
+</html>

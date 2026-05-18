@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Logos R & C — Choisissez votre style</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#1a0f0a;font-family:'Segoe UI',Arial,sans-serif;padding:20px;min-height:100vh;}
+h1{color:#f0c060;text-align:center;font-size:20px;margin-bottom:6px;letter-spacing:2px;}
+.sub{color:#c9956c;text-align:center;font-size:13px;margin-bottom:28px;opacity:.8;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:600px;margin:0 auto;}
+.card{background:#2a1a10;border-radius:16px;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;border:1.5px solid #3d2b1f;cursor:pointer;transition:all .2s;}
+.card:hover{border-color:#f0c060;background:#3d2b1f;transform:translateY(-2px);}
+.card.selected{border-color:#f0c060;background:#3d2b1f;box-shadow:0 0 24px rgba(240,192,96,.2);}
+.card-name{color:#c9956c;font-size:13px;font-weight:700;text-align:center;letter-spacing:1px;}
+.card-desc{color:#94a3b8;font-size:11px;text-align:center;line-height:1.4;}
+.pick-btn{background:linear-gradient(135deg,#b8860b,#c9956c);color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:800;padding:12px 32px;cursor:pointer;margin:24px auto;display:block;letter-spacing:1px;}
+.pick-btn:hover{opacity:.9;}
+#result{color:#f0c060;text-align:center;font-size:16px;font-weight:800;margin-top:12px;display:none;padding:16px;background:#2a1a10;border-radius:12px;max-width:600px;margin-left:auto;margin-right:auto;}
+</style>
+</head>
+<body>
+<h1>R &amp; C</h1>
+<div class="sub">Choisissez votre logo de mariage</div>
+
+<div class="grid" id="grid">
+
+<!-- LOGO 1 : Monogramme Classique -->
+<div class="card" onclick="select(1)">
+  <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+    <defs>
+      <linearGradient id="g1a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#c9956c"/>
+      </linearGradient>
+    </defs>
+    <circle cx="65" cy="65" r="62" fill="none" stroke="url(#g1a)" stroke-width="2"/>
+    <circle cx="65" cy="65" r="54" fill="none" stroke="url(#g1a)" stroke-width="0.6" opacity="0.4"/>
+    <circle cx="65" cy="4" r="3" fill="#f0c060"/>
+    <circle cx="65" cy="126" r="3" fill="#f0c060"/>
+    <text x="38" y="84" font-family="Georgia,serif" font-size="52" font-style="italic" fill="url(#g1a)" text-anchor="middle">R</text>
+    <text x="65" y="63" font-family="Georgia,serif" font-size="15" font-style="italic" fill="#f0c060" text-anchor="middle">&amp;</text>
+    <text x="92" y="84" font-family="Georgia,serif" font-size="52" font-style="italic" fill="url(#g1a)" text-anchor="middle">C</text>
+    <line x1="18" y1="90" x2="48" y2="90" stroke="#f0c060" stroke-width="0.8" opacity="0.6"/>
+    <polygon points="65,87 68,91 65,95 62,91" fill="#f0c060" opacity="0.8"/>
+    <line x1="82" y1="90" x2="112" y2="90" stroke="#f0c060" stroke-width="0.8" opacity="0.6"/>
+    <text x="65" y="112" font-family="Georgia,serif" font-size="8" fill="#c9956c" text-anchor="middle" letter-spacing="5">MARIAGE</text>
+  </svg>
+  <div class="card-name">① CLASSIQUE</div>
+  <div class="card-desc">Monogramme élégant en cercle<br>Intemporel &amp; raffiné</div>
+</div>
+
+<!-- LOGO 2 : Couronné -->
+<div class="card" onclick="select(2)">
+  <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+    <defs>
+      <linearGradient id="g2a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#c9956c"/>
+      </linearGradient>
+    </defs>
+    <!-- Couronne -->
+    <polygon points="65,8 72,20 80,14 77,26 53,26 50,14 58,20" fill="url(#g2a)" opacity="0.9"/>
+    <circle cx="65" cy="9" r="3" fill="#f0c060"/>
+    <circle cx="80" cy="15" r="2" fill="#f0c060"/>
+    <circle cx="50" cy="15" r="2" fill="#f0c060"/>
+    <!-- Cadre -->
+    <rect x="8" y="30" width="114" height="88" rx="12" fill="none" stroke="url(#g2a)" stroke-width="1.8"/>
+    <rect x="14" y="36" width="102" height="76" rx="9" fill="none" stroke="url(#g2a)" stroke-width="0.5" opacity="0.4"/>
+    <!-- Lettres -->
+    <text x="37" y="98" font-family="Georgia,serif" font-size="62" font-style="italic" fill="url(#g2a)" text-anchor="middle">R</text>
+    <text x="65" y="80" font-family="Georgia,serif" font-size="16" font-style="italic" fill="#f0c060" text-anchor="middle">&amp;</text>
+    <text x="93" y="98" font-family="Georgia,serif" font-size="62" font-style="italic" fill="url(#g2a)" text-anchor="middle">C</text>
+  </svg>
+  <div class="card-name">② COURONNÉ</div>
+  <div class="card-desc">Avec une couronne dorée<br>Royal &amp; luxueux</div>
+</div>
+
+<!-- LOGO 3 : Minimaliste -->
+<div class="card" onclick="select(3)">
+  <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+    <defs>
+      <linearGradient id="g3a" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#c9956c"/>
+      </linearGradient>
+    </defs>
+    <!-- RC en grands caractères -->
+    <text x="33" y="78" font-family="'Segoe UI',Arial,sans-serif" font-size="68" font-weight="200" fill="url(#g3a)" text-anchor="middle">R</text>
+    <text x="97" y="78" font-family="'Segoe UI',Arial,sans-serif" font-size="68" font-weight="200" fill="url(#g3a)" text-anchor="middle">C</text>
+    <!-- Ligne centrale fine -->
+    <line x1="18" y1="88" x2="112" y2="88" stroke="url(#g3a)" stroke-width="1.2"/>
+    <!-- Points déco -->
+    <circle cx="18" cy="88" r="3" fill="#f0c060"/>
+    <circle cx="112" cy="88" r="3" fill="#f0c060"/>
+    <!-- Et au centre -->
+    <text x="65" y="85" font-family="'Segoe UI',Arial,sans-serif" font-size="13" font-weight="300" fill="#f0c060" text-anchor="middle">&amp;</text>
+    <!-- Sous-titre -->
+    <text x="65" y="108" font-family="'Segoe UI',Arial,sans-serif" font-size="9" font-weight="300" fill="#c9956c" text-anchor="middle" letter-spacing="6">RIAD · CARLA</text>
+  </svg>
+  <div class="card-name">③ MINIMALISTE</div>
+  <div class="card-desc">Lignes fines &amp; épurées<br>Moderne &amp; chic</div>
+</div>
+
+<!-- LOGO 4 : Bagues entrelacées -->
+<div class="card" onclick="select(4)">
+  <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+    <defs>
+      <linearGradient id="g4a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#c9956c"/>
+      </linearGradient>
+    </defs>
+    <!-- Cercle gauche (bague R) -->
+    <circle cx="48" cy="58" r="32" fill="none" stroke="url(#g4a)" stroke-width="3"/>
+    <!-- Cercle droit (bague C) caché à gauche -->
+    <path d="M80,26 a32,32 0 0,1 0,64" fill="none" stroke="#1a0f0a" stroke-width="6"/>
+    <!-- Cercle droit (bague C) -->
+    <circle cx="82" cy="58" r="32" fill="none" stroke="url(#g4a)" stroke-width="3"/>
+    <!-- R dans cercle gauche -->
+    <text x="44" y="68" font-family="Georgia,serif" font-size="36" font-style="italic" fill="url(#g4a)" text-anchor="middle">R</text>
+    <!-- C dans cercle droit -->
+    <text x="86" y="68" font-family="Georgia,serif" font-size="36" font-style="italic" fill="url(#g4a)" text-anchor="middle">C</text>
+    <!-- Texte bas -->
+    <text x="65" y="112" font-family="Georgia,serif" font-size="8.5" fill="#c9956c" text-anchor="middle" letter-spacing="4">MARIAGE</text>
+  </svg>
+  <div class="card-name">④ BAGUES</div>
+  <div class="card-desc">Deux cercles entrelacés<br>Symbole des alliances</div>
+</div>
+
+<!-- LOGO 5 : Art Déco -->
+<div class="card" onclick="select(5)">
+  <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+    <defs>
+      <linearGradient id="g5a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#c9956c"/>
+      </linearGradient>
+    </defs>
+    <!-- Lignes Art Déco haut -->
+    <line x1="65" y1="6" x2="65" y2="22" stroke="#f0c060" stroke-width="1.5"/>
+    <line x1="55" y1="10" x2="55" y2="22" stroke="#f0c060" stroke-width="0.7" opacity="0.5"/>
+    <line x1="75" y1="10" x2="75" y2="22" stroke="#f0c060" stroke-width="0.7" opacity="0.5"/>
+    <!-- Cadre octogonal -->
+    <polygon points="65,4 100,18 118,50 118,80 100,112 65,126 30,112 12,80 12,50 30,18" fill="none" stroke="url(#g5a)" stroke-width="1.5"/>
+    <polygon points="65,12 94,23 110,50 110,80 94,107 65,118 36,107 20,80 20,50 36,23" fill="none" stroke="url(#g5a)" stroke-width="0.5" opacity="0.4"/>
+    <!-- Lettres -->
+    <text x="37" y="82" font-family="Georgia,serif" font-size="50" font-weight="700" fill="url(#g5a)" text-anchor="middle">R</text>
+    <text x="93" y="82" font-family="Georgia,serif" font-size="50" font-weight="700" fill="url(#g5a)" text-anchor="middle">C</text>
+    <!-- Losange central -->
+    <polygon points="65,56 69,62 65,68 61,62" fill="#f0c060"/>
+    <!-- Lignes Art Déco bas -->
+    <line x1="65" y1="108" x2="65" y2="124" stroke="#f0c060" stroke-width="1.5"/>
+    <line x1="55" y1="108" x2="55" y2="120" stroke="#f0c060" stroke-width="0.7" opacity="0.5"/>
+    <line x1="75" y1="108" x2="75" y2="120" stroke="#f0c060" stroke-width="0.7" opacity="0.5"/>
+  </svg>
+  <div class="card-name">⑤ ART DÉCO</div>
+  <div class="card-desc">Style années 20, géométrique<br>Sophistiqué &amp; glamour</div>
+</div>
+
+<!-- LOGO 6 : Floral Oriental -->
+<div class="card" onclick="select(6)">
+  <svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130">
+    <defs>
+      <linearGradient id="g6a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#c9956c"/>
+      </linearGradient>
+    </defs>
+    <!-- Feuilles haut gauche -->
+    <ellipse cx="28" cy="28" rx="14" ry="6" fill="none" stroke="url(#g6a)" stroke-width="1.2" transform="rotate(-45 28 28)" opacity="0.7"/>
+    <ellipse cx="20" cy="36" rx="10" ry="4" fill="none" stroke="url(#g6a)" stroke-width="1" transform="rotate(-30 20 36)" opacity="0.5"/>
+    <!-- Feuilles haut droite -->
+    <ellipse cx="102" cy="28" rx="14" ry="6" fill="none" stroke="url(#g6a)" stroke-width="1.2" transform="rotate(45 102 28)" opacity="0.7"/>
+    <ellipse cx="110" cy="36" rx="10" ry="4" fill="none" stroke="url(#g6a)" stroke-width="1" transform="rotate(30 110 36)" opacity="0.5"/>
+    <!-- Feuilles bas -->
+    <ellipse cx="28" cy="102" rx="14" ry="6" fill="none" stroke="url(#g6a)" stroke-width="1.2" transform="rotate(45 28 102)" opacity="0.7"/>
+    <ellipse cx="102" cy="102" rx="14" ry="6" fill="none" stroke="url(#g6a)" stroke-width="1.2" transform="rotate(-45 102 102)" opacity="0.7"/>
+    <!-- Cercle central -->
+    <circle cx="65" cy="65" r="45" fill="none" stroke="url(#g6a)" stroke-width="1.5"/>
+    <!-- Petits ornements sur le cercle -->
+    <circle cx="65" cy="20" r="2.5" fill="#f0c060"/>
+    <circle cx="65" cy="110" r="2.5" fill="#f0c060"/>
+    <circle cx="20" cy="65" r="2.5" fill="#f0c060"/>
+    <circle cx="110" cy="65" r="2.5" fill="#f0c060"/>
+    <!-- Lettres -->
+    <text x="40" y="80" font-family="Georgia,serif" font-size="46" font-style="italic" fill="url(#g6a)" text-anchor="middle">R</text>
+    <text x="65" y="62" font-family="Georgia,serif" font-size="14" font-style="italic" fill="#f0c060" text-anchor="middle">&amp;</text>
+    <text x="90" y="80" font-family="Georgia,serif" font-size="46" font-style="italic" fill="url(#g6a)" text-anchor="middle">C</text>
+  </svg>
+  <div class="card-name">⑥ FLORAL ORIENTAL</div>
+  <div class="card-desc">Inspiration florale et orientale<br>Poétique &amp; romantique</div>
+</div>
+
+</div><!-- /grid -->
+
+<div style="text-align:center;margin-top:28px;color:#94a3b8;font-size:13px;">Touchez un logo pour le sélectionner</div>
+<button class="pick-btn" onclick="confirm()">✅ Choisir ce logo</button>
+<div id="result"></div>
+
+<script>
+var selected=0;
+function select(n){
+  selected=n;
+  document.querySelectorAll('.card').forEach(function(c,i){c.classList.toggle('selected',i===n-1);});
+}
+function confirm(){
+  if(!selected){alert('Sélectionnez un logo d\'abord');return;}
+  var names=['Classique','Couronné','Minimaliste','Bagues','Art Déco','Floral Oriental'];
+  var r=document.getElementById('result');
+  r.style.display='block';
+  r.innerHTML='✅ Logo <strong>'+names[selected-1]+'</strong> sélectionné (n°'+selected+')<br><span style="font-size:13px;color:#94a3b8;">Communiquez ce numéro pour l\'appliquer sur le site</span>';
+}
+</script>
+</body>
+</html>

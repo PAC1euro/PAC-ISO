@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>📞 Planning de Rappel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4ff;min-height:100vh;color:#1e293b;}
+.topbar{background:linear-gradient(135deg,#1a56db,#1e40af);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(26,86,219,.3);}
+.topbar h1{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+.topbar .sub{font-size:11px;opacity:.8;margin-top:2px;}
+.btn-add{background:#fff;color:#1a56db;border:none;border-radius:50px;font-size:13px;font-weight:800;padding:9px 18px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.tabs{display:flex;background:#fff;border-bottom:2px solid #e2e8f0;position:sticky;top:62px;z-index:40;}
+.tab{flex:1;padding:13px;text-align:center;font-size:13px;font-weight:700;color:#94a3b8;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;}
+.tab.on{color:#1a56db;border-bottom-color:#1a56db;}
+.content{padding:16px;max-width:600px;margin:0 auto;}
+/* Cards */
+.section-title{font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px;}
+.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.07);border-left:4px solid #e2e8f0;position:relative;}
+.card.stat-rappeler{border-left-color:#f59e0b;}
+.card.stat-rappele{border-left-color:#10b981;}
+.card.stat-absent{border-left-color:#ef4444;}
+.card.stat-reporte{border-left-color:#6366f1;}
+.card.stat-retard{border-left-color:#dc2626;background:#fff5f5;}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.card-name{font-size:15px;font-weight:800;color:#1e293b;}
+.card-time{font-size:13px;font-weight:700;color:#1a56db;white-space:nowrap;}
+.card-meta{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.badge-pac{background:#dbeafe;color:#1a56db;}
+.badge-iso{background:#f0fdf4;color:#059669;}
+.badge-paciso{background:#faf5ff;color:#7c3aed;}
+.badge-autre{background:#f1f5f9;color:#475569;}
+.stat-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.sb-rappeler{background:#fef3c7;color:#b45309;}
+.sb-rappele{background:#d1fae5;color:#065f46;}
+.sb-absent{background:#fee2e2;color:#991b1b;}
+.sb-reporte{background:#ede9fe;color:#4c1d95;}
+.sb-retard{background:#fee2e2;color:#dc2626;}
+.card-notes{font-size:12px;color:#64748b;margin-top:6px;line-height:1.5;}
+.card-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.btn-call{background:#10b981;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:5px;text-decoration:none;}
+.btn-edit{background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:12px;font-weight:700;padding:7px 12px;cursor:pointer;}
+.btn-del{background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:700;padding:7px 10px;cursor:pointer;}
+.btn-stat{border:none;border-radius:8px;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;}
+.bs-rappele{background:#d1fae5;color:#065f46;}
+.bs-absent{background:#fee2e2;color:#991b1b;}
+.bs-reporte{background:#ede9fe;color:#4c1d95;}
+.bs-rappeler{background:#fef3c7;color:#b45309;}
+/* Week view */
+.week-grid{display:flex;flex-direction:column;gap:4px;}
+.week-day{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.week-day-hdr{padding:10px 14px;font-size:12px;font-weight:800;background:#f8fafc;color:#475569;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.week-day-hdr.today{background:#dbeafe;color:#1a56db;}
+.week-day-body{padding:8px;}
+.week-item{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;margin-bottom:4px;cursor:pointer;}
+.week-item:hover{background:#f1f5f9;}
+.week-item-time{font-size:12px;font-weight:800;color:#1a56db;min-width:40px;}
+.week-item-name{font-size:13px;font-weight:700;flex:1;}
+.week-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-rappeler{background:#f59e0b;}
+.dot-rappele{background:#10b981;}
+.dot-absent{background:#ef4444;}
+.dot-reporte{background:#6366f1;}
+.dot-retard{background:#dc2626;}
+.empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px;}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;justify-content:center;padding:0;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:24px 20px;max-height:90vh;overflow-y:auto;}
+.modal h2{font-size:18px;font-weight:800;margin-bottom:20px;}
+.flabel{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;margin-top:14px;}
+.flabel:first-child{margin-top:0;}
+.finput{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s;}
+.finput:focus{border-color:#1a56db;}
+textarea.finput{min-height:70px;resize:vertical;}
+.choices{display:flex;gap:8px;flex-wrap:wrap;}
+.choice{border:2px solid #e2e8f0;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;color:#475569;transition:all .2s;}
+.choice.sel{border-color:#1a56db;background:#dbeafe;color:#1a56db;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mbrow{display:flex;gap:10px;margin-top:20px;}
+.btn-save{flex:1;background:#1a56db;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;padding:14px;cursor:pointer;}
+.btn-cancel{background:#f1f5f9;color:#475569;border:none;border-radius:12px;font-size:15px;font-weight:700;padding:14px 20px;cursor:pointer;}
+/* Today counter */
+.today-bar{background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.tcount{flex:1;text-align:center;}
+.tcount .n{font-size:22px;font-weight:800;}
+.tcount .l{font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;}
+.tcount.tc-r .n{color:#f59e0b;}
+.tcount.tc-g .n{color:#10b981;}
+.tcount.tc-red .n{color:#ef4444;}
+/* Notif toast */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;z-index:200;display:none;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <div class="topbar h1" style="font-size:18px;font-weight:800;">📞 Planning de Rappel</div>
+    <div class="sub" id="todayLabel"></div>
+  </div>
+  <button class="btn-add" onclick="openModal()">＋ Nouveau</button>
+</div>
+
+<div class="tabs">
+  <div class="tab on" id="tabAuj" onclick="switchTab('auj')">📅 Aujourd'hui</div>
+  <div class="tab" id="tabSem" onclick="switchTab('sem')">🗓️ Semaine</div>
+</div>
+
+<div class="content">
+  <div id="viewAuj"></div>
+  <div id="viewSem" style="display:none;"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+  <h2 id="modalTitle">📞 Nouveau rappel</h2>
+  <label class="flabel">Nom du client</label>
+  <input class="finput" id="mNom" placeholder="Jean DUPONT" type="text"/>
+  <label class="flabel">Téléphone</label>
+  <input class="finput" id="mTel" placeholder="06 12 34 56 78" type="tel"/>
+  <label class="flabel">Type de dossier</label>
+  <div class="choices" id="mType">
+    <div class="choice" data-val="PAC" onclick="pickType(this)">PAC</div>
+    <div class="choice" data-val="ISO" onclick="pickType(this)">ISO</div>
+    <div class="choice" data-val="PAC+ISO" onclick="pickType(this)">PAC+ISO</div>
+    <div class="choice" data-val="Autre" onclick="pickType(this)">Autre</div>
+  </div>
+  <div class="row2">
+    <div><label class="flabel">Date</label><input class="finput" id="mDate" type="date"/></div>
+    <div><label class="flabel">Heure</label><input class="finput" id="mHeure" type="text" placeholder="09:30" inputmode="numeric" maxlength="5" oninput="fmtTime(this)" autocomplete="off"/></div>
+  </div>
+  <label class="flabel">Statut</label>
+  <div class="choices" id="mStat">
+    <div class="choice sel" data-val="rappeler" onclick="pickStat(this)">🟡 À rappeler</div>
+    <div class="choice" data-val="rappele" onclick="pickStat(this)">✅ Rappelé</div>
+    <div class="choice" data-val="absent" onclick="pickStat(this)">❌ Absent</div>
+    <div class="choice" data-val="reporte" onclick="pickStat(this)">🔄 Reporté</div>
+  </div>
+  <label class="flabel">Notes</label>
+  <textarea class="finput" id="mNotes" placeholder="Intéressé PAC, préfère être rappelé le matin..."></textarea>
+  <div class="mbrow">
+    <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+    <button class="btn-save" onclick="saveContact()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var DB_KEY='pac_planning_v1';
+var contacts=[];
+var editId=null;
+var curTab='auj';
+
+function load(){try{contacts=JSON.parse(localStorage.getItem(DB_KEY)||'[]');}catch(e){contacts=[];}}
+function save(){localStorage.setItem(DB_KEY,JSON.stringify(contacts));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function pad(n){return n<10?'0'+n:n;}
+function fmt(d){var days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];var months=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];var dt=new Date(d+'T00:00:00');return days[dt.getDay()]+' '+dt.getDate()+' '+months[dt.getMonth()];}
+function fmtFull(d){var months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];var dt=new Date(d+'T00:00:00');return dt.getDate()+' '+months[dt.getMonth()]+' '+dt.getFullYear();}
+
+function isRetard(c){
+  if(c.statut!=='rappeler')return false;
+  var now=new Date();
+  var dt=new Date(c.date+'T'+(c.heure||'23:59')+':00');
+  return dt<now;
+}
+
+function statLabel(s,retard){
+  if(retard)return'<span class="stat-badge sb-retard">⏰ En retard</span>';
+  return{rappeler:'<span class="stat-badge sb-rappeler">🟡 À rappeler</span>',rappele:'<span class="stat-badge sb-rappele">✅ Rappelé</span>',absent:'<span class="stat-badge sb-absent">❌ Absent</span>',reporte:'<span class="stat-badge sb-reporte">🔄 Reporté</span>'}[s]||'';
+}
+function typeClass(t){return{PAC:'badge-pac',ISO:'badge-iso','PAC+ISO':'badge-paciso',Autre:'badge-autre'}[t]||'badge-autre';}
+function dotClass(s,retard){if(retard)return'dot-retard';return{rappeler:'dot-rappeler',rappele:'dot-rappele',absent:'dot-absent',reporte:'dot-reporte'}[s]||'dot-rappeler';}
+function cardClass(s,retard){if(retard)return'stat-retard';return'stat-'+s;}
+
+function renderCard(c){
+  var retard=isRetard(c);
+  var tc=typeClass(c.type);
+  var typeBadge=c.type?'<span class="badge '+tc+'">'+c.type+'</span>':'';
+  var tel=c.telephone.replace(/\s/g,'');
+  return'<div class="card '+cardClass(c.statut,retard)+'" id="card-'+c.id+'">'
+    +'<div class="card-top">'
+    +'<div class="card-name">'+esc(c.nom)+'</div>'
+    +'<div class="card-time">'+(c.heure||'—')+'</div>'
+    +'</div>'
+    +'<div class="card-meta">'+typeBadge+statLabel(c.statut,retard)+'</div>'
+    +(c.notes?'<div class="card-notes">'+esc(c.notes)+'</div>':'')
+    +'<div class="card-actions">'
+    +'<a class="btn-call" href="tel:'+tel+'">📞 Appeler</a>'
+    +(c.statut!=='rappele'?'<button class="btn-stat bs-rappele" onclick="setStatut(\''+c.id+'\',\'rappele\')">✅ Rappelé</button>':'')
+    +(c.statut!=='absent'?'<button class="btn-stat bs-absent" onclick="setStatut(\''+c.id+'\',\'absent\')">❌ Absent</button>':'')
+    +(c.statut!=='reporte'?'<button class="btn-stat bs-reporte" onclick="setStatut(\''+c.id+'\',\'reporte\')">🔄 Reporter</button>':'')
+    +'<button class="btn-edit" onclick="editContact(\''+c.id+'\')">✏️</button>'
+    +'<button class="btn-del" onclick="delContact(\''+c.id+'\')">🗑️</button>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderToday(){
+  var today=todayStr();
+  var todayContacts=contacts.filter(function(c){return c.date===today;});
+  todayContacts.sort(function(a,b){return(a.heure||'99:99').localeCompare(b.heure||'99:99');});
+
+  var retard=todayContacts.filter(function(c){return isRetard(c);});
+  var avenir=todayContacts.filter(function(c){return!isRetard(c)&&c.statut==='rappeler';});
+  var termines=todayContacts.filter(function(c){return c.statut!=='rappeler';});
+
+  // counter bar
+  var allC=contacts.filter(function(c){return c.statut==='rappeler';});
+  var retardC=contacts.filter(function(c){return isRetard(c);});
+  var rappeleC=contacts.filter(function(c){return c.statut==='rappele';});
+  var absentC=contacts.filter(function(c){return c.statut==='absent';});
+
+  var html='<div class="today-bar">'
+    +'<div class="tcount tc-r"><div class="n">'+allC.length+'</div><div class="l">À rappeler</div></div>'
+    +'<div class="tcount tc-red"><div class="n">'+retardC.length+'</div><div class="l">En retard</div></div>'
+    +'<div class="tcount tc-g"><div class="n">'+rappeleC.length+'</div><div class="l">Rappelés</div></div>'
+    +'<div class="tcount" style=""><div class="n" style="color:#ef4444;">'+absentC.length+'</div><div class="l">Absents</div></div>'
+    +'</div>';
+
+  if(todayContacts.length===0){
+    html+='<div class="empty">📭 Aucun rappel prévu aujourd\'hui<br><br><button class="btn-add" onclick="openModal()" style="margin:0 auto;display:inline-flex;background:#1a56db;color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:800;padding:10px 20px;cursor:pointer;">＋ Ajouter un rappel</button></div>';
+    return html;
+  }
+
+  if(retard.length){html+='<div class="section-title">⏰ En retard ('+retard.length+')</div>';retard.forEach(function(c){html+=renderCard(c);});}
+  if(avenir.length){html+='<div class="section-title">🟡 À venir ('+avenir.length+')</div>';avenir.forEach(function(c){html+=renderCard(c);});}
+  if(termines.length){html+='<div class="section-title">✅ Terminés ('+termines.length+')</div>';termines.forEach(function(c){html+=renderCard(c);});}
+  return html;
+}
+
+function renderWeek(){
+  var html='<div class="week-grid">';
+  var today=todayStr();
+  for(var i=0;i<7;i++){
+    var d=new Date();d.setDate(d.getDate()+i);
+    var ds=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+    var dayContacts=contacts.filter(function(c){return c.date===ds;});
+    dayContacts.sort(function(a,b){return(a.heure||'99:99').localeCompare(b.heure||'99:99');});
+    var isToday=ds===today;
+    var dayLabel=(isToday?'Aujourd\'hui — ':'')+fmt(ds);
+    var count=dayContacts.length;
+    html+='<div class="week-day">'
+      +'<div class="week-day-hdr'+(isToday?' today':'')+'" onclick="toggleDay(\'wd-'+ds+'\')">'
+      +'<span>'+dayLabel+'</span>'
+      +'<span>'+(count?count+' rappel'+(count>1?'s':''):'Aucun')+'</span>'
+      +'</div>'
+      +'<div class="week-day-body" id="wd-'+ds+'"'+((!isToday&&count===0)?' style="display:none;"':'')+'>';
+    if(count===0){html+='<div style="font-size:12px;color:#94a3b8;padding:4px 6px;">Aucun rappel</div>';}
+    else{dayContacts.forEach(function(c){
+      var retard=isRetard(c);
+      html+='<div class="week-item" onclick="editContact(\''+c.id+'\')">'
+        +'<div class="week-item-time">'+(c.heure||'—')+'</div>'
+        +'<div class="week-item-dot '+dotClass(c.statut,retard)+'"></div>'
+        +'<div class="week-item-name">'+esc(c.nom)+'</div>'
+        +(c.type?'<span class="badge '+typeClass(c.type)+'" style="font-size:9px;">'+c.type+'</span>':'')
+        +'</div>';
+    });}
+    html+='</div></div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function toggleDay(id){var el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'':'none';}
+
+function render(){
+  var auj=document.getElementById('viewAuj');
+  var sem=document.getElementById('viewSem');
+  if(curTab==='auj'){auj.innerHTML=renderToday();auj.style.display='';}
+  else{sem.innerHTML=renderWeek();sem.style.display='';}
+}
+
+function switchTab(t){
+  curTab=t;
+  document.getElementById('tabAuj').classList.toggle('on',t==='auj');
+  document.getElementById('tabSem').classList.toggle('on',t==='sem');
+  document.getElementById('viewAuj').style.display=t==='auj'?'':'none';
+  document.getElementById('viewSem').style.display=t==='sem'?'':'none';
+  render();
+}
+
+function setStatut(id,stat){
+  var c=contacts.find(function(x){return x.id===id;});
+  if(!c)return;
+  c.statut=stat;
+  save();render();
+  toast(stat==='rappele'?'✅ Marqué rappelé':stat==='absent'?'❌ Marqué absent':'🔄 Reporté');
+}
+
+function delContact(id){
+  if(!confirm('Supprimer ce rappel ?'))return;
+  contacts=contacts.filter(function(c){return c.id!==id;});
+  save();render();toast('🗑️ Supprimé');
+}
+
+function openModal(id){
+  editId=id||null;
+  var c=id?contacts.find(function(x){return x.id===id;}):null;
+  document.getElementById('modalTitle').textContent=id?'✏️ Modifier le rappel':'📞 Nouveau rappel';
+  document.getElementById('mNom').value=c?c.nom:'';
+  document.getElementById('mTel').value=c?c.telephone:'';
+  document.getElementById('mNotes').value=c?c.notes:'';
+  document.getElementById('mDate').value=c?c.date:todayStr();
+  document.getElementById('mHeure').value=c?c.heure:'';
+  // type
+  document.querySelectorAll('#mType .choice').forEach(function(el){el.classList.toggle('sel',c&&el.dataset.val===c.type);});
+  // stat
+  document.querySelectorAll('#mStat .choice').forEach(function(el){el.classList.toggle('sel',el.dataset.val===(c?c.statut:'rappeler'));});
+  document.getElementById('modalBg').classList.add('show');
+  setTimeout(function(){document.getElementById('mNom').focus();},100);
+}
+
+function closeModal(){document.getElementById('modalBg').classList.remove('show');}
+
+function pickType(el){document.querySelectorAll('#mType .choice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+function pickStat(el){document.querySelectorAll('#mStat .choice').forEach(function(e){e.classList.remove('sel');});el.classList.add('sel');}
+
+function getSelVal(groupId){var el=document.querySelector('#'+groupId+' .sel');return el?el.dataset.val:'';}
+
+function saveContact(){
+  var nom=document.getElementById('mNom').value.trim();
+  var tel=document.getElementById('mTel').value.trim();
+  var date=document.getElementById('mDate').value;
+  var heure=document.getElementById('mHeure').value;
+  if(!nom||!tel||!date){toast('⚠️ Nom, téléphone et date obligatoires');return;}
+  if(editId){
+    var c=contacts.find(function(x){return x.id===editId;});
+    if(c){c.nom=nom;c.telephone=tel;c.date=date;c.heure=heure;c.type=getSelVal('mType');c.statut=getSelVal('mStat')||'rappeler';c.notes=document.getElementById('mNotes').value.trim();}
+  }else{
+    contacts.push({id:uid(),nom:nom,telephone:tel,date:date,heure:heure,type:getSelVal('mType'),statut:getSelVal('mStat')||'rappeler',notes:document.getElementById('mNotes').value.trim(),createdAt:new Date().toISOString()});
+  }
+  save();closeModal();render();toast(editId?'✅ Modifié':'✅ Rappel ajouté');
+}
+
+function editContact(id){openModal(id);}
+
+function fmtTime(el){
+  var digits=el.value.replace(/[^0-9]/g,'').slice(0,4);
+  if(digits.length===0){el.value='';return;}
+  if(digits.length<=2){el.value=digits;return;}
+  var h,m;
+  if(parseInt(digits[0])>=3){h=digits[0];m=digits.slice(1,3);}
+  else{h=digits.slice(0,2);m=digits.slice(2,4);}
+  el.value=h+':'+m;
+}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},2500);}
+
+function initTodayLabel(){
+  var days=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var d=new Date();
+  document.getElementById('todayLabel').textContent=days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+}
+
+// Refresh view every minute to update "retard" statuses
+setInterval(function(){render();},60000);
+
+load();
+initTodayLabel();
+render();
+</script>
+</body>
+</html>
