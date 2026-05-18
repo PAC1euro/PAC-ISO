@@ -141,15 +141,18 @@ async function debugLogin(data, env) {
   // Capturer tous les champs input du formulaire (pas seulement hidden)
   const allInputs = [];
   const reInput = /<input[^>]*>/gi;
-  let m;
-  while ((m = reInput.exec(loginHtml)) !== null) {
-    const nm = m[0].match(/name=["']([^"']+)["']/i);
-    const tp = m[0].match(/type=["']([^"']+)["']/i);
+  let m2;
+  while ((m2 = reInput.exec(loginHtml)) !== null) {
+    const nm = m2[0].match(/name=["']([^"']+)["']/i);
+    const tp = m2[0].match(/type=["']([^"']+)["']/i);
     if (nm) allInputs.push({ name: nm[1], type: tp ? tp[1] : 'text' });
   }
+  // Extrait la portion form du HTML
+  const formMatch = loginHtml.match(/<form[\s\S]{0,5000}?<\/form>/i);
+  const loginFormHtml = formMatch ? formMatch[0].replace(/<script[\s\S]*?<\/script>/gi,'').slice(0, 2000) : loginHtml.slice(0, 2000);
 
   if (!hiddenFields['__RequestVerificationToken']) {
-    return { ok: false, trace, error: 'Token login introuvable', allInputs };
+    return { ok: false, trace, error: 'Token login introuvable', allInputs, loginFormHtml };
   }
 
   // 2. POST login
@@ -182,6 +185,7 @@ async function debugLogin(data, env) {
     loginError,
     fieldsSent: Object.keys({...hiddenFields, CodeEntreprise:'', UserName:'', Password:'', RememberMe:''}),
     allFormInputs: allInputs,
+    loginFormHtml,
     rawSetCookie: rawSetCookie.slice(0, 300),
     setCookieCount: setCookieAll.length,
     cookies: cookieNames(cookies)
