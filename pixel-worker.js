@@ -419,9 +419,13 @@ async function createDossier(data, env) {
   set('FicheISO_VM.SurfacePignon', '');
   set('FicheISO_VM.SurfacePlafond', '');
   set('FicheISO_VM.SurfaceVideSanitaire', '');
+  set('BesoinClient', '');
   set('Fiche_VM.TypeLead', 'Form');
   set('Fiche_VM.Campagne', data.campagne || '');
   set('Fiche_VM.FournisseurLeadId', '');
+  set('Fiche_VM.RegieId', '');
+  set('Fiche_VM.ConfirmateurId', '');
+  set('Fiche_VM.CommercialTerrainId', '');
   set('FicheISO_Statut_VM.WorkflowStatutId', '443f3db6-ff41-423b-933e-de2411fb824b');
   set('Fiche_VM.OperateurId', 'f2d9f341-2573-40e1-8b70-4f480b1555e4');
   set('Fiche_VM.AdministrateurId', '');
@@ -469,7 +473,14 @@ async function createDossier(data, env) {
   }
 
   const txt = await p5.text();
-  const valErr = txt.match(/class="[^"]*field-validation-error[^"]*"[^>]*>([^<]{1,150})/i)
-    || txt.match(/class="[^"]*validation-summary[^"]*"[\s\S]{0,100}<li>([^<]{1,150})/i);
-  throw new Error('Validation Pixel CRM — ' + (valErr ? valErr[1].trim() : `HTTP ${p5.status} — ${txt.slice(0, 200)}`));
+  // Chercher toute erreur de validation dans la réponse
+  const valErr = txt.match(/class="[^"]*field-validation-error[^"]*"[^>]*>([\s\S]{1,200}?)<\/span>/i)
+    || txt.match(/class="[^"]*text-danger[^"]*"[^>]*>([\s\S]{1,200}?)<\/(?:span|div|p|li)>/i)
+    || txt.match(/class="[^"]*validation[^"]*"[\s\S]{0,200}<li>([\s\S]{1,150})<\/li>/i);
+  const errMsg = valErr ? valErr[1].replace(/<[^>]+>/g, '').trim() : null;
+  // Chercher aussi les erreurs inline (data-valmsg)
+  const inlineErr = !errMsg && txt.match(/data-valmsg-for="([^"]+)"[^>]*>([\s\S]{1,100}?)<\/span>/ig);
+  const inlineMsgs = inlineErr ? [...txt.matchAll(/data-valmsg-for="([^"]+)"[^>]*>([^<]{1,100})<\/span>/ig)]
+    .filter(m => m[2].trim()).map(m => m[1] + ': ' + m[2].trim()).join('; ') : null;
+  throw new Error('Validation Pixel CRM — ' + (errMsg || inlineMsgs || `HTTP ${p5.status} — ${txt.slice(0, 300)}`));
 }
