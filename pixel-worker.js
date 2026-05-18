@@ -1,5 +1,5 @@
 // Cloudflare Worker — Pixel CRM API (IJLeads)
-// Variables d'env requises : PIXEL_TOKEN, optionnel PIXEL_PROJECT_ID
+// Variables d'env requises : PIXEL_TOKEN
 
 export default {
   async fetch(request, env) {
@@ -10,15 +10,12 @@ export default {
     };
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
 
-    // GET /?debug → vérifie que le token est chargé
     if (request.method === 'GET') {
       const TOKEN = env.PIXEL_TOKEN || '';
-      const PROJECT_ID = env.PIXEL_PROJECT_ID || 'F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
       return new Response(JSON.stringify({
         token_present: TOKEN.length > 0,
         token_length:  TOKEN.length,
         token_preview: TOKEN ? TOKEN.slice(0,4) + '...' + TOKEN.slice(-4) : '(vide)',
-        project_id:    PROJECT_ID,
       }), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
@@ -50,68 +47,83 @@ function buildCommentaire(data) {
   return parts.join(' | ');
 }
 
-async function createLead(data, env) {
-  const TOKEN = env.PIXEL_TOKEN || '';
-  const UA    = 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
-  const PROJECT_TYPE_ID = env.PIXEL_PROJECT_ID || 'F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
-
-  if (!TOKEN) throw new Error('PIXEL_TOKEN manquant — à configurer dans Cloudflare Variables');
-
-  // TypeChauffage : 1=Combustible, 2=Electrique, 3=Individuel
+function buildBody(data, projectTypeId, typeOp) {
   const tcMap = { 'Gaz':1, 'Fioul':1, 'Chaudière à bois':1, 'Chaudière à charbon':1, 'Électrique':2, 'Autre':3 };
-  // TypeHabitation : 1=Propriétaire occupant, 2=Locataire, 3=Propriétaire bailleur
   const thMap = { 'prop_occ':1, 'locataire':2, 'prop_bail':3 };
-  // TypeOperationCEE : 1=Isolation, 2=Chauffage, 3=Chauffage+ECS
-  const typeOp = 3;
-  // TypeLogement : 0=Maison individuelle, 1=Appartement
-  const typeLog = 0;
 
   const body = {
-    ProjectTypeId:      PROJECT_TYPE_ID,
+    ProjectTypeId:      projectTypeId,
     TypeOperationCEE:   typeOp,
-    TypeLogement:       typeLog,
-    DealId:             data.dossier    || '',
-    Civilite1:          data.civilite   || 'M.',
-    Nom1:               data.nom        || '',
-    Prenom1:            data.prenom     || '',
-    Mail:               data.email      || '',
-    Adresse:            data.adresse    || '',
-    CodePostal:         data.cp         || '',
-    Ville:              data.ville      || '',
-    TelFixe:            '',
-    TelMobile:          data.telephone  || '',
+    TypeLogement:       0,
+    DealId:             data.dossier   || '',
+    Civilite1:          data.civilite  || 'M.',
+    Nom1:               data.nom       || '',
+    Prenom1:            data.prenom    || '',
+    Mail:               data.email     || '',
+    Adresse:            data.adresse   || '',
+    CodePostal:         data.cp        || '',
+    Ville:              data.ville     || '',
+    TelMobile:          data.telephone || '',
     AgeBatiment:        3,
     TypeHabitation:     thMap[data.statut] || 1,
     TypeChauffage:      tcMap[data.chauffage] || 1,
-    NbrPersonneAuFoyer: data.parts ? Number(data.parts) : undefined,
-    RevenuFiscal:       data.rfr  ? Number(String(data.rfr).replace(',', '.')) : undefined,
-    NumFiscal1:         data.numDeclarant  || '',
-    RefFiscal1:         data.refFiscal1   || '',
     TypeLead:           'Form',
     Commentaires:       buildCommentaire(data),
   };
 
-  Object.keys(body).forEach(k => { if (body[k] === undefined) delete body[k]; });
+  if (data.parts)        body.NbrPersonneAuFoyer = Number(data.parts);
+  if (data.rfr)          body.RevenuFiscal       = Number(String(data.rfr).replace(',', '.'));
+  if (data.numDeclarant) body.NumFiscal1         = data.numDeclarant;
+  if (data.refFiscal1)   body.RefFiscal1         = data.refFiscal1;
+
+  return body;
+}
+
+async function tryRequest(body, token, authHeader) {
+  const UA = 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+  const headers = {
+    'Content-Type': 'application/json',
+    'User-Agent':   UA,
+  };
+  headers[authHeader] = token;
 
   const resp = await fetch('https://crm.pixel-crm.com/api/IJLeads', {
     method: 'POST',
-    headers: {
-      'Content-Type':      'application/json',
-      'User-Agent':        UA,
-      'XINTNRGLEAD-TOKEN': TOKEN,
-      'Authorization':     'Bearer ' + TOKEN,
-    },
+    headers,
     body: JSON.stringify(body)
   });
-
   const txt = await resp.text();
-  let json = null;
-  try { json = JSON.parse(txt); } catch(e) {}
+  return { status: resp.status, ok: resp.ok, txt };
+}
 
-  if (!resp.ok) {
-    throw new Error(`API Pixel ${resp.status} — ${txt}`);
+async function createLead(data, env) {
+  const TOKEN = env.PIXEL_TOKEN || '';
+  if (!TOKEN) throw new Error('PIXEL_TOKEN manquant — à configurer dans Cloudflare Variables');
+
+  // Les 4 combinaisons à tester
+  const PROJECT_A = 'F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307'; // ProjectTypeId de William
+  const PROJECT_B = TOKEN;                                    // Token utilisé comme ProjectTypeId
+
+  const combos = [
+    { projectId: PROJECT_A, typeOp: 2, authHeader: 'XINTNRGLEAD-TOKEN', label: 'A: projA+op2+TOKEN' },
+    { projectId: PROJECT_B, typeOp: 2, authHeader: 'XINTNRGLEAD-TOKEN', label: 'B: projB+op2+TOKEN' },
+    { projectId: PROJECT_A, typeOp: 3, authHeader: 'XINTNRGLEAD-TOKEN', label: 'C: projA+op3+TOKEN' },
+    { projectId: PROJECT_B, typeOp: 3, authHeader: 'XINTNRGLEAD-TOKEN', label: 'D: projB+op3+TOKEN' },
+  ];
+
+  const attempts = [];
+  for (const combo of combos) {
+    const body = buildBody(data, combo.projectId, combo.typeOp);
+    const r = await tryRequest(body, TOKEN, combo.authHeader);
+    attempts.push({ label: combo.label, status: r.status, response: r.txt.slice(0, 200) });
+    if (r.ok) {
+      let json = null;
+      try { json = JSON.parse(r.txt); } catch(e) {}
+      const id = json?.Id || json?.id || json?.DossierId || json?.PixelDealId || null;
+      return { ok: true, id, combo: combo.label, raw: json ?? r.txt };
+    }
   }
 
-  const id = json?.Id || json?.id || json?.DossierId || json?.dossierId || json?.PixelDealId || null;
-  return { ok: true, id, raw: json ?? txt };
+  // Aucune combinaison n'a fonctionné — retourner tous les résultats pour diagnostic
+  throw new Error('Toutes les combinaisons ont échoué:\n' + attempts.map(a => `${a.label} → ${a.status}: ${a.response}`).join('\n'));
 }
