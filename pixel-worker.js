@@ -13,6 +13,13 @@ export default {
     if (request.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
     try {
       const data = await request.json();
+      // Mode debug : retourne la trace des cookies à chaque étape
+      if (data.debug || data.probe) {
+        const result = await debugLogin(data, env);
+        return new Response(JSON.stringify(result), {
+          headers: { ...cors, 'Content-Type': 'application/json' }
+        });
+      }
       const result = await createDossier(data, env);
       return new Response(JSON.stringify(result), {
         headers: { ...cors, 'Content-Type': 'application/json' }
@@ -38,6 +45,11 @@ function extractCookies(response) {
   return raw.split(/,\s*(?=[A-Za-z_.][^;,= ]*\s*=)/);
 }
 
+// Noms des cookies présents (pour debug)
+function cookieNames(str) {
+  return (str || '').split('; ').map(c => c.split('=')[0]).filter(Boolean);
+}
+
 // Fusionne des cookies existants avec de nouveaux (tableau de strings Set-Cookie)
 function mergeCookies(existing, newCookies) {
   const map = {};
@@ -56,16 +68,16 @@ function mergeCookies(existing, newCookies) {
 
 // Fetch GET avec suivi MANUEL des redirects pour capturer tous les cookies intermédiaires
 async function fetchFollow(url, baseHeaders, cookies, maxHops = 10) {
-  const UA = baseHeaders['User-Agent'] || '';
   let currentUrl = url;
   let currentCookies = cookies;
 
   for (let hops = 0; hops < maxHops; hops++) {
-    const cookiesSent = currentCookies; // cookies envoyés à CETTE requête
+    const cookiesSent = currentCookies;
     const r = await fetch(currentUrl, {
       headers: { ...baseHeaders, 'Cookie': cookiesSent },
       redirect: 'manual'
     });
+    // Met à jour currentCookies avec les cookies de la réponse
     currentCookies = mergeCookies(currentCookies, extractCookies(r));
 
     if (r.status === 301 || r.status === 302 || r.status === 303 || r.status === 307 || r.status === 308) {
@@ -76,10 +88,9 @@ async function fetchFollow(url, baseHeaders, cookies, maxHops = 10) {
       continue;
     }
 
-    // Retourner cookiesSent (pas currentCookies mis à jour) — le token CSRF du HTML
-    // est lié aux cookies ENVOYÉS, pas aux nouveaux cookies de la réponse
     const html = await r.text();
-    return { html, cookies: cookiesSent, finalUrl: currentUrl };
+    // Retourner cookiesSent (pas currentCookies) — le token CSRF est lié aux cookies envoyés au GET
+    return { html, cookies: cookiesSent, currentCookies, finalUrl: currentUrl };
   }
   throw new Error('Trop de redirections (>' + maxHops + ')');
 }
@@ -102,6 +113,127 @@ function extractHiddenFields(html) {
   return fields;
 }
 
+// ─── Mode debug/probe : trace les cookies + cherche une API ──────────────────
+async function debugLogin(data, env) {
+  const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+  const BASE = 'https://crm.pixel-crm.com';
+  const CODE = env.PIXEL_CODE || 'C2307';
+  const USER = env.PIXEL_USER || 'MAXIME';
+  const PASS = env.PIXEL_PASSWORD || 'Maxime.paciso1';
+  const baseHdrs = {
+    'User-Agent': UA,
+    'Accept': 'text/html,application/xhtml+xml,*/*;q=0.9',
+    'Accept-Language': 'fr-FR,fr;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+  };
+
+  const trace = [];
+
+  // 1. GET login
+  const p1 = await fetch(`${BASE}/Account/Login`, { headers: baseHdrs });
+  let cookies = mergeCookies('', extractCookies(p1));
+  trace.push({ step: '1_GET_login', status: p1.status, cookies: cookieNames(cookies) });
+
+  const loginHtml = await p1.text();
+  const hiddenFields = extractHiddenFields(loginHtml);
+  if (!hiddenFields['__RequestVerificationToken']) {
+    return { ok: false, trace, error: 'Token login introuvable' };
+  }
+
+  // 2. POST login
+  const loginBody = new URLSearchParams({
+    ...hiddenFields,
+    'CodeEntreprise': CODE,
+    'UserName': USER,
+    'Password': PASS,
+    'RememberMe': 'false'
+  });
+  const p2 = await fetch(`${BASE}/Account/Login`, {
+    method: 'POST',
+    headers: { ...baseHdrs, 'Cookie': cookies, 'Content-Type': 'application/x-www-form-urlencoded', 'Referer': `${BASE}/Account/Login`, 'Origin': BASE },
+    body: loginBody.toString(),
+    redirect: 'manual'
+  });
+  const rawSetCookie = p2.headers.get('set-cookie') || '';
+  let setCookieAll = [];
+  try { setCookieAll = p2.headers.getAll('set-cookie'); } catch(e) {}
+  cookies = mergeCookies(cookies, extractCookies(p2));
+  trace.push({
+    step: '2_POST_login',
+    status: p2.status,
+    location: p2.headers.get('location'),
+    rawSetCookie: rawSetCookie.slice(0, 300),
+    setCookieCount: setCookieAll.length,
+    cookies: cookieNames(cookies)
+  });
+
+  // 3. Suivre redirects post-login
+  let nextUrl = p2.headers.get('location');
+  let hops = 0;
+  while (nextUrl && hops++ < 10) {
+    const fullUrl = nextUrl.startsWith('http') ? nextUrl : `${BASE}${nextUrl}`;
+    if (fullUrl.toLowerCase().includes('/account/login')) {
+      return { ok: false, trace, error: 'Login échoué — redirection vers login' };
+    }
+    const hop = await fetch(fullUrl, { headers: { ...baseHdrs, 'Cookie': cookies }, redirect: 'manual' });
+    cookies = mergeCookies(cookies, extractCookies(hop));
+    trace.push({ step: `3_hop${hops}`, status: hop.status, url: fullUrl, location: hop.headers.get('location'), cookies: cookieNames(cookies) });
+    if (hop.status === 301 || hop.status === 302 || hop.status === 303) {
+      nextUrl = hop.headers.get('location') || '';
+      if (nextUrl && !nextUrl.startsWith('http')) nextUrl = `${BASE}${nextUrl}`;
+    } else {
+      nextUrl = null;
+    }
+  }
+
+  // 4. Probe API endpoints (si probe:true)
+  const apiResults = {};
+  if (data.probe) {
+    const endpoints = [
+      '/swagger/index.html', '/swagger', '/swagger/v1/swagger.json',
+      '/api', '/api/v1', '/api/v2',
+      '/Dossiers/isolation/fiche/create',
+    ];
+    for (const ep of endpoints) {
+      try {
+        const r = await fetch(`${BASE}${ep}`, {
+          headers: { ...baseHdrs, 'Cookie': cookies },
+          redirect: 'manual'
+        });
+        const body = await r.text();
+        apiResults[ep] = {
+          status: r.status,
+          location: r.headers.get('location'),
+          isSwagger: body.includes('swagger') || body.includes('OpenAPI'),
+          isLogin: body.includes('Account/Login') || r.headers.get('location')?.includes('Account/Login'),
+          bodyStart: body.slice(0, 100)
+        };
+      } catch(e) {
+        apiResults[ep] = { error: e.message };
+      }
+    }
+  }
+
+  // 5. GET create form
+  const { html: createHtml, cookies: c4, currentCookies: c4all } = await fetchFollow(
+    `${BASE}/Dossiers/isolation/fiche/create`,
+    { ...baseHdrs, 'Referer': BASE },
+    cookies
+  );
+  trace.push({
+    step: '4_GET_create',
+    cookiesSent: cookieNames(c4),
+    cookiesAfter: cookieNames(c4all),
+    hasForm: createHtml.includes('FicheISO_VM'),
+    hasLogin: createHtml.includes('/Account/Login'),
+    csrfFound: !!extractToken(createHtml)
+  });
+
+  return { ok: true, trace, apiResults, cookiesForPost: cookieNames(c4) };
+}
+
+// ─── Création dossier ─────────────────────────────────────────────────────────
 async function createDossier(data, env) {
   const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
   const BASE = 'https://crm.pixel-crm.com';
@@ -189,12 +321,13 @@ async function createDossier(data, env) {
   cookies = c4;
 
   if (createHtml.includes('/Account/Login') && !createHtml.includes('FicheISO_VM')) {
-    throw new Error('Session invalide après login — redirection vers login sur le formulaire');
+    const names = cookieNames(cookies).join(' | ');
+    throw new Error('Session invalide après login — cookies: [' + names + ']');
   }
   const csrfToken = extractToken(createHtml);
   if (!csrfToken) throw new Error(`Token CSRF introuvable — HTML: ${createHtml.slice(0, 200)}`);
 
-  // Extraire tous les champs cachés du formulaire create (incluent tokens ASP.NET requis)
+  // Extraire tous les champs cachés du formulaire create
   const createHidden = extractHiddenFields(createHtml);
 
   // 5. Commentaire
@@ -209,11 +342,10 @@ async function createDossier(data, env) {
   if (data.codeReferent) parts.push('Référent: ' + data.codeReferent);
   const commentaire = parts.join(' | ');
 
-  // 6. POST dossier — URLSearchParams (comme le login) + tous les champs cachés du form
+  // 6. POST dossier
   const typeOp = (data.ecs === 'Ballon indépendant') ? 'Chauffage & ECS' : 'Chauffage';
   const statutMap = { 'prop_occ': '1', 'prop_bail': '2', 'locataire': '3' };
 
-  // Partir des champs cachés de la page create, puis surcharger avec nos valeurs
   const formFields = { ...createHidden };
   const set = (k, v) => { formFields[k] = v != null ? String(v) : ''; };
 
@@ -292,8 +424,8 @@ async function createDossier(data, env) {
   if (p5.status === 302) {
     const loc = p5.headers.get('location') || '';
     if (loc.toLowerCase().includes('/account/login')) {
-      const cookieNames = cookies.split('; ').map(c => c.split('=')[0]).join(' | ');
-      throw new Error('Session invalide | cookies présents: [' + cookieNames + ']');
+      const names = cookieNames(cookies).join(' | ');
+      throw new Error('Session invalide | cookies: [' + names + ']');
     }
     const idMatch = loc.match(/id=([a-f0-9-]+)/i);
     const id = idMatch ? idMatch[1] : null;
