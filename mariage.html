@@ -784,10 +784,13 @@ function renderCategory(catId){
   var cr=stats.confirme.e+stats.paye.e;
   g('topbarTitle').textContent=cat.emoji+' '+cat.name;
   g('topbarSub').textContent=grp.label;
-  g('catHero').innerHTML='<div class="cat-hero '+grp.heroCls+'">'+
+  g('catHero').innerHTML='<div class="cat-hero '+grp.heroCls+'" style="justify-content:space-between;">'+
+    '<div style="display:flex;align-items:center;gap:14px;">'+
     '<div class="cat-hero-emoji">'+cat.emoji+'</div>'+
     '<div><div class="cat-hero-name">'+esc(cat.name)+'</div>'+
-    '<div class="cat-hero-amounts">'+cat.items.length+' élément'+(cat.items.length!==1?'s':'')+(ce>0?' · Budget : '+fmt(ce):'')+'</div></div></div>';
+    '<div class="cat-hero-amounts">'+cat.items.length+' élément'+(cat.items.length!==1?'s':'')+(ce>0?' · Budget : '+fmt(ce):'')+'</div></div></div>'+
+    '<button onclick="delCat(\''+catId+'\')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:16px;color:#faf8f5;" title="Supprimer cette catégorie">🗑️</button>'+
+    '</div>';
   // Budget view
   var budgetHtml='';
   if(ce>0||cat.items.length>0){
@@ -881,6 +884,13 @@ function saveItem(){
   if(editItemId){var idx=cat.items.findIndex(function(x){return x.id===editItemId;});if(idx>-1)cat.items[idx]=it;}
   else{cat.items.push(it);}
   saveData();closeItemModal();renderCategory(curCatId);renderDashboard();toast(editItemId?'✅ Modifié':'✅ Ajouté');
+}
+function delCat(catId){
+  var cat=getCat(catId);if(!cat)return;
+  var msg=cat.items&&cat.items.length>0?'Supprimer "'+cat.name+'" et ses '+cat.items.length+' élément(s) ?':'Supprimer "'+cat.name+'" ?';
+  if(!confirm(msg))return;
+  ST.categories=ST.categories.filter(function(c){return c.id!==catId;});
+  saveData();showView('dashboard');renderDashboard();toast('🗑️ Catégorie supprimée');
 }
 function delItem(id){
   if(!confirm('Supprimer cet élément ?'))return;
