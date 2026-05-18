@@ -1245,7 +1245,7 @@ function postToMonday(racStr,totalRac){
 
     function fetchMondayCols(cb){
       var saved=getMondayCfg();
-      if(saved.colMap&&Object.keys(saved.colMap).length>3){cb(saved.colMap);return;}
+      if(saved.colMap&&saved.colMap['type de radiateurs']&&Object.keys(saved.colMap).length>3){cb(saved.colMap);return;}
       fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:'query{boards(ids:['+cfg.boardId+']){columns{id title type}}}'})})
       .then(function(r){return r.json();})
       .then(function(d){
@@ -1265,7 +1265,7 @@ function postToMonday(racStr,totalRac){
         {tt:['street view','streetview'],v:streetViewUrl,f:function(c,v){return c.type==='link'?{url:v,text:'Street View'}:v;}},
         {tt:['géoportail','geoportail'],v:gPortailUrl,f:function(c,v){return c.type==='link'?{url:v,text:'Géoportail'}:v;}},
         {tt:['hsp','hauteur sous plafond','hauteur plafond','hauteur'],v:S.hauteurPlafond,f:function(c,v){return(c.type==='numbers'||c.type==='numeric')?Number(v)||0:v;}},
-        {tt:['type de radiateur','type radiateur','radiateur','type rad'],v:S.typeRadiateur,f:function(c,v){
+        {tt:['type de radiateurs','type de radiateur','type radiateur','radiateur','type rad'],v:S.typeRadiateur,f:function(c,v){
           if(c.type==='dropdown'){var labs=v.split(',').map(function(s){return s.trim();}).filter(Boolean);return {labels:labs};}
           return v;
         }},
