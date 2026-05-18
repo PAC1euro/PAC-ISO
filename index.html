@@ -1256,12 +1256,25 @@ function prefillFromLead(l){
   var dosType=l.projet==='Isolation'?'ISO':l.projet==='PAC + Isolation'?'PAC+ISO':'PAC';
   var dosEl=document.querySelector('#cDossier .choice[data-val="'+dosType+'"]');
   if(dosEl){pick(dosEl,'cDossier');S.dossier=dosType;}
-  if(l.cp){var d2=l.cp.slice(0,2);_pf('dept',d2);detectZone();}
-  if(l.chauffage&&l.chauffage!=='—'){_pickVal('cChauf',l.chauffage);chkChauf();}
-  _pf('surfPac',l.surface);
-  _pf('anneeConstruction',l.annee);
   _pf('prenom',l.prenom);_pf('nom',l.nom);_pf('telephone',l.telephone);_pf('email',l.email);
-  _pf('cp',l.cp);updMapsLink();
+  if(l.civilite)_rChip('cCivil',l.civilite);
+  if(l.statut)_rChip('cStatut',l.statut);
+  if(l.dateNaissance)_pf('dateNaissance',l.dateNaissance);
+  if(l.adresse)_pf('adresse',l.adresse);
+  if(l.ville)_pf('ville',l.ville);
+  if(l.cp){_pf('cp',l.cp);var d2=l.cp.slice(0,2);_pf('dept',d2);detectZone();syncDeptCp(l.cp);}
+  if(l.chauffage&&l.chauffage!=='—'){_pickVal('cChauf',l.chauffage);chkChauf();}
+  if(l.surface||l.surfPac)_pf('surfPac',l.surface||l.surfPac);
+  if(l.annee||l.anneeConstruction)_pickVal('cAnnee',l.annee||l.anneeConstruction);
+  if(l.compteur)_pickVal('cCompt',l.compteur);
+  if(l.ecs)_pickVal('cECS',l.ecs);
+  if(l.parts){var pEl=document.querySelector('#cFoyer .choice[data-val="'+l.parts+'"],#cFoyer2 .choice[data-val="'+l.parts+'"]');if(pEl)pickFoyer(pEl);}
+  if(l.rfr){_pf('rfr',l.rfr);_pf('rfr2',l.rfr);previewCouleur();}
+  if(l.numDeclarant)_pf('numDeclarant',l.numDeclarant);
+  if(l.numDeclarant2)_pf('numDeclarant2',l.numDeclarant2);
+  if(l.teleproNom)_pf('teleproNom',l.teleproNom);
+  if(l.codeReferent)_pf('codeReferent',l.codeReferent);
+  updMapsLink();
   var htxt=document.querySelector('.htxt p');if(htxt)htxt.textContent='Pré-rempli depuis le lead · '+(l.prenom||'')+' '+(l.nom||'');
 }
 function prefillFromDossier(d,editKey){
@@ -1289,8 +1302,16 @@ function prefillFromDossier(d,editKey){
   _pf('telephone',d.telephone);_pf('email',d.email);
   _pf('adresse',d.adresse);_pf('cp',d.cp);_pf('ville',d.ville);
   if(d.anneeConstruction)_pickVal('cAnnee',d.anneeConstruction);
-  _pf('numDeclarant',d.numDeclarant);_pf('rfr2',d.rfr||d.rfr2);
+  _pf('numDeclarant',d.numDeclarant);_pf('numDeclarant2',d.numDeclarant2);_pf('rfr2',d.rfr||d.rfr2);
   _pf('teleproNom',d.teleproNom);_pf('codeReferent',d.codeReferent);
+  if(d.civilite)_rChip('cCivil',d.civilite);
+  if(d.statut)_rChip('cStatut',d.statut);
+  if(d.etatIso)_rChip('cEtatIso',d.etatIso);
+  if(d.typeRadiateur){var rv2=d.typeRadiateur.split(', ').map(function(v){return v.trim();}).filter(Boolean);document.querySelectorAll('#cRadiateur .choice').forEach(function(el){if(rv2.indexOf(el.getAttribute('data-val'))>-1)el.classList.add('sel');else el.classList.remove('sel');});}
+  if(d.mprCreePar){_rChip('cMprCreePar',d.mprCreePar);var ab2=g('mprAccesBox');if(ab2)ab2.style.display=(d.mprCreePar==='autre_societe'||d.mprCreePar==='client')?'block':'none';}
+  if(d.mprAcces)_rChip('cMprAcces',d.mprAcces);
+  _pf('mprMail',d.mprMail);_pf('mprMdp',d.mprMdp);
+  if(d.mprVerif)_rChip('cMprVerif',d.mprVerif);
   updMapsLink();
   var eb=document.querySelector('.btn-email');if(eb)eb.textContent='💾 Mettre à jour le dossier';
 }
