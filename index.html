@@ -414,6 +414,31 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <input type="text" id="teleproNom" placeholder="Ex: Sophie, Thomas…"/>
   <label class="flabel">Code référent (facultatif)</label>
   <input type="text" id="codeReferent" placeholder="Ex: REF-001"/>
+
+  <div class="slabel">Ma Prime Rénov (MPR)</div>
+  <label class="flabel">Compte MPR créé par</label>
+  <div class="choices c3" id="cMprCreePar" style="margin-bottom:12px;">
+    <div class="choice" data-val="telepro" onclick="pickMprCreePar(this)"><div class="chi">📞</div><div class="chl">Téléprospecteur</div></div>
+    <div class="choice" data-val="autre_societe" onclick="pickMprCreePar(this)"><div class="chi">🏢</div><div class="chl">Autre société</div></div>
+    <div class="choice" data-val="client" onclick="pickMprCreePar(this)"><div class="chi">👤</div><div class="chl">Client</div></div>
+  </div>
+  <div id="mprAccesBox" style="display:none;margin-bottom:4px;">
+    <label class="flabel">Accès au compte MPR</label>
+    <div class="choices c2" id="cMprAcces" style="margin-bottom:12px;">
+      <div class="choice" data-val="oui" onclick="pick(this,'cMprAcces');S.mprAcces='oui'"><div class="chi">✅</div><div class="chl">Accès</div></div>
+      <div class="choice" data-val="non" onclick="pick(this,'cMprAcces');S.mprAcces='non'"><div class="chi">🚫</div><div class="chl">Non accès</div></div>
+    </div>
+  </div>
+  <div class="row2">
+    <div><label class="flabel">Mail MPR</label><input type="email" id="mprMail" placeholder="client@mail.fr"/></div>
+    <div><label class="flabel">Mot de passe MPR</label><input type="text" id="mprMdp" placeholder="Mot de passe" autocomplete="new-password"/></div>
+  </div>
+  <label class="flabel">Vérification du compte</label>
+  <div class="choices c2" id="cMprVerif" style="margin-bottom:14px;">
+    <div class="choice" data-val="courrier" onclick="pick(this,'cMprVerif');S.mprVerif='courrier'"><div class="chi">✉️</div><div class="chl">Courrier commandé</div></div>
+    <div class="choice" data-val="verifie" onclick="pick(this,'cMprVerif');S.mprVerif='verifie'"><div class="chi">✅</div><div class="chl">Compte déjà vérifié</div></div>
+  </div>
+
   <div class="err" id="e6">⚠ Veuillez remplir tous les champs obligatoires.</div>
   <div class="brow"><button class="btn bs" type="button" onclick="pv(6)">← Retour</button><button class="btn bp" type="button" onclick="nx(6)">Voir les résultats →</button></div>
 </div>
@@ -442,7 +467,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 <script>
 emailjs.init('ikg4K9rtN8zThodmu');
 var FIREBASE_URL='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
-var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',noteEtatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',civilite:'',statut:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
+var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',noteEtatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',civilite:'',statut:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',mprCreePar:'',mprAcces:'',mprMail:'',mprMdp:'',mprVerif:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
@@ -503,7 +528,7 @@ function calcFinal(){
   var rfr=Number(g('rfr').value),parts=S.parts,zone=S.zone,couleur=calcCouleur(rfr,parts,S.isIDF),chauf=gSel('cChauf'),surfPac=Number(g('surfPac').value)||0,surfIso=Number(g('surfIso').value)||0;
   var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
   S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;
-  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.civilite=gSel('cCivil');S.statut=gSel('cStatut');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');
+  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.civilite=gSel('cCivil');S.statut=gSel('cStatut');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');S.mprMail=gv('mprMail');S.mprMdp=gv('mprMdp');S.mprCreePar=gSel('cMprCreePar');S.mprAcces=gSel('cMprAcces');S.mprVerif=gSel('cMprVerif');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
     S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');S.noteEtatIso=gv('noteEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;syncFloorHeights();S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=getMulSel('cRadiateur').join(', ');S.notesPac=gv('notesPac');
@@ -742,7 +767,8 @@ function loadFormDraft(){
     Object.assign(S,d);
     var fi=['nom','prenom','dateNaissance','telephone','email','adresse','cp','ville','dept',
       'rfr','rfr2','numDeclarant','numDeclarant2','surfPac','surfIso',
-      'notesIso','notesPac','noteEtatIso','teleproNom','codeReferent'];
+      'notesIso','notesPac','noteEtatIso','teleproNom','codeReferent',
+      'mprMail','mprMdp'];
     fi.forEach(function(k){var el=g(k);if(el&&d[k]!=null)el.value=d[k];});
     if(d.dossier)_rChip('cDossier',d.dossier);
     if(d.civilite)_rChip('cCivil',d.civilite);
@@ -784,6 +810,9 @@ function loadFormDraft(){
     if(d.rfr&&d.parts)previewCouleur();
     if(d.cp)syncDeptCp(d.cp);
     updMapsLink();
+    if(d.mprCreePar){_rChip('cMprCreePar',d.mprCreePar);var ab=g('mprAccesBox');if(ab)ab.style.display=(d.mprCreePar==='autre_societe'||d.mprCreePar==='client')?'block':'none';}
+    if(d.mprAcces)_rChip('cMprAcces',d.mprAcces);
+    if(d.mprVerif)_rChip('cMprVerif',d.mprVerif);
     var b=g('btnNewHdr');if(b)b.style.display='';
     show(data.step||1);
   }catch(e){console.error('loadFormDraft:',e);}
@@ -984,6 +1013,7 @@ function showE(n){g('e'+n).classList.add('show');}
 function hideE(n){g('e'+n).classList.remove('show');}
 function pickFoyer(el){var all=document.querySelectorAll('#cFoyer .choice,#cFoyer2 .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');el.classList.add('sel');S.parts=Number(el.getAttribute('data-val'));previewCouleur();}
 function pick(el,grp){var wasSelected=el.classList.contains('sel');var all=document.querySelectorAll('#'+grp+' .choice');for(var i=0;i<all.length;i++)all[i].classList.remove('sel');if(!wasSelected)el.classList.add('sel');}
+function pickMprCreePar(el){pick(el,'cMprCreePar');S.mprCreePar=el.getAttribute('data-val');var box=g('mprAccesBox');if(box)box.style.display=(S.mprCreePar==='autre_societe'||S.mprCreePar==='client')?'block':'none';}
 function gSel(grp){var el=document.querySelector('#'+grp+' .sel');return el?el.getAttribute('data-val'):'';
 }
 function fmtHauteur(el){var v=el.value.replace(/[^0-9]/g,'');if(v.length===0){el.value='';return;}if(v.length===1){el.value=v;return;}if(v.length===2){el.value=v[0]+'.'+v[1];return;}el.value=v[0]+'.'+v.slice(1,3);}
@@ -1134,6 +1164,12 @@ function postToMonday(racStr,totalRac){
       '• Email : '+(S.email||'—'),
       '• Adresse : '+fullAddr.trim(),
       S.anneeConstruction?'• Année de construction : '+S.anneeConstruction:'',
+      '',
+      '━━━ 🏛️ MA PRIME RÉNOV ━━━',
+      S.mprCreePar?'• Compte créé par : '+({telepro:'Téléprospecteur',autre_societe:'Autre société',client:'Client'}[S.mprCreePar]||S.mprCreePar)+(S.mprAcces&&S.mprCreePar!=='telepro'?' — '+({oui:'Accès ✅',non:'Non accès 🚫'}[S.mprAcces]||S.mprAcces):''):'',
+      S.mprMail?'• Mail MPR : '+S.mprMail:'',
+      S.mprMdp?'• Mdp MPR : '+S.mprMdp:'',
+      S.mprVerif?'• Vérification : '+({courrier:'Courrier commandé ✉️',verifie:'Compte déjà vérifié ✅'}[S.mprVerif]||S.mprVerif):'',
       '',
       '━━━ 💰 DÉCLARATION FISCALE ━━━',
       '• N° Déclarant 1 : '+(S.numDeclarant||'—'),
