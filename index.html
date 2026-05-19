@@ -163,6 +163,11 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <input class="mon-input" id="monBoardId" placeholder="1234567890" type="number"/>
     <div class="mon-lbl">ID Groupe Commercial 171/174 (tous les dossiers)</div>
     <input class="mon-input" id="monGroupPac" placeholder="new_group_12345 (auto-détecté si vide)"/>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #e9d5ff;">
+      <div class="mon-step"><strong>🟦 Pixel CRM — Pont Make.com (optionnel)</strong>Sur <strong>make.com</strong> (gratuit) : créez un scénario → ajoutez un module <strong>Webhooks → Custom webhook</strong> → copiez l'URL → configurez un module HTTP pour appeler Pixel CRM avec le token</div>
+      <div class="mon-lbl">URL Webhook Make.com → Pixel CRM</div>
+      <input class="mon-input" id="monMakeUrl" placeholder="https://hook.eu2.make.com/xxxxxxxxxxxx"/>
+    </div>
     <div class="mon-actions">
       <button class="mon-cancel" onclick="closeMondayCfg()">Annuler</button>
       <button class="mon-save" onclick="saveMondayCfg()">💾 Enregistrer</button>
@@ -787,13 +792,25 @@ function showPixelManualPanel(body){
 function postToPixel(){
   if(!PIXEL_TOKEN)return;
   var body=buildPixelBody();
-  // Simple request (no preflight): token in URL, text/plain — server processes even if CORS blocks response
+  var makeUrl=(getMondayCfg().makeWebhookUrl||'').trim();
+  if(makeUrl){
+    // Via Make.com bridge (serveurs Make, pas de CORS ni WAF)
+    fetch(makeUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
+    .then(function(d){
+      if(d.ok){showMonStatus('🟦 Pixel CRM : envoyé via Make.com ✅');}
+      else{showMonStatus('🟦 Pixel CRM Make.com : erreur '+d.status);showPixelManualPanel(body);}
+    })
+    .catch(function(e){showMonStatus('🟦 Pixel CRM Make.com : erreur réseau');showPixelManualPanel(body);console.error('Make:',e);});
+    return;
+  }
+  // Sans Make.com — tentative simple (token en URL, pas de preflight CORS)
   fetch('https://crm.pixel-crm.com/api/IJLeads?XINTNRGLEAD-TOKEN='+encodeURIComponent(PIXEL_TOKEN),{
     method:'POST',
     headers:{'Content-Type':'text/plain'},
     body:JSON.stringify(body)
   }).catch(function(){});
-  // Primary: full CORS request — works once William enables CORS headers on their API
+  // Tentative principale avec en-têtes CORS (fonctionne si William active CORS sur leur API)
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
     headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
@@ -1163,10 +1180,10 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){clearFormDraft();_resultSent=false;location.reload();}
-function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:''};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');if(!s)return DEF;if(s.boardId==='5071588819'){s.boardId='5093379936';s.group='';s.groupPac='';localStorage.setItem('pac_monday_cfg',JSON.stringify(s));}return s;}catch(e){return DEF;}}
-function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monModal').classList.add('show');}
+function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:'',makeWebhookUrl:''};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');if(!s)return DEF;if(s.boardId==='5071588819'){s.boardId='5093379936';s.group='';s.groupPac='';localStorage.setItem('pac_monday_cfg',JSON.stringify(s));}return s;}catch(e){return DEF;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monMakeUrl').value=cfg.makeWebhookUrl||'';g('monModal').classList.add('show');}
 function closeMondayCfg(){g('monModal').classList.remove('show');}
-function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp}));}updMonBtn();closeMondayCfg();}
+function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim(),mk=g('monMakeUrl').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp,makeWebhookUrl:mk}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
 function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
 function showMonStatus(msg,url){
