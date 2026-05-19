@@ -1007,7 +1007,8 @@ function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
   var mkGeoUrl=function(lon,lat,label){
-    return'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(label||addr)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';
+    var q=(lat&&lon)?(lat+','+lon):(label||addr);
+    return'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(q)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';
   };
   if(_geoLon&&_geoLat){window.open(mkGeoUrl(_geoLon,_geoLat,addr),'_blank');return;}
   var win=window.open('','_blank');
@@ -1240,7 +1241,7 @@ function postToMonday(racStr,totalRac){
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
     if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
     var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
-    var gPortailUrl=(fullAddr.trim())?'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(fullAddr.trim())+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes':'';
+    var gPortailUrl=(fullAddr.trim()||S._lat)?'https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(S._lat&&S._lon?(S._lat+','+S._lon):fullAddr.trim())+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes':'';
     var lines=[
       '━━━ 👤 CLIENT ━━━',
       '• Civilité : '+(S.civilite||'—')+' | Statut : '+(_mStatut[S.statut]||S.statut||'—'),
