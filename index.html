@@ -163,6 +163,25 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <input class="mon-input" id="monBoardId" placeholder="1234567890" type="number"/>
     <div class="mon-lbl">ID Groupe Commercial 171/174 (tous les dossiers)</div>
     <input class="mon-input" id="monGroupPac" placeholder="new_group_12345 (auto-détecté si vide)"/>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #e9d5ff;">
+      <div style="font-size:13px;font-weight:bold;color:#1e40af;margin-bottom:8px;">🟦 Pixel CRM — Pont Make.com</div>
+      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
+        <strong>Étape 1</strong> — Créer compte gratuit sur <strong>make.com</strong>
+      </div>
+      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
+        <strong>Étape 2</strong> — <strong>Import blueprint</strong> → coller le contenu du fichier <strong>make-blueprint.json</strong><br>
+        <span style="font-size:11px;color:#6b7280;">(Menu → Create new scenario → ⋮ → Import Blueprint)</span>
+      </div>
+      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
+        <strong>Étape 3</strong> — Dans le scénario importé, cliquer sur le module <strong>Webhooks</strong> → <strong>Add</strong> → copier l'URL générée
+      </div>
+      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
+        <strong>Étape 4</strong> — Coller l'URL ci-dessous → Enregistrer → activer le scénario (bouton ON)
+      </div>
+      <div class="mon-lbl">URL Webhook Make.com → Pixel CRM</div>
+      <input class="mon-input" id="monMakeUrl" placeholder="https://hook.eu2.make.com/xxxxxxxxxxxx"/>
+      <a href="make-blueprint.json" download="make-blueprint.json" style="display:inline-block;margin-top:8px;font-size:12px;color:#1d4ed8;text-decoration:underline;">⬇ Télécharger make-blueprint.json</a>
+    </div>
     <div class="mon-actions">
       <button class="mon-cancel" onclick="closeMondayCfg()">Annuler</button>
       <button class="mon-save" onclick="saveMondayCfg()">💾 Enregistrer</button>
@@ -717,8 +736,7 @@ postToPixel();
 var PIXEL_TOKEN='ee0dc8a7-41a9-45fe-a820-7d7d009a6868';
 var PIXEL_UA='STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
 var PIXEL_PROJECT_ID='F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
-function postToPixel(){
-  if(!PIXEL_TOKEN)return;
+function buildPixelBody(){
   var tcMap={'Gaz':1,'Fioul':1,'Chaudière à bois':1,'Chaudière à charbon':1,'Électrique':2,'Autre':3};
   var thMap={'prop_occ':1,'locataire':2,'prop_bail':3};
   var commentParts=[];
@@ -753,6 +771,56 @@ function postToPixel(){
   if(S.rfr)body.RevenuFiscal=Number(String(S.rfr).replace(',','.'));
   if(S.numDeclarant)body.NumFiscal1=S.numDeclarant;
   if(S.refFiscal1)body.RefFiscal1=S.refFiscal1;
+  return body;
+}
+function showPixelManualPanel(body){
+  var tcLabels={1:'Combustible',2:'Électrique',3:'Hybride'};
+  var thLabels={1:'Prop. occupant',2:'Locataire',3:'Prop. bailleur'};
+  var lines=[
+    'Civilité : '+(body.Civilite1||''),
+    'Nom : '+(body.Nom1||''),
+    'Prénom : '+(body.Prenom1||''),
+    'Téléphone : '+(body.TelMobile||''),
+    'Email : '+(body.Mail||''),
+    'Adresse : '+(body.Adresse||''),
+    'CP : '+(body.CodePostal||''),
+    'Ville : '+(body.Ville||''),
+    '---',
+    'N° dossier : '+(body.DealId||''),
+    'Type opération : Chauffage & ECS',
+    'Type chauffage : '+(tcLabels[body.TypeChauffage]||body.TypeChauffage),
+    'Occupation : '+(thLabels[body.TypeHabitation]||body.TypeHabitation),
+    body.NbrPersonneAuFoyer?'Nb personnes : '+body.NbrPersonneAuFoyer:'',
+    body.RevenuFiscal?'Revenu fiscal : '+body.RevenuFiscal+' €':'',
+    body.NumFiscal1?'N° fiscal : '+body.NumFiscal1:'',
+  ].filter(Boolean).join('\n');
+  var panel=g('sendStatusPanel');
+  if(!panel)return;
+  var wrap=document.createElement('div');
+  wrap.style.cssText='padding:10px 14px;background:#fff7ed;border-top:1px solid #fed7aa;';
+  wrap.innerHTML='<div style="font-size:12px;font-weight:bold;color:#c2410c;margin-bottom:6px;">⚠️ Pixel CRM : CORS bloqué — saisir manuellement</div>'
+    +'<pre style="font-size:11px;color:#374151;white-space:pre-wrap;margin:0 0 6px 0;">'+lines+'</pre>'
+    +'<button onclick="navigator.clipboard.writeText(this.previousSibling.textContent).then(function(){alert(\'Copié !\');}).catch(function(){alert(\'Copie manuelle : Ctrl+A puis Ctrl+C\');})" style="font-size:11px;padding:3px 10px;border:1px solid #f97316;border-radius:6px;background:#fff;color:#c2410c;cursor:pointer;">📋 Copier</button>';
+  panel.appendChild(wrap);
+  panel.style.display='block';
+}
+function postToPixel(){
+  if(!PIXEL_TOKEN)return;
+  var body=buildPixelBody();
+  var makeUrl=(getMondayCfg().makeWebhookUrl||'').trim();
+  if(makeUrl){
+    fetch(makeUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
+    .then(function(d){
+      if(d.ok){showMonStatus('🟦 Pixel CRM : envoyé via Make.com ✅');}
+      else{showMonStatus('🟦 Pixel CRM Make.com : erreur '+d.status);showPixelManualPanel(body);}
+    })
+    .catch(function(e){showMonStatus('🟦 Pixel CRM Make.com : erreur réseau');showPixelManualPanel(body);console.error('Make:',e);});
+    return;
+  }
+  fetch('https://crm.pixel-crm.com/api/IJLeads?XINTNRGLEAD-TOKEN='+encodeURIComponent(PIXEL_TOKEN),{
+    method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)
+  }).catch(function(){});
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
     headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
@@ -766,7 +834,7 @@ function postToPixel(){
       showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(id?' (id '+id+')':''));
     }else{showMonStatus('🟦 Pixel CRM : erreur '+d.status+' — '+d.txt.slice(0,200));}
   })
-  .catch(function(e){showMonStatus('🟦 Pixel CRM : erreur réseau/CORS');console.error('Pixel:',e);});
+  .catch(function(e){showPixelManualPanel(body);console.error('Pixel:',e);});
 }
 
 function saveFormDraft(){
@@ -1122,10 +1190,10 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){clearFormDraft();_resultSent=false;location.reload();}
-function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:''};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');if(!s)return DEF;if(s.boardId==='5071588819'){s.boardId='5093379936';s.group='';s.groupPac='';localStorage.setItem('pac_monday_cfg',JSON.stringify(s));}return s;}catch(e){return DEF;}}
-function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monModal').classList.add('show');}
+function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:'',makeWebhookUrl:''};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');if(!s)return DEF;if(s.boardId==='5071588819'){s.boardId='5093379936';s.group='';s.groupPac='';localStorage.setItem('pac_monday_cfg',JSON.stringify(s));}return s;}catch(e){return DEF;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monMakeUrl').value=cfg.makeWebhookUrl||'';g('monModal').classList.add('show');}
 function closeMondayCfg(){g('monModal').classList.remove('show');}
-function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp}));}updMonBtn();closeMondayCfg();}
+function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim(),mk=g('monMakeUrl').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp,makeWebhookUrl:mk}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
 function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
 function showMonStatus(msg,url){
