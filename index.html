@@ -807,20 +807,6 @@ function showPixelManualPanel(body){
 function postToPixel(){
   if(!PIXEL_TOKEN)return;
   var body=buildPixelBody();
-  var makeUrl=(getMondayCfg().makeWebhookUrl||'').trim();
-  if(makeUrl){
-    fetch(makeUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-    .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
-    .then(function(d){
-      if(d.ok){showMonStatus('🟦 Pixel CRM : envoyé via Make.com ✅');}
-      else{showMonStatus('🟦 Pixel CRM Make.com : erreur '+d.status);showPixelManualPanel(body);}
-    })
-    .catch(function(e){showMonStatus('🟦 Pixel CRM Make.com : erreur réseau');showPixelManualPanel(body);console.error('Make:',e);});
-    return;
-  }
-  fetch('https://crm.pixel-crm.com/api/IJLeads?XINTNRGLEAD-TOKEN='+encodeURIComponent(PIXEL_TOKEN),{
-    method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)
-  }).catch(function(){});
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
     headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
