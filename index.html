@@ -1006,13 +1006,27 @@ function updMapsLink(){
 function openMaps(){var addr=g('btnMaps').getAttribute('data-addr')||'';if(addr)window.open('https://earth.google.com/web/search/'+encodeURIComponent(addr),'_blank');}
 function openGeo(){
   var addr=g('btnGeo').getAttribute('data-addr')||'';if(!addr)return;
-  var mkGeoUrl=function(lon,lat,label){
-    var base='https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)';
-    if(lat&&lon)base+='&marker='+lon+','+lat;
-    return base+'&permalink=yes';
+  var mkMap=function(lon,lat,label){
+    var a=(label||addr).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    var gUrl='https://www.geoportail.gouv.fr/carte?c='+lon+','+lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';
+    var html='<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+a+'</title>'
+      +'<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>'
+      +'<style>html,body,#map{margin:0;padding:0;height:100%;width:100%}'
+      +'#bar{position:absolute;top:10px;left:50px;right:10px;z-index:1000;background:#fff;padding:8px 14px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.35);font-family:Arial,sans-serif;font-size:13px;display:flex;align-items:center;gap:12px;}'
+      +'#bar strong{flex:1}#bar a{color:#1a56db;text-decoration:none;font-size:12px;border:1px solid #1a56db;padding:3px 9px;border-radius:5px;white-space:nowrap;}'
+      +'</style></head><body>'
+      +'<div id="map"></div>'
+      +'<div id="bar">📍 <strong>'+a+'</strong><a href="'+gUrl+'" target="_blank">Géoportail (cadastre)</a></div>'
+      +'<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>'
+      +'<script>'
+      +'var map=L.map("map").setView(['+lat+','+lon+'],19);'
+      +'L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{attribution:"Imagery © ESRI",maxZoom:20}).addTo(map);'
+      +'L.marker(['+lat+','+lon+']).addTo(map).bindPopup("<b>'+a.replace(/\'/g,"&#39;")+'</b><br><small>'+lat.toFixed(5)+', '+lon.toFixed(5)+'</small>").openPopup();'
+      +'<\/script></body></html>';
+    var b=new Blob([html],{type:'text/html'});
+    window.open(URL.createObjectURL(b),'_blank');
   };
-  if(_geoLon&&_geoLat){window.open(mkGeoUrl(_geoLon,_geoLat,addr),'_blank');return;}
-  var win=window.open('','_blank');
+  if(_geoLon&&_geoLat){mkMap(_geoLon,_geoLat,addr);return;}
   fetch('https://api-adresse.data.gouv.fr/search/?q='+encodeURIComponent(addr)+'&limit=1')
     .then(function(r){return r.json();})
     .then(function(d){
@@ -1020,10 +1034,10 @@ function openGeo(){
         var c=d.features[0].geometry.coordinates;
         var label=d.features[0].properties.label||addr;
         _geoLon=c[0];_geoLat=c[1];
-        win.location.href=mkGeoUrl(c[0],c[1],label);
-      }else{win.location.href='https://www.geoportail.gouv.fr/carte?q='+encodeURIComponent(addr)+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes';}
+        mkMap(c[0],c[1],label);
+      }else{window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr),'_blank');}
     })
-    .catch(function(){win.location.href='https://www.geoportail.gouv.fr/';});
+    .catch(function(){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr),'_blank');});
 }
 function openStreetView(){
   var addr=g('btnStreet')&&g('btnStreet').getAttribute('data-addr')||'';
@@ -1242,7 +1256,7 @@ function postToMonday(racStr,totalRac){
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
     if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
     var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
-    var gPortailUrl=(S._lat&&S._lon)?'https://www.geoportail.gouv.fr/carte?c='+S._lon+','+S._lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&marker='+S._lon+','+S._lat+'&permalink=yes':'';
+    var gPortailUrl=(S._lat&&S._lon)?'https://www.google.com/maps/search/?api=1&query='+S._lat+','+S._lon:'';
     var lines=[
       '━━━ 👤 CLIENT ━━━',
       '• Civilité : '+(S.civilite||'—')+' | Statut : '+(_mStatut[S.statut]||S.statut||'—'),
