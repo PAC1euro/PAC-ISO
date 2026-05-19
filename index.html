@@ -228,7 +228,7 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="slabel">Superficie</div>
   <label class="flabel">Surface chauffée (m²)</label>
   <input type="number" id="surfPac" placeholder="Ex: 120" oninput="chkSurf()"/>
-  <div class="hint">90–190m² : éligible · 190–250m² : +3 500€ · >250m² : Voir Resp. technique · 70–90m² : +5 000€ · &lt;70m² : Voir Resp. technique</div>
+  <div class="hint">90–190m² : éligible · 190–250m² : +3 500€ · >250m² : Voir Resp. technique · 70–89m² : +2 714€ · ≤69m² : +4 522€</div>
   <div id="surfAlert"></div>
   <div class="slabel">Chauffage actuel</div>
   <div class="choices c3" id="cChauf">
@@ -514,7 +514,7 @@ function calcCouleur(rfr,parts,isIDF){
   if(rfr<=PLAF[r].violet[i])return'Violet';
   return'Rose';
 }
-function racC(c){return{Bleu:0,Jaune:5000,Violet:6194,Rose:9194}[c]||0;}
+function racC(c){return{Bleu:0,Jaune:5194,Violet:6194,Rose:9194}[c]||0;}
 function racZ(z){return{H1:0,H2:1508,H3:3768}[z]||0;}
 function previewCouleur(){
   var rfr=Number(g('rfr').value),parts=S.parts;
@@ -524,7 +524,7 @@ function previewCouleur(){
   var cfg={Bleu:{cls:'cb-bleu',dot:'🔵',lbl:'BLEU — Ménage très modeste'},Jaune:{cls:'cb-jaune',dot:'🟡',lbl:'JAUNE — Ménage modeste'},Violet:{cls:'cb-violet',dot:'🟣',lbl:'VIOLET — Ménage intermédiaire'},Rose:{cls:'cb-rose',dot:'🔴',lbl:'ROSE — Hors plafonds'}};
   var m=cfg[c],rz=racZ(S.zone),rp=racC(c)+rz;
   var racTxt=rp===0?'✅ PAC éligible à 1€':'⚠️ RAC PAC estimé : '+fmt(rp)+' (couleur : '+fmt(racC(c))+' + zone : '+fmt(rz)+')';
-  var isoTxt=['Bleu','Jaune'].indexOf(c)>-1?(c==='Jaune'?'⚠️ ISO éligible — RAC Jaune : +5 000€':'✅ ISO éligible à 1€'):'❌ ISO non éligible';
+  var isoTxt=['Bleu','Jaune'].indexOf(c)>-1?(c==='Jaune'?'⚠️ ISO éligible — RAC Jaune : +5 194€':'✅ ISO éligible à 1€'):'❌ ISO non éligible';
   g('couleurBloc').innerHTML='<div class="cbadge '+m.cls+'"><div class="cb-t">'+m.dot+' Couleur ANAH : '+c+'</div><div class="cb-d">'+m.lbl+' · '+(S.isIDF?'IDF':'Province')+'</div><div class="cb-r">'+racTxt+'<br>'+isoTxt+'</div></div>';
   var r=S.isIDF?'idf':'prov',idx=Math.min(parts-1,5);
   var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
@@ -535,7 +535,7 @@ function previewCouleur(){
   g('plafondTable').innerHTML='<div style="font-size:11px;color:#94a3b8;margin:8px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
 }
 function chkChauf(){var el=document.querySelector('#cChauf .sel');if(!el)return;var ok=el.getAttribute('data-ok')==='1';g('chaufAlert').innerHTML=ok?'<div class="alert ag">✅ Éligible — Chauffage remplaçable par PAC Air/Eau</div>':'<div class="alert ar">❌ Voir avec Responsable technique — Chauffage incompatible</div>';}
-function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';updRacPreviewS2();return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ar">❌ Surface < 70 m² — Voir avec Responsable technique</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–90 m² — RAC : +5 000€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ar">❌ Surface > 250 m² — Voir avec Responsable technique</div>';updRacPreviewS2();}
+function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';updRacPreviewS2();return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface ≤ 69 m² — RAC : +4 522€</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–89 m² — RAC : +2 714€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ar">❌ Surface > 250 m² — Voir avec Responsable technique</div>';updRacPreviewS2();}
 function chkVMC(){var v=gSel('cVMC');g('vmcAlert').innerHTML=v==='Oui'?'<div class="alert ab">💧 VMC existante → Ballon thermodynamique à installer</div>':'<div class="alert ab">🌬️ Pas de VMC → VMC à installer</div>';}
 function chkSurfIso(){var s=Number(g('surfIso').value);S.surfIso=s;if(!s){g('surfIsoAlert').innerHTML='';return;}g('surfIsoAlert').innerHTML=s>=110?'<div class="alert ag">✅ Surface suffisante (≥ 110 m²)</div>':'<div class="alert ao">⚠️ Surface < 110 m² — RAC : +1 800€</div>';}
 function togGeste(el){
@@ -554,10 +554,10 @@ function calcFinal(){
     S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');S.noteEtatIso=gv('noteEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;syncFloorHeights();S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=getMulSel('cRadiateur').join(', ');S.notesPac=gv('notesPac');
     var eligChauf=['Gaz','Fioul','Chaudière à bois','Chaudière à charbon'].indexOf(chauf)>-1;
     S.pacOk=eligChauf;
-    if(eligChauf){if(surfPac<70||surfPac>250){S.racPac=99999;S.surfOk=false;}else{if(surfPac<90)S.racPac+=5000;else if(surfPac>190)S.racPac+=3500;S.racPac+=racZ(zone);S.racPac+=racC(couleur);}}
+    if(eligChauf){if(surfPac>250){S.racPac=99999;S.surfOk=false;}else{if(surfPac<70)S.racPac+=4522;else if(surfPac<90)S.racPac+=2714;else if(surfPac>190)S.racPac+=3500;S.racPac+=racZ(zone);S.racPac+=racC(couleur);}}
   }
   S.racIso=0;S.isoOk=true;
-  if(hasISO){if(['Bleu','Jaune'].indexOf(couleur)<0)S.isoOk=false;else{if(couleur==='Jaune')S.racIso+=5000;if(surfIso<110)S.racIso+=1800;}}
+  if(hasISO){if(['Bleu','Jaune'].indexOf(couleur)<0)S.isoOk=false;else{if(couleur==='Jaune')S.racIso+=5194;if(surfIso<110)S.racIso+=1800;}}
   buildResult();
 }
 function buildResult(){
@@ -579,10 +579,10 @@ function buildResult(){
   if(hasPAC){
     if(!S.surfOk)html+=ri('bad','📏','Surface chauffée','❌ Voir avec Responsable technique');
     else if(S.pacOk&&S.racPac===0)html+=ri('good','🔥','Pompe à chaleur Air/Eau','✅ Éligible à 1€');
-    else if(S.pacOk){html+=ri('warn','🔥','Pompe à chaleur Air/Eau','⚠️ RAC : '+fmt(S.racPac));if(S.surfPac>=70&&S.surfPac<90)html+=ri('info','📏','Surface 70–90 m²','+5 000€');if(S.surfPac>190&&S.surfPac<=250)html+=ri('info','📏','Surface 190–250 m²','+3 500€');if(zone==='H2')html+=ri('info','🌤️','Zone H2','+1 508€');if(zone==='H3')html+=ri('info','☀️','Zone H3','+3 768€');if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune','+5 000€');if(c==='Violet')html+=ri('info','🟣','Couleur Violet','+6 194€');if(c==='Rose')html+=ri('info','🔴','Couleur Rose','+9 194€');}
+    else if(S.pacOk){html+=ri('warn','🔥','Pompe à chaleur Air/Eau','⚠️ RAC : '+fmt(S.racPac));if(S.surfPac<70)html+=ri('info','📏','Surface ≤ 69 m²','+4 522€');else if(S.surfPac<90)html+=ri('info','📏','Surface 70–89 m²','+2 714€');if(S.surfPac>190&&S.surfPac<=250)html+=ri('info','📏','Surface 190–250 m²','+3 500€');if(zone==='H2')html+=ri('info','🌤️','Zone H2','+1 508€');if(zone==='H3')html+=ri('info','☀️','Zone H3','+3 768€');if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune','+5 194€');if(c==='Violet')html+=ri('info','🟣','Couleur Violet','+6 194€');if(c==='Rose')html+=ri('info','🔴','Couleur Rose','+9 194€');}
     else html+=ri('bad','🔥','Pompe à chaleur Air/Eau','❌ Voir avec Responsable technique');
   }
-  if(hasISO){if(!S.isoOk)html+=ri('bad','🏠','Isolation','❌ Voir avec Responsable technique');else if(S.racIso===0)html+=ri('good','🏠','Isolation','✅ Éligible à 1€');else{html+=ri('warn','🏠','Isolation','⚠️ RAC : '+fmt(S.racIso));if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune (ISO)','+5 000€');if(S.surfIso<110)html+=ri('info','📏','Surface < 110 m²','+1 800€');}html+=ri('info','🏗️','Gestes',S.gestes.join(' + ')||'—');}
+  if(hasISO){if(!S.isoOk)html+=ri('bad','🏠','Isolation','❌ Voir avec Responsable technique');else if(S.racIso===0)html+=ri('good','🏠','Isolation','✅ Éligible à 1€');else{html+=ri('warn','🏠','Isolation','⚠️ RAC : '+fmt(S.racIso));if(c==='Jaune')html+=ri('info','🟡','Couleur Jaune (ISO)','+5 194€');if(S.surfIso<110)html+=ri('info','📏','Surface < 110 m²','+1 800€');}html+=ri('info','🏗️','Gestes',S.gestes.join(' + ')||'—');}
   g('rGrid').innerHTML=html;
   var racH='';
   if((hasPAC&&nonPAC&&!hasISO)||(hasISO&&nonISO&&!hasPAC))racH='<div class="rac-box bg-red"><div class="rac-lbl">Résultat</div><div class="rac-amt" style="font-size:22px;">Voir Resp. technique</div><div class="rac-note">Contacter le responsable</div></div>';
