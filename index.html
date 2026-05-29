@@ -367,6 +367,12 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <input type="number" id="surfIso" placeholder="Ex: 120" oninput="chkSurfIso()"/>
   <div class="hint" style="margin-top:-12px;margin-bottom:10px;">≥ 110 m² : éligible · &lt;110 m² : +1 800€ RAC</div>
   <div id="surfIsoAlert"></div>
+  <div class="slabel">VMC ou BTD</div>
+  <div class="choices c2" id="cVMC">
+    <div class="choice" data-val="Non" onclick="pick(this,'cVMC');chkVMC()"><div class="chi">🌬️</div><div class="chl">Pas de VMC<div style="font-size:10px;color:#64748b;margin-top:2px;">→ VMC ou VMR à installer</div></div></div>
+    <div class="choice" data-val="Oui" onclick="pick(this,'cVMC');chkVMC()"><div class="chi">✅</div><div class="chl">VMC existante<div style="font-size:10px;color:#64748b;margin-top:2px;">→ BTD à proposer</div></div></div>
+  </div>
+  <div id="vmcAlert"></div>
   <label class="flabel">Notes isolation</label>
   <textarea id="notesIso" placeholder="Type de murs, état existant…"></textarea>
   <div class="err" id="e5">⚠ Sélectionnez au moins 2 gestes et renseignez la surface.</div>
@@ -547,7 +553,7 @@ function togGeste(el){
 function calcFinal(){
   var rfr=Number(g('rfr').value),parts=S.parts,zone=S.zone,couleur=calcCouleur(rfr,parts,S.isIDF),chauf=gSel('cChauf'),surfPac=Number(g('surfPac').value)||0,surfIso=Number(g('surfIso').value)||0;
   var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
-  S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;
+  S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;S.vmc=gSel('cVMC');
   S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.civilite=gSel('cCivil');S.statut=gSel('cStatut');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');S.mprMail=gv('mprMail');S.mprMdp=gv('mprMdp');S.numMpr=gv('numMpr');S.mprCreePar=gSel('cMprCreePar');S.mprAcces=gSel('cMprAcces');S.mprVerif=gSel('cMprVerif');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
@@ -644,7 +650,7 @@ function genPDF(){
 +'<div class="row"><span class="l">Couleur ANAH</span><span class="v">'+S.couleur+'</span></div>'
 +'<div class="row"><span class="l">Dpt / Zone</span><span class="v">'+S.dept+' — Zone '+S.zone+'</span></div>'
 +(hasPAC?'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'+(S.etatIso?'<div class="row"><span class="l">État isolation</span><span class="v">'+S.etatIso+'</span></div>':'')+(S.emplacementChaudiere?'<div class="row"><span class="l">Emplacement chaudière</span><span class="v">'+S.emplacementChaudiere+'</span></div>':'')+(S.hauteurPlafond?'<div class="row"><span class="l">Hauteur plafond</span><span class="v">'+S.hauteurPlafond+'</span></div>':'')+(S.typeRadiateur?'<div class="row"><span class="l">Radiateurs</span><span class="v">'+S.typeRadiateur+'</span></div>':'')+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(nonPAC?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</span></div>':'')
-+(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface habitable</span><span class="v">'+S.surfIso+' m²</span></div><div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
++(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface habitable</span><span class="v">'+S.surfIso+' m²</span></div>'+(S.vmc?'<div class="row"><span class="l">VMC/BTD</span><span class="v">'+(S.vmc==='Oui'?'VMC existante → BTD':'Pas de VMC → VMC/VMR')+'</span></div>':'')+'<div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
 +(S.notesPac||S.notesIso||S.noteEtatIso?'<div class="sec">📝 NOTES</div>'+(S.noteEtatIso?'<div class="row"><span class="l">Note isolation</span><span class="v">'+S.noteEtatIso+'</span></div>':'')+(S.notesPac?'<div class="row"><span class="l">Notes PAC</span><span class="v">'+S.notesPac+'</span></div>':'')+(S.notesIso?'<div class="row"><span class="l">Notes ISO</span><span class="v">'+S.notesIso+'</span></div>':''):'')
 +'<div class="total '+(nonPAC?'red':totalRac===0?'green':'blue')+'"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
 +'<div class="foot">Document généré automatiquement — '+date+'</div>'
@@ -864,6 +870,7 @@ function loadFormDraft(){
     if(d.compteur)_rChip('cCompt',d.compteur);
     if(d.ecs)_rChip('cECS',d.ecs);
     if(d.etatIso)_rChip('cEtatIso',d.etatIso);
+    if(d.vmc){_rChip('cVMC',d.vmc);chkVMC();}
     if(d.anneeConstruction)_rChip('cAnnee',d.anneeConstruction);
     if(d.emplacementChaudiere){
       var stdE=['Garage','Chaufferie','Cuisine','Cave','Sous-sol','Buanderie'];
@@ -1300,6 +1307,7 @@ function postToMonday(racStr,totalRac){
       hasISO?'━━━ 🏠 ISOLATION ━━━':'',
       hasISO?'• Gestes : '+(S.gestes.join(', ')||'—'):'',
       hasISO?'• Surface habitable : '+(S.surfIso?S.surfIso+' m²':'—'):'',
+      hasISO&&S.vmc?'• VMC/BTD : '+(S.vmc==='Oui'?'VMC existante → BTD à proposer':'Pas de VMC → VMC/VMR à installer'):'',
       hasISO?'• RAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible — Voir Resp. technique'):'',
       S.notesIso?'• Notes ISO : '+S.notesIso:'',
       '',
