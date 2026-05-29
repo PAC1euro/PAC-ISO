@@ -322,6 +322,12 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
   <div class="stag">💰 Revenus</div>
   <div class="stitle">Déclaration fiscale &amp; Couleur ANAH</div>
   <div class="ssub">Calcul automatique selon RFR et parts fiscales</div>
+  <div id="surfHabBox">
+    <label class="flabel">Surface habitable (m²)</label>
+    <input type="number" id="surfIso" placeholder="Ex: 120" oninput="chkSurfIso()"/>
+    <div class="hint" style="margin-top:-12px;margin-bottom:10px;">≥ 110 m² : éligible · &lt;110 m² : +1 800€ RAC</div>
+    <div id="surfIsoAlert" style="margin-bottom:10px;"></div>
+  </div>
   <label class="flabel">Parts fiscales</label>
   <div class="hint" style="margin-top:-4px;margin-bottom:10px;">Quotient familial sur l'avis d'imposition</div>
   <div class="choices c4" id="cFoyer">
@@ -355,10 +361,6 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     </div>
     <div class="err" id="e5region">⚠ Veuillez sélectionner la région.</div>
   </div>
-  <label class="flabel">Surface habitable (m²)</label>
-  <input type="number" id="surfIso" placeholder="Ex: 120" oninput="chkSurfIso()"/>
-  <div class="hint" style="margin-top:-12px;margin-bottom:10px;">≥ 110 m² : éligible · &lt;110 m² : +1 800€ RAC</div>
-  <div id="surfIsoAlert"></div>
   <div class="slabel">Gestes d'isolation</div>
   <div style="display:grid;gap:10px;margin-bottom:10px;" id="cGestes">
     <div class="geste-choice" data-val="Isolation rampants" data-grp="combles" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🏖️</div><div><div class="geste-lbl">Isolation rampants</div><div class="geste-sub">1 geste — incompatible avec combles perdus</div></div></div></div>
@@ -935,6 +937,7 @@ function show(n){
     cur=n;
     if(n===7&&!_resultSent){_resultSent=true;setTimeout(sendEmail,500);}
     if(n===3&&g('floorHeights')&&g('floorHeights').children.length===0)initFloors();
+    if(n===4){var shb=g('surfHabBox');if(shb)shb.style.display=(S.dossier==='ISO'||S.dossier==='PAC+ISO')?'block':'none';}
     if(n===5){
       var isISO=S.dossier==='ISO';
       var rTog=g('regionToggleISO');if(rTog)rTog.style.display=isISO?'block':'none';
