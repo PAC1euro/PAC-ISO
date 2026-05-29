@@ -373,6 +373,9 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="Oui" onclick="pick(this,'cVMC');chkVMC()"><div class="chi">✅</div><div class="chl">VMC existante<div style="font-size:10px;color:#64748b;margin-top:2px;">→ BTD à proposer</div></div></div>
   </div>
   <div id="vmcAlert"></div>
+  <label class="flabel">Année de construction <span style="font-size:10px;color:#94a3b8;font-weight:400;">(si connue)</span></label>
+  <input type="number" id="anneeConstruction" placeholder="Ex: 1985" min="1800" max="2030" oninput="chkAnnee()"/>
+  <div id="anneeAlert"></div>
   <label class="flabel">Notes isolation</label>
   <textarea id="notesIso" placeholder="Type de murs, état existant…"></textarea>
   <div class="err" id="e5">⚠ Sélectionnez au moins 2 gestes et renseignez la surface.</div>
@@ -554,7 +557,8 @@ function calcFinal(){
   var rfr=Number(g('rfr').value),parts=S.parts,zone=S.zone,couleur=calcCouleur(rfr,parts,S.isIDF),chauf=gSel('cChauf'),surfPac=Number(g('surfPac').value)||0,surfIso=Number(g('surfIso').value)||0;
   var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
   S.couleur=couleur;S.rfr=rfr;S.surfIso=surfIso;S.vmc=gSel('cVMC');
-  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.civilite=gSel('cCivil');S.statut=gSel('cStatut');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');S.anneeConstruction=gSel('cAnnee');S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');S.mprMail=gv('mprMail');S.mprMdp=gv('mprMdp');S.numMpr=gv('numMpr');S.mprCreePar=gSel('cMprCreePar');S.mprAcces=gSel('cMprAcces');S.mprVerif=gSel('cMprVerif');
+  S.notesIso=gv('notesIso');S.nom=gv('nom');S.prenom=gv('prenom');S.civilite=gSel('cCivil');S.statut=gSel('cStatut');S.dateNaissance=gv('dateNaissance');S.telephone=gv('telephone');S.email=gv('email');S.adresse=gv('adresse');S.cp=gv('cp');S.ville=gv('ville');S.numDeclarant=gv('numDeclarant');S.numDeclarant2=gv('numDeclarant2');S.rfr2=gv('rfr2');
+  var _anneeRaw=Number(gv('anneeConstruction'));if(_anneeRaw>=1800&&_anneeRaw<=2030){var _age=new Date().getFullYear()-_anneeRaw;var _tranche=_age>=15?'+ de 15 ans':'- de 15 ans';S.anneeConstruction=_anneeRaw+' ('+_tranche+')';_rChip('cAnnee',_tranche);}else{S.anneeConstruction=gSel('cAnnee');}S.teleproNom=gv('teleproNom');S.codeReferent=gv('codeReferent');S.mprMail=gv('mprMail');S.mprMdp=gv('mprMdp');S.numMpr=gv('numMpr');S.mprCreePar=gSel('cMprCreePar');S.mprAcces=gSel('cMprAcces');S.mprVerif=gSel('cMprVerif');
   S.pacOk=true;S.racPac=0;S.surfOk=true;
   if(hasPAC){
     S.chauffage=chauf;S.surfPac=surfPac;S.compteur=gSel('cCompt');S.ecs=gSel('cECS');S.etatIso=gSel('cEtatIso');S.noteEtatIso=gv('noteEtatIso');var _emp=gSel('cEmplacement');S.emplacementChaudiere=_emp==='Autre'?(gv('emplacementAutre')||'Autre'):_emp;syncFloorHeights();S.hauteurPlafond=gv('hauteurPlafond');S.typeRadiateur=getMulSel('cRadiateur').join(', ');S.notesPac=gv('notesPac');
@@ -861,7 +865,7 @@ function loadFormDraft(){
     var fi=['nom','prenom','dateNaissance','telephone','email','adresse','cp','ville','dept',
       'rfr','rfr2','numDeclarant','numDeclarant2','surfPac','surfIso',
       'notesIso','notesPac','noteEtatIso','teleproNom','codeReferent',
-      'mprMail','mprMdp','numMpr'];
+      'mprMail','mprMdp','numMpr','anneeConstruction'];
     fi.forEach(function(k){var el=g(k);if(el&&d[k]!=null)el.value=d[k];});
     if(d.dossier)_rChip('cDossier',d.dossier);
     if(d.civilite)_rChip('cCivil',d.civilite);
@@ -871,7 +875,7 @@ function loadFormDraft(){
     if(d.ecs)_rChip('cECS',d.ecs);
     if(d.etatIso)_rChip('cEtatIso',d.etatIso);
     if(d.vmc){_rChip('cVMC',d.vmc);chkVMC();}
-    if(d.anneeConstruction)_rChip('cAnnee',d.anneeConstruction);
+    if(d.anneeConstruction){var _yr=Number(d.anneeConstruction);if(_yr>=1800){var _ag=new Date().getFullYear()-_yr;_rChip('cAnnee',_ag>=15?'+ de 15 ans':'- de 15 ans');}else{_rChip('cAnnee',d.anneeConstruction);}chkAnnee();}
     if(d.emplacementChaudiere){
       var stdE=['Garage','Chaufferie','Cuisine','Cave','Sous-sol','Buanderie'];
       var isSt=stdE.indexOf(d.emplacementChaudiere)>-1;
