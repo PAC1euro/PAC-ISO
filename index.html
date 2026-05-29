@@ -363,9 +363,9 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="geste-choice" data-val="Garage/Sous-sol/Cave" data-grp="garage" onclick="togGeste(this)"><div class="geste-inner"><div class="geste-ico">🚗</div><div><div class="geste-lbl">Garage / Sous-sol / Cave</div><div class="geste-sub">1 geste CEE</div></div></div></div>
   </div>
   <div id="gestesCount" style="font-size:12px;color:#94a3b8;margin-bottom:14px;"></div>
-  <label class="flabel">Surface à isoler (m²)</label>
+  <label class="flabel">Surface habitable (m²)</label>
   <input type="number" id="surfIso" placeholder="Ex: 120" oninput="chkSurfIso()"/>
-  <div class="hint" style="margin-top:-12px;margin-bottom:10px;">Minimum 110 m² pour éligibilité pleine</div>
+  <div class="hint" style="margin-top:-12px;margin-bottom:10px;">≥ 110 m² : éligible · &lt;110 m² : +1 800€ RAC</div>
   <div id="surfIsoAlert"></div>
   <label class="flabel">Notes isolation</label>
   <textarea id="notesIso" placeholder="Type de murs, état existant…"></textarea>
@@ -537,7 +537,7 @@ function previewCouleur(){
 function chkChauf(){var el=document.querySelector('#cChauf .sel');if(!el)return;var ok=el.getAttribute('data-ok')==='1';g('chaufAlert').innerHTML=ok?'<div class="alert ag">✅ Éligible — Chauffage remplaçable par PAC Air/Eau</div>':'<div class="alert ar">❌ Voir avec Responsable technique — Chauffage incompatible</div>';}
 function chkSurf(){var s=Number(g('surfPac').value);S.surfPac=s;if(!s){g('surfAlert').innerHTML='';updRacPreviewS2();return;}if(s<70)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface ≤ 69 m² — RAC : +4 522€</div>';else if(s<90)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 70–89 m² — RAC : +2 714€</div>';else if(s<=190)g('surfAlert').innerHTML='<div class="alert ag">✅ Surface éligible (90–190 m²)</div>';else if(s<=250)g('surfAlert').innerHTML='<div class="alert ao">⚠️ Surface 190–250 m² — RAC : +3 500€</div>';else g('surfAlert').innerHTML='<div class="alert ar">❌ Surface > 250 m² — Voir avec Responsable technique</div>';updRacPreviewS2();}
 function chkVMC(){var v=gSel('cVMC');g('vmcAlert').innerHTML=v==='Oui'?'<div class="alert ab">💧 VMC existante → Ballon thermodynamique à installer</div>':'<div class="alert ab">🌬️ Pas de VMC → VMC à installer</div>';}
-function chkSurfIso(){var s=Number(g('surfIso').value);S.surfIso=s;if(!s){g('surfIsoAlert').innerHTML='';return;}g('surfIsoAlert').innerHTML=s>=110?'<div class="alert ag">✅ Surface suffisante (≥ 110 m²)</div>':'<div class="alert ao">⚠️ Surface < 110 m² — RAC : +1 800€</div>';}
+function chkSurfIso(){var s=Number(g('surfIso').value);S.surfIso=s;if(!s){g('surfIsoAlert').innerHTML='';return;}g('surfIsoAlert').innerHTML=s>=110?'<div class="alert ag">✅ Surface habitable suffisante (≥ 110 m²)</div>':'<div class="alert ao">⚠️ Surface habitable < 110 m² — RAC : +1 800€</div>';}
 function togGeste(el){
   var grp=el.getAttribute('data-grp'),val=el.getAttribute('data-val'),isSel=el.classList.contains('sel');
   if(grp==='combles'&&!isSel){var others=document.querySelectorAll('#cGestes .geste-choice[data-grp="combles"]');for(var i=0;i<others.length;i++){if(others[i]!==el&&others[i].classList.contains('sel')){others[i].classList.remove('sel');var ix=S.gestes.indexOf(others[i].getAttribute('data-val'));if(ix>-1)S.gestes.splice(ix,1);}}}
@@ -593,7 +593,7 @@ function buildResult(){
   var th='<h4>📋 Récapitulatif du dossier</h4>';
   th+=trow('Téléprospecteur',S.teleproNom||'—');if(S.codeReferent)th+=trow('Code référent',S.codeReferent);th+=trow('Nom / Prénom',S.prenom+' '+S.nom);th+=trow('Date naissance',dob);th+=trow('Téléphone',S.telephone);th+=trow('Email',S.email||'—');th+=trow('Adresse',S.adresse+', '+S.cp+' '+S.ville);if(S.anneeConstruction)th+=trow('Année construction',S.anneeConstruction);th+=trow('N° Déclarant 1',S.numDeclarant);if(S.numDeclarant2)th+=trow('N° Déclarant 2',S.numDeclarant2);th+=trow('RFR',fmt(S.rfr));th+=trow('Parts fiscales',S.parts+' part(s)');th+=trow('Zone',S.dept+(S.zone?' — Zone '+S.zone:'')+(S.isIDF?' (IDF)':' (Province)'));th+=trow('Couleur ANAH',c);th+=trow('Dossier',S.dossier);
   if(hasPAC){th+=trow('Chauffage',S.chauffage);th+=trow('Surface PAC',S.surfPac+' m²');th+=trow('Compteur',S.compteur);th+=trow('Eau chaude',S.ecs);if(S.etatIso)th+=trow('État isolation',S.etatIso);if(S.emplacementChaudiere)th+=trow('Emplacement chaudière',S.emplacementChaudiere);if(S.hauteurPlafond)th+=trow('Hauteur plafond',S.hauteurPlafond);if(S.typeRadiateur)th+=trow('Radiateurs',S.typeRadiateur);th+=trow('RAC PAC',nonPAC?'Voir Resp. technique':S.racPac===0?'1€':fmt(S.racPac));}
-  if(hasISO){th+=trow('Gestes',S.gestes.join(', ')||'—');th+=trow('Surface ISO',S.surfIso+' m²');th+=trow('RAC Isolation',S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Voir Resp. technique');}
+  if(hasISO){th+=trow('Gestes',S.gestes.join(', ')||'—');th+=trow('Surface habitable',S.surfIso+' m²');th+=trow('RAC Isolation',S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Voir Resp. technique');}
   var totalBg=((hasPAC&&nonPAC)||(hasISO&&nonISO&&!hasPAC))?'#fee2e2':totalRac===0?'#e8faf3':'#fef3c7';
   var totalVal=((hasPAC&&nonPAC)&&(!hasISO||nonISO))||(hasISO&&nonISO&&!hasPAC)?'Voir Resp. technique':totalRac===0?'1€':fmt(totalRac);
   th+='<div class="trow" style="background:'+totalBg+';border-radius:8px;padding:10px;"><span class="tl" style="font-weight:bold;">💶 RESTE À CHARGE TOTAL</span><span class="tv" style="font-size:16px;">'+totalVal+'</span></div>';
@@ -644,7 +644,7 @@ function genPDF(){
 +'<div class="row"><span class="l">Couleur ANAH</span><span class="v">'+S.couleur+'</span></div>'
 +'<div class="row"><span class="l">Dpt / Zone</span><span class="v">'+S.dept+' — Zone '+S.zone+'</span></div>'
 +(hasPAC?'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'+(S.etatIso?'<div class="row"><span class="l">État isolation</span><span class="v">'+S.etatIso+'</span></div>':'')+(S.emplacementChaudiere?'<div class="row"><span class="l">Emplacement chaudière</span><span class="v">'+S.emplacementChaudiere+'</span></div>':'')+(S.hauteurPlafond?'<div class="row"><span class="l">Hauteur plafond</span><span class="v">'+S.hauteurPlafond+'</span></div>':'')+(S.typeRadiateur?'<div class="row"><span class="l">Radiateurs</span><span class="v">'+S.typeRadiateur+'</span></div>':'')+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(nonPAC?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</span></div>':'')
-+(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface</span><span class="v">'+S.surfIso+' m²</span></div><div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
++(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface habitable</span><span class="v">'+S.surfIso+' m²</span></div><div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
 +(S.notesPac||S.notesIso||S.noteEtatIso?'<div class="sec">📝 NOTES</div>'+(S.noteEtatIso?'<div class="row"><span class="l">Note isolation</span><span class="v">'+S.noteEtatIso+'</span></div>':'')+(S.notesPac?'<div class="row"><span class="l">Notes PAC</span><span class="v">'+S.notesPac+'</span></div>':'')+(S.notesIso?'<div class="row"><span class="l">Notes ISO</span><span class="v">'+S.notesIso+'</span></div>':''):'')
 +'<div class="total '+(nonPAC?'red':totalRac===0?'green':'blue')+'"><span>💶 RESTE À CHARGE TOTAL</span><span>'+racStr+'</span></div>'
 +'<div class="foot">Document généré automatiquement — '+date+'</div>'
@@ -1299,7 +1299,7 @@ function postToMonday(racStr,totalRac){
       '',
       hasISO?'━━━ 🏠 ISOLATION ━━━':'',
       hasISO?'• Gestes : '+(S.gestes.join(', ')||'—'):'',
-      hasISO?'• Surface ISO : '+(S.surfIso?S.surfIso+' m²':'—'):'',
+      hasISO?'• Surface habitable : '+(S.surfIso?S.surfIso+' m²':'—'):'',
       hasISO?'• RAC ISO : '+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'Non éligible — Voir Resp. technique'):'',
       S.notesIso?'• Notes ISO : '+S.notesIso:'',
       '',
