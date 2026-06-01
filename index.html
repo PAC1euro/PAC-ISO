@@ -807,7 +807,7 @@ function postToPixel(){
   var body=buildPixelBody();
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
-    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN,'Authorization':PIXEL_UA},
+    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
     body:JSON.stringify(body)
   })
   .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
