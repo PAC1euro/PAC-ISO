@@ -746,8 +746,8 @@ try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _
 postToMonday(racStr,totalRac);
 postToPixel();
 }
-var PIXEL_TOKEN='ee0dc8a7-41a9-45fe-a820-7d7d009a6868';
-var PIXEL_UA='STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS';
+var PIXEL_TOKEN='LERC_f2ffc978-ea01-492f-9344-a18d6413f8c4_PX2307';
+var PIXEL_UA='LERC_f2ffc978-ea01-492f-9344-a18d6413f8c4_PX2307';
 var PIXEL_PROJECT_ID='F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
 function buildPixelBody(){
   var tcMap={'Gaz':1,'Fioul':1,'Chaudière à bois':1,'Chaudière à charbon':1,'Électrique':2,'Autre':3};
@@ -822,7 +822,7 @@ function postToPixel(){
   var body=buildPixelBody();
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
-    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
+    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN,'Authorization':PIXEL_UA},
     body:JSON.stringify(body)
   })
   .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
