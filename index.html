@@ -818,23 +818,8 @@ function showPixelManualPanel(body){
   panel.style.display='block';
 }
 function postToPixel(){
-  var body=buildPixelBody();
-  var makeUrl=(getMondayCfg().makeWebhookUrl||'').trim();
-  if(makeUrl){
-    fetch(makeUrl,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({pixel_token:PIXEL_TOKEN,pixel_ua:PIXEL_UA,pixel_body:body})
-    })
-    .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
-    .then(function(d){
-      if(d.ok){showMonStatus('🟦 Pixel CRM : fiche transmise ✅ (via Make.com)');}
-      else{showMonStatus('🟦 Pixel CRM : erreur Make '+d.status+' — '+d.txt.slice(0,100));}
-    })
-    .catch(function(e){showPixelManualPanel(body);console.error('Pixel via Make:',e);});
-    return;
-  }
   if(!PIXEL_TOKEN)return;
+  var body=buildPixelBody();
   fetch('https://crm.pixel-crm.com/api/IJLeads',{
     method:'POST',
     headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN,'Authorization':PIXEL_UA},
