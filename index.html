@@ -900,7 +900,7 @@ function loadFormDraft(){
     if(d.mprAcces)_rChip('cMprAcces',d.mprAcces);
     if(d.mprVerif)_rChip('cMprVerif',d.mprVerif);
     var b=g('btnNewHdr');if(b)b.style.display='';
-    show(data.step||1);
+    show(1);
   }catch(e){console.error('loadFormDraft:',e);}
 }
 function nx(s){if(!valid(s))return;if(s===1)S.dossier=gSel('cDossier');var next=s+1;if(S.dossier==='ISO'){if(s===1)next=4;else if(s===4)next=5;else if(s===5)next=6;}else if(S.dossier==='PAC'&&s===3){next=6;}else if(S.dossier==='PAC+ISO'&&s===3){next=5;}if(s===5&&fromResult){fromResult=false;calcFinal();show(7);return;}if(next===7)calcFinal();show(next);saveFormDraft();}
