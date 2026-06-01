@@ -164,23 +164,8 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="mon-lbl">ID Groupe Commercial 171/174 (tous les dossiers)</div>
     <input class="mon-input" id="monGroupPac" placeholder="new_group_12345 (auto-détecté si vide)"/>
     <div style="margin-top:18px;padding-top:14px;border-top:1px solid #e9d5ff;">
-      <div style="font-size:13px;font-weight:bold;color:#1e40af;margin-bottom:8px;">🟦 Pixel CRM — Pont Make.com</div>
-      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
-        <strong>Étape 1</strong> — Créer compte gratuit sur <strong>make.com</strong>
-      </div>
-      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
-        <strong>Étape 2</strong> — <strong>Import blueprint</strong> → coller le contenu du fichier <strong>make-blueprint.json</strong><br>
-        <span style="font-size:11px;color:#6b7280;">(Menu → Create new scenario → ⋮ → Import Blueprint)</span>
-      </div>
-      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
-        <strong>Étape 3</strong> — Dans le scénario importé, cliquer sur le module <strong>Webhooks</strong> → <strong>Add</strong> → copier l'URL générée
-      </div>
-      <div class="mon-step" style="background:#eff6ff;border-color:#bfdbfe;">
-        <strong>Étape 4</strong> — Coller l'URL ci-dessous → Enregistrer → activer le scénario (bouton ON)
-      </div>
-      <div class="mon-lbl">URL Webhook Make.com → Pixel CRM</div>
-      <input class="mon-input" id="monMakeUrl" placeholder="https://hook.eu2.make.com/xxxxxxxxxxxx"/>
-      <a href="make-blueprint.json" download="make-blueprint.json" style="display:inline-block;margin-top:8px;font-size:12px;color:#1d4ed8;text-decoration:underline;">⬇ Télécharger make-blueprint.json</a>
+      <div style="font-size:13px;font-weight:bold;color:#1e40af;margin-bottom:6px;">🟦 Pixel CRM</div>
+      <div style="font-size:12px;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px;">✅ Connexion directe active — API C2307</div>
     </div>
     <div class="mon-actions">
       <button class="mon-cancel" onclick="closeMondayCfg()">Annuler</button>
@@ -1209,10 +1194,10 @@ function g(id){return document.getElementById(id);}
 function gv(id){var el=g(id);return el?(el.value||'').trim():'';
 }
 function restart(){clearFormDraft();_resultSent=false;location.reload();}
-function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:'',makeWebhookUrl:'https://hook.eu1.make.com/lo1lfjx9jp6hvjjn6x55wi5jhey7qrng'};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');if(!s)return DEF;if(s.boardId==='5071588819'){s.boardId='5093379936';s.group='';s.groupPac='';localStorage.setItem('pac_monday_cfg',JSON.stringify(s));}if(!s.makeWebhookUrl)s.makeWebhookUrl=DEF.makeWebhookUrl;return s;}catch(e){return DEF;}}
-function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monMakeUrl').value=cfg.makeWebhookUrl||'';g('monModal').classList.add('show');}
+function getMondayCfg(){var DEF={token:'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1ODg4NzUzMSwiYWFpIjoxMSwidWlkIjo5NTMyMTI0NiwiaWFkIjoiMjAyNi0wNS0xNVQxMDoyMDoyOS4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzIyNTU4ODMsInJnbiI6ImV1YzEifQ.g9xgQFMw_9Mgs-YOy_reJO8q696KKh5SepheIIHIV4M',boardId:'5093379936',group:'',groupPac:''};try{var s=JSON.parse(localStorage.getItem('pac_monday_cfg')||'null');if(!s)return DEF;if(s.boardId==='5071588819'){s.boardId='5093379936';s.group='';s.groupPac='';localStorage.setItem('pac_monday_cfg',JSON.stringify(s));}return s;}catch(e){return DEF;}}
+function openMondayCfg(){var cfg=getMondayCfg();g('monToken').value=cfg.token;g('monBoardId').value=cfg.boardId;g('monGroupPac').value=cfg.group||cfg.groupPac||'';g('monModal').classList.add('show');}
 function closeMondayCfg(){g('monModal').classList.remove('show');}
-function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim(),mk=g('monMakeUrl').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp,makeWebhookUrl:mk}));}updMonBtn();closeMondayCfg();}
+function saveMondayCfg(){var t=g('monToken').value.trim(),b=g('monBoardId').value.trim(),gp=g('monGroupPac').value.trim();if(t&&b){localStorage.setItem('pac_monday_cfg',JSON.stringify({token:t,boardId:b,group:gp,groupPac:gp}));}updMonBtn();closeMondayCfg();}
 function clearMondayCfg(){localStorage.removeItem('pac_monday_cfg');updMonBtn();closeMondayCfg();}
 function updMonBtn(){var btn=g('monCfgBtn');if(btn)btn.textContent='🟣 Monday ✅';}
 function showMonStatus(msg,url){
