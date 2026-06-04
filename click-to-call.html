@@ -206,11 +206,8 @@ function updateStatus(tel,statut,cardEl){
     if((allRows[i][C.tel]||'').replace(/\s/g,'')===tel){allRows[i][C.statut]=statut;break;}
   }
   showToast('⏳ Mise à jour…');
-  fetch(GAS_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({tel:tel,statut:statut})
-  })
+  var url=GAS_URL+'?tel='+encodeURIComponent(tel)+'&statut='+encodeURIComponent(statut);
+  fetch(url)
   .then(function(r){return r.json();})
   .then(function(d){showToast(d.ok?'✅ Statut mis à jour':'❌ '+d.error);})
   .catch(function(){showToast('❌ Erreur réseau');});
