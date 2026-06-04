@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Click to Call</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
+.header{background:#1e293b;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.header h1{color:#fff;font-size:16px;flex:1;}
+.cfg-btn{background:#334155;border:none;color:#94a3b8;font-size:12px;padding:6px 10px;border-radius:6px;cursor:pointer;}
+.cfg-btn:hover{background:#475569;color:#fff;}
+.toolbar{padding:10px 12px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:53px;z-index:99;}
+.search{width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;outline:none;margin-bottom:8px;}
+.search:focus{border-color:#3b82f6;}
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
+.filters::-webkit-scrollbar{height:3px;}
+.filter-btn{padding:5px 11px;border:1px solid #cbd5e1;border-radius:20px;background:#fff;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.filter-btn.active{background:#1e293b;color:#fff;border-color:#1e293b;}
+.stats{padding:7px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b;}
+.list{padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+.card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px;}
+.card-info{flex:1;min-width:0;}
+.card-name{font-weight:700;font-size:15px;}
+.card-sub{font-size:12px;color:#64748b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-phone{font-size:14px;color:#3b82f6;font-weight:600;margin-top:4px;}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:5px;text-transform:uppercase;}
+.s-nrp{background:#fef3c7;color:#92400e;}
+.s-pas{background:#fee2e2;color:#991b1b;}
+.s-cb{background:#dbeafe;color:#1e40af;}
+.s-jaune{background:#fef9c3;color:#854d0e;}
+.s-violet{background:#f3e8ff;color:#6b21a8;}
+.s-rose{background:#fce7f3;color:#9d174d;}
+.s-rdv{background:#dcfce7;color:#166534;}
+.s-def{background:#f1f5f9;color:#475569;}
+.call-btn{width:54px;height:54px;min-width:54px;border-radius:50%;background:#22c55e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 8px rgba(34,197,94,.4);}
+.call-btn:active{transform:scale(.94);}
+.call-btn svg{width:24px;height:24px;fill:#fff;}
+.no-phone{width:54px;height:54px;min-width:54px;}
+.empty{text-align:center;padding:60px 20px;color:#94a3b8;font-size:14px;line-height:1.8;}
+.cfg-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
+.cfg-modal.show{display:flex;}
+.cfg-box{background:#fff;border-radius:16px 16px 0 0;padding:20px 20px 32px;width:100%;max-width:520px;}
+.cfg-box h2{font-size:16px;margin-bottom:4px;}
+.cfg-sub{font-size:12px;color:#64748b;margin-bottom:14px;}
+.cfg-lbl{font-size:12px;color:#64748b;margin-bottom:4px;margin-top:12px;font-weight:600;}
+.cfg-input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:13px;outline:none;}
+.cfg-input:focus{border-color:#3b82f6;}
+.cfg-hint{font-size:11px;color:#94a3b8;margin-top:3px;}
+.cfg-save{width:100%;margin-top:16px;padding:13px;background:#1e293b;color:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:bold;}
+.cfg-cancel{width:100%;margin-top:8px;padding:10px;background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;}
+.loading{text-align:center;padding:50px 20px;color:#64748b;font-size:14px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📞 Click to Call</h1>
+  <button class="cfg-btn" onclick="openCfg()">⚙️ Sheet</button>
+</div>
+
+<div class="toolbar">
+  <input class="search" id="searchInput" placeholder="🔍 Nom, prénom, CP…" oninput="renderList()"/>
+  <div class="filters">
+    <button class="filter-btn active" data-f="" onclick="setFilter(this)">Tous</button>
+    <button class="filter-btn" data-f="VIDE" onclick="setFilter(this)">Sans statut</button>
+    <button class="filter-btn" data-f="NRP" onclick="setFilter(this)">NRP</button>
+    <button class="filter-btn" data-f="A RAPPELER" onclick="setFilter(this)">À rappeler</button>
+    <button class="filter-btn" data-f="RDV" onclick="setFilter(this)">RDV</button>
+    <button class="filter-btn" data-f="JAUNE" onclick="setFilter(this)">Jaune</button>
+    <button class="filter-btn" data-f="VIOLET" onclick="setFilter(this)">Violet</button>
+    <button class="filter-btn" data-f="ROSE" onclick="setFilter(this)">Rose</button>
+    <button class="filter-btn" data-f="PAS INTER" onclick="setFilter(this)">Pas intéressé</button>
+  </div>
+</div>
+
+<div class="stats" id="statsBar"></div>
+<div class="list" id="listContainer"><div class="loading">⏳ Chargement…</div></div>
+
+<div class="cfg-modal" id="cfgModal">
+  <div class="cfg-box">
+    <h2>⚙️ Google Sheet</h2>
+    <div class="cfg-sub">Le sheet doit être publié : Fichier → Partager → Publier sur le web → CSV</div>
+    <div class="cfg-lbl">ID du Google Sheet</div>
+    <input class="cfg-input" id="cfgSheetId" placeholder="1DmJUexyEZLeqa-aGm…"/>
+    <div class="cfg-hint">URL : docs.google.com/spreadsheets/d/<strong>ID</strong>/edit</div>
+    <div class="cfg-lbl">GID de l'onglet</div>
+    <input class="cfg-input" id="cfgGid" placeholder="0"/>
+    <div class="cfg-hint">Dans l'URL après #gid= (0 = premier onglet)</div>
+    <button class="cfg-save" onclick="saveCfg()">📥 Charger</button>
+    <button class="cfg-cancel" onclick="closeCfg()">Annuler</button>
+  </div>
+</div>
+
+<script>
+var allRows=[];
+var currentFilter='';
+var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8};
+var DEFAULT_ID='1DmJUexyEZLeqa-aGmTEidWWDvDcHHKtuxI_9YE-bo8c';
+var DEFAULT_GID='1575725606';
+
+function getCfg(){try{return JSON.parse(localStorage.getItem('ctc_cfg')||'null');}catch(e){return null;}}
+function openCfg(){var c=getCfg();document.getElementById('cfgSheetId').value=(c&&c.id)||DEFAULT_ID;document.getElementById('cfgGid').value=(c&&c.gid)||DEFAULT_GID;document.getElementById('cfgModal').classList.add('show');}
+function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
+function saveCfg(){var id=document.getElementById('cfgSheetId').value.trim();var gid=document.getElementById('cfgGid').value.trim();if(!id){alert('Entrez l\'ID du sheet');return;}localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid}));closeCfg();loadSheet(id,gid);}
+
+function loadSheet(id,gid){
+  document.getElementById('listContainer').innerHTML='<div class="loading">⏳ Chargement…</div>';
+  var url='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv'+(gid?'&gid='+gid:'');
+  fetch(url)
+    .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
+    .then(function(csv){allRows=parseCSV(csv);renderList();})
+    .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
+}
+
+function parseCSV(text){
+  var lines=text.split('\n');var rows=[];
+  for(var i=1;i<lines.length;i++){var l=lines[i].trim();if(!l)continue;rows.push(splitCSV(l));}
+  return rows;
+}
+function splitCSV(line){
+  var res=[];var cur='';var inQ=false;
+  for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;}else if(c===','&&!inQ){res.push(cur.trim());cur='';}else{cur+=c;}}
+  res.push(cur.trim());return res;
+}
+
+function badgeClass(s){
+  if(!s)return 's-def';
+  var u=s.toUpperCase().trim();
+  if(u==='NRP')return 's-nrp';
+  if(u.indexOf('PAS')>-1)return 's-pas';
+  if(u==='A RAPPELER'||u==='RAPPELER'||u==='CB')return 's-cb';
+  if(u==='JAUNE')return 's-jaune';
+  if(u==='VIOLET')return 's-violet';
+  if(u==='ROSE')return 's-rose';
+  if(u==='RDV')return 's-rdv';
+  return 's-def';
+}
+
+function setFilter(btn){
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  currentFilter=btn.getAttribute('data-f');
+  renderList();
+}
+
+function matchFilter(statut){
+  var u=(statut||'').toUpperCase().trim();
+  if(!currentFilter)return true;
+  if(currentFilter==='VIDE')return !statut||!u;
+  if(currentFilter==='NRP')return u==='NRP';
+  if(currentFilter==='PAS INTER')return u.indexOf('PAS')>-1;
+  if(currentFilter==='A RAPPELER')return u==='A RAPPELER'||u==='RAPPELER'||u==='CB';
+  if(currentFilter==='RDV')return u==='RDV';
+  if(currentFilter==='JAUNE')return u==='JAUNE';
+  if(currentFilter==='VIOLET')return u==='VIOLET';
+  if(currentFilter==='ROSE')return u==='ROSE';
+  return true;
+}
+
+function renderList(){
+  var q=document.getElementById('searchInput').value.toLowerCase();
+  var filtered=allRows.filter(function(r){
+    var txt=((r[C.nom]||'')+' '+(r[C.prenom]||'')+' '+(r[C.cp]||'')+' '+(r[C.email]||'')).toLowerCase();
+    return(!q||txt.indexOf(q)>-1)&&matchFilter(r[C.statut]);
+  });
+  document.getElementById('statsBar').textContent=filtered.length+' contact'+(filtered.length>1?'s':'')+' affiché'+(filtered.length>1?'s':'')+(allRows.length!==filtered.length?' / '+allRows.length+' total':'');
+  if(!filtered.length){document.getElementById('listContainer').innerHTML='<div class="empty">Aucun résultat</div>';return;}
+  var html='';
+  filtered.forEach(function(r){
+    var nom=r[C.nom]||'';var prenom=r[C.prenom]||'';var email=r[C.email]||'';
+    var tel=(r[C.tel]||'').replace(/\s/g,'');var cp=r[C.cp]||'';
+    var typeHab=r[C.typeHab]||'';var mode=r[C.mode]||'';var statut=r[C.statut]||'';
+    var sub=[cp,typeHab,mode].filter(Boolean).join(' · ');
+    html+='<div class="card"><div class="card-info">';
+    html+='<div class="card-name">'+e(nom)+' '+e(prenom)+'</div>';
+    if(sub)html+='<div class="card-sub">'+e(sub)+'</div>';
+    if(email)html+='<div class="card-sub">✉️ '+e(email)+'</div>';
+    if(tel)html+='<div class="card-phone">📞 '+e(tel)+'</div>';
+    if(statut)html+='<span class="badge '+badgeClass(statut)+'">'+e(statut)+'</span>';
+    html+='</div>';
+    if(tel){html+='<a class="call-btn" href="tel:'+e(tel)+'"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></a>';}
+    else{html+='<div class="no-phone"></div>';}
+    html+='</div>';
+  });
+  document.getElementById('listContainer').innerHTML=html;
+}
+
+function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+(function(){
+  var c=getCfg();
+  var id=(c&&c.id)||DEFAULT_ID;
+  var gid=(c&&c.gid!==undefined?c.gid:DEFAULT_GID);
+  loadSheet(id,gid);
+})();
+</script>
+</body>
+</html>
