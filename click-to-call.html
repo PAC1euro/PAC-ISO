@@ -137,7 +137,7 @@ function loadSheet(id,gid){
   var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'');
   fetch(url)
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);renderList();})
+    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
 }
 
@@ -186,14 +186,24 @@ function matchFilter(statut){
   return true;
 }
 
+function applyLocalStatuts(){
+  var s=getLocalStatuts();
+  allRows.forEach(function(r){
+    var tel=(r[C.tel]||'').replace(/\s/g,'');
+    if(tel&&s[tel]!==undefined){r[C.statut]=s[tel];}
+  });
+}
+
 function showToast(msg){
   var t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(function(){t.classList.remove('show');},2500);
 }
 
+function getLocalStatuts(){try{return JSON.parse(localStorage.getItem('ctc_statuts')||'{}');}catch(e){return{};}}
+function saveLocalStatut(tel,statut){var s=getLocalStatuts();if(statut){s[tel]=statut;}else{delete s[tel];}localStorage.setItem('ctc_statuts',JSON.stringify(s));}
+
 function updateStatus(tel,statut,cardEl){
-  if(!GAS_URL){showToast('⚠️ Configure l\'URL Apps Script dans ⚙️ Sheet');return;}
   var oldBadge=cardEl.querySelector('.badge');
   if(oldBadge)oldBadge.remove();
   if(statut){
@@ -205,12 +215,12 @@ function updateStatus(tel,statut,cardEl){
   for(var i=0;i<allRows.length;i++){
     if((allRows[i][C.tel]||'').replace(/\s/g,'')===tel){allRows[i][C.statut]=statut;break;}
   }
-  showToast('⏳ Mise à jour…');
-  var url=GAS_URL+'?tel='+encodeURIComponent(tel)+'&statut='+encodeURIComponent(statut);
-  fetch(url)
-  .then(function(r){return r.json();})
-  .then(function(d){showToast(d.ok?'✅ Statut mis à jour':'❌ '+d.error);})
-  .catch(function(){showToast('❌ Erreur réseau');});
+  saveLocalStatut(tel,statut);
+  showToast('✅ Statut sauvegardé');
+  if(GAS_URL){
+    var url=GAS_URL+'?tel='+encodeURIComponent(tel)+'&statut='+encodeURIComponent(statut);
+    fetch(url).catch(function(){});
+  }
 }
 
 function renderList(){
