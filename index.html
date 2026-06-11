@@ -1375,7 +1375,7 @@ function postToMonday(racStr,totalRac){
             console.error('Monday cv sent:',JSON.stringify(cv));
             // Retry without optional columns
             var cvSafe={};
-            var safeKeys=['text_mkxbcivil','text_mkxbqtwa','phone_mkxbpxwp','email_mkxkgs76','numeric_mkxbbhb9','numeric_mkxbj3qt','text_mm39mwgm','text_mm39wde8','text_mm39zn6t','text_mkxb4drn','text_mkxb6cfn','color_mkxbyky9','color_mm2xk7kt','numeric_mkxb4aj','numeric_mkxbw0f6','numeric_mkxbn966'];
+            var safeKeys=['text_mkxbcivil','text_mkxbqtwa','phone_mkxbpxwp','email_mkxkgs76','numeric_mkxbbhb9','numeric_mkxbj3qt','text_mm39mwgm','text_mm39wde8','text_mm39zn6t','text_mkxb4drn','text_mkxb6cfn','numeric_mkxb4aj','numeric_mkxbw0f6','numeric_mkxbn966'];
             safeKeys.forEach(function(k){if(cv[k]!==undefined)cvSafe[k]=cv[k];});
             var q1b='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+JSON.stringify(JSON.stringify(cvSafe))+'){id}}';
             fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q1b})})
