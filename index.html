@@ -1257,7 +1257,7 @@ function postToMonday(racStr,totalRac){
     if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
-    if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:String(S._lat),lng:String(S._lon),address:fullAddr.trim()};
+    if(fullAddr.trim()&&S._lat&&S._lon){try{cv['location_mkxbh8sz']={lat:String(S._lat),lng:String(S._lon),address:fullAddr.trim()};}catch(e){}}
     var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
     var gPortailUrl=(S._lat&&S._lon)?'https://www.geoportail.gouv.fr/carte?c='+S._lon+','+S._lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes':'';
     var lines=[
@@ -1371,8 +1371,20 @@ function postToMonday(racStr,totalRac){
         .then(function(d){
           if(d&&d.errors){
             var es=JSON.stringify(d.errors);
-            console.error('Monday create_item error:',es);
-            showMonStatus('❌ Monday : erreur API — '+es.slice(0,300));
+            console.error('Monday create_item error FULL:',es);
+            console.error('Monday cv sent:',JSON.stringify(cv));
+            // Retry without optional columns
+            var cvSafe={};
+            var safeKeys=['text_mkxbcivil','text_mkxbqtwa','phone_mkxbpxwp','email_mkxkgs76','numeric_mkxbbhb9','numeric_mkxbj3qt','text_mm39mwgm','text_mm39wde8','text_mm39zn6t','text_mkxb4drn','text_mkxb6cfn','color_mkxbyky9','color_mm2xk7kt','numeric_mkxb4aj','numeric_mkxbw0f6','numeric_mkxbn966'];
+            safeKeys.forEach(function(k){if(cv[k]!==undefined)cvSafe[k]=cv[k];});
+            var q1b='mutation{create_item(board_id:'+cfg.boardId+',group_id:"'+groupId+'",item_name:'+JSON.stringify(itemName)+',column_values:'+JSON.stringify(JSON.stringify(cvSafe))+'){id}}';
+            fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q1b})})
+            .then(function(r2){return r2.json();})
+            .then(function(d2){
+              var id2=d2&&d2.data&&d2.data.create_item&&d2.data.create_item.id;
+              if(id2){showMonStatus('🟣 Monday : fiche créée ✅ (id '+id2+') — colonnes optionnelles ignorées');var q2='mutation{create_update(item_id:'+id2+',body:'+JSON.stringify(lines)+'){id}}';fetch('https://api.monday.com/v2',{method:'POST',headers:hdrs,body:JSON.stringify({query:q2})}).catch(function(){});}
+              else{showMonStatus('❌ Monday : erreur — '+JSON.stringify(d.errors).slice(0,200));}
+            }).catch(function(){showMonStatus('❌ Monday : erreur réseau');});
             return;
           }
           var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
