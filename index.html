@@ -1257,7 +1257,7 @@ function postToMonday(racStr,totalRac){
     if(S.codeReferent)cv['text_mkxb4drn']=S.codeReferent;
     if(S.teleproNom)cv['text_mkxb6cfn']=S.teleproNom;
     var fullAddr=(S.adresse||'')+(S.cp?' '+S.cp:'')+(S.ville?' '+S.ville:'');
-    if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:S._lat,lng:S._lon,address:fullAddr.trim()};
+    if(fullAddr.trim()&&S._lat&&S._lon)cv['location_mkxbh8sz']={lat:String(S._lat),lng:String(S._lon),address:fullAddr.trim()};
     var streetViewUrl=(S._lat&&S._lon)?'https://www.google.com/maps?q=&layer=c&cbll='+S._lat+','+S._lon+'&cbp=11,0,0,0,0':'';
     var gPortailUrl=(S._lat&&S._lon)?'https://www.geoportail.gouv.fr/carte?c='+S._lon+','+S._lat+'&z=19&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes':'';
     var lines=[
@@ -1372,7 +1372,7 @@ function postToMonday(racStr,totalRac){
           if(d&&d.errors){
             var es=JSON.stringify(d.errors);
             console.error('Monday create_item error:',es);
-            showMonStatus('❌ Monday : erreur API — '+es.slice(0,100));
+            showMonStatus('❌ Monday : erreur API — '+es.slice(0,300));
             return;
           }
           var id=d&&d.data&&d.data.create_item&&d.data.create_item.id;
