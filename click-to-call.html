@@ -64,14 +64,6 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .loading{text-align:center;padding:50px 20px;color:#64748b;font-size:14px;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
 .toast.show{opacity:1;}
-.rappel-banner{background:#1e40af;color:#fff;padding:12px 14px;margin:10px 12px;border-radius:12px;font-size:13px;display:none;}
-.rappel-banner.show{display:block;}
-.rappel-banner h4{font-size:14px;margin-bottom:8px;}
-.rappel-item{background:rgba(255,255,255,.15);border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
-.rappel-item:last-child{margin-bottom:0;}
-.rappel-name{font-weight:700;}
-.rappel-time{font-size:12px;opacity:.85;}
-.rappel-call{background:#22c55e;border:none;color:#fff;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;}
 .dt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;}
 .dt-modal.show{display:flex;}
 .dt-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px;}
@@ -103,7 +95,6 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
   </div>
 </div>
 
-<div id="rappelBanner" class="rappel-banner"></div>
 <div class="stats" id="statsBar"></div>
 <div class="list" id="listContainer"><div class="loading">⏳ Chargement…</div></div>
 <div class="toast" id="toast"></div>
@@ -164,7 +155,7 @@ function loadSheet(id,gid){
   var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'');
   fetch(url)
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();checkRappelsAujourdhui();})
+    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
 }
 
@@ -311,40 +302,6 @@ function renderList(){
 
 function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-function checkRappelsAujourdhui(){
-  var today=new Date();
-  var dd=String(today.getDate()).padStart(2,'0');
-  var mm=String(today.getMonth()+1).padStart(2,'0');
-  var yyyy=today.getFullYear();
-  var todayStr=dd+'/'+mm+'/'+yyyy;
-  var rappels=[];
-  allRows.forEach(function(r){
-    var s=r[C.statut]||'';
-    if(s.toUpperCase().indexOf('RAPPELER')>-1&&s.indexOf(todayStr)>-1){
-      var heure='';var m=s.match(/à\s*(\d{2}:\d{2})/);if(m)heure=m[1];
-      rappels.push({nom:(r[C.prenom]||'')+' '+(r[C.nom]||''),tel:(r[C.tel]||'').replace(/\s/g,''),heure:heure});
-    }
-  });
-  var banner=document.getElementById('rappelBanner');
-  if(!rappels.length){banner.classList.remove('show');return;}
-  rappels.sort(function(a,b){return a.heure.localeCompare(b.heure);});
-  var html='<h4>🔔 '+rappels.length+' rappel'+(rappels.length>1?'s':'')+' aujourd\'hui</h4>';
-  rappels.forEach(function(r){
-    html+='<div class="rappel-item"><div><div class="rappel-name">'+e(r.nom.trim())+'</div>'+(r.heure?'<div class="rappel-time">⏰ '+r.heure+'</div>':'')+'</div>';
-    if(r.tel)html+='<a class="rappel-call" href="tel:'+e(r.tel)+'">Appeler</a>';
-    html+='</div>';
-  });
-  banner.innerHTML=html;
-  banner.classList.add('show');
-  if('Notification' in window&&Notification.permission==='default'){
-    Notification.requestPermission().then(function(p){if(p==='granted')sendNotif(rappels);});
-  }else if('Notification' in window&&Notification.permission==='granted'){sendNotif(rappels);}
-}
-
-function sendNotif(rappels){
-  var names=rappels.map(function(r){return r.nom.trim();}).join(', ');
-  new Notification('📞 '+rappels.length+' rappel'+(rappels.length>1?'s':'')+' aujourd\'hui',{body:names,icon:''});
-}
 
 (function(){
   var c=getCfg();
