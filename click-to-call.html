@@ -268,8 +268,12 @@ function confirmRappel(){
   updateStatus(tel,label,card);
 }
 
+function getCountedKey(){var d=new Date();return 'ctc_counted_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
+function getCountedLeads(){try{return JSON.parse(localStorage.getItem(getCountedKey())||'[]');}catch(e){return[];}}
+function markLeadCounted(tel){var c=getCountedLeads();if(c.indexOf(tel)<0){c.push(tel);localStorage.setItem(getCountedKey(),JSON.stringify(c));return true;}return false;}
+
 function updateStatus(tel,statut,cardEl){
-  if(statut)incrementCall();
+  if(statut&&markLeadCounted(tel))incrementCall();
   var oldBadge=cardEl.querySelector('.badge');
   if(oldBadge)oldBadge.remove();
   if(statut){
