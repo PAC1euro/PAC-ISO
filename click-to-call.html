@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v34';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
+<script>var _V='v35';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -141,7 +141,7 @@ var currentFilter='';
 var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8};
 var DEFAULT_ID='2PACX-1vTWDzOo3ln5TMQ2Zeq_VZVUapaw0AWMY6glM57RZMiz9FB-RN0ESCVrg0vkGLGwDOry7N_wXaRjX426';
 var DEFAULT_GID='2006396579';
-var DEFAULT_GAS_URL='https://script.google.com/macros/s/AKfycbzVcOslX671lLsRnoae18UZX1nT3D3bTFIPfqdkRnPEXyWVxHLF4MVvkgIa6QYXWog/exec';
+var DEFAULT_GAS_URL='https://script.google.com/macros/s/AKfycbyNS6dym1yOF4Kj7okNwqnc-l9fdQ6qFqiNyF1UbKO97QbwlDWRlx0irqwD8lyYhXPI/exec';
 var GAS_URL='';
 var QUOTA_MAX=150;
 var _countedSession={};
@@ -184,7 +184,7 @@ function saveCfg(){
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
   GAS_URL=gas;
-  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v34'}));
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v35'}));
   closeCfg();loadSheet(id,gid);
 }
 
