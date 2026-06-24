@@ -101,6 +101,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
   </div>
 </div>
 
+<div id="rappelBanner" style="display:none;background:#fef3c7;color:#92400e;padding:9px 14px;font-size:13px;font-weight:600;border-bottom:1px solid #fde68a;position:sticky;top:101px;z-index:98;"></div>
 <div class="stats" id="statsBar"></div>
 <div class="list" id="listContainer"><div class="loading">⏳ Chargement…</div></div>
 <div class="toast" id="toast"></div>
@@ -268,6 +269,40 @@ function confirmRappel(){
   updateStatus(tel,label,card);
 }
 
+var _notified={};
+function parseRappelDate(s){var m=(s||'').match(/(\d{2})\/(\d{2})\/(\d{4}) à (\d{2}):(\d{2})/);if(!m)return null;return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]);}
+function getTodayRappels(){var t=new Date();return allRows.filter(function(r){var s=r[C.statut]||'';if(s.toUpperCase().indexOf('RAPPELER')<0)return false;var d=parseRappelDate(s);return d&&d.getFullYear()===t.getFullYear()&&d.getMonth()===t.getMonth()&&d.getDate()===t.getDate();});}
+function showRappelBanner(){
+  var rappels=getTodayRappels();var banner=document.getElementById('rappelBanner');
+  if(!rappels.length){banner.style.display='none';return;}
+  var now=new Date();
+  var due=rappels.filter(function(r){var d=parseRappelDate(r[C.statut]);return d&&d<=now;});
+  var coming=rappels.filter(function(r){var d=parseRappelDate(r[C.statut]);return d&&d>now;});
+  var txt='';
+  if(due.length)txt+='🔴 '+due.length+' rappel'+(due.length>1?'s':'')+' en retard  ';
+  if(coming.length)txt+='📅 '+coming.length+' rappel'+(coming.length>1?'s':'')+' à venir aujourd\'hui';
+  banner.innerHTML=txt+'<button onclick="this.parentNode.style.display=\'none\'" style="float:right;background:none;border:none;cursor:pointer;font-size:14px;color:#92400e;">✕</button>';
+  banner.style.display='block';
+}
+function checkRappelNotifs(){
+  if(!allRows.length)return;
+  var now=new Date();
+  getTodayRappels().forEach(function(r){
+    var tel=(r[C.tel]||'').replace(/\s/g,'');
+    var d=parseRappelDate(r[C.statut]);if(!d)return;
+    var key=tel+'_'+d.getTime();if(_notified[key])return;
+    if(d<=now&&now-d<120000){
+      _notified[key]=true;
+      var nom=((r[C.nom]||'')+' '+(r[C.prenom]||'')).trim();
+      showToast('📅 Rappel : '+nom);
+      if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
+        new Notification('📅 Rappel — '+nom,{body:r[C.statut]});
+      }
+    }
+  });
+  showRappelBanner();
+}
+
 function getCountedKey(){var d=new Date();return 'ctc_counted_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
 function getCountedLeads(){try{return JSON.parse(localStorage.getItem(getCountedKey())||'[]');}catch(e){return[];}}
 function markLeadCounted(tel){var c=getCountedLeads();if(c.indexOf(tel)<0){c.push(tel);localStorage.setItem(getCountedKey(),JSON.stringify(c));return true;}return false;}
@@ -334,6 +369,7 @@ function renderList(){
     html+='</div>';
   });
   document.getElementById('listContainer').innerHTML=html;
+  showRappelBanner();
 }
 
 function pushLocalToGas(){
@@ -377,6 +413,8 @@ function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
   var gid=(c&&c.gid!==undefined?c.gid:DEFAULT_GID);
   GAS_URL=(c&&c.gas)||DEFAULT_GAS_URL;
   updateQuotaDisplay();
+  if(typeof Notification!=='undefined'&&Notification.permission==='default')Notification.requestPermission();
+  setInterval(checkRappelNotifs,60000);
   loadSheet(id,gid);
 })();
 </script>
