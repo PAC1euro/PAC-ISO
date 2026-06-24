@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v27';if(location.search.indexOf(_V)<0)location.replace(location.pathname+'?'+_V);</script>
+<script>var _V='v28';if(location.search.indexOf(_V)<0)location.replace(location.pathname+'?'+_V);</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -273,7 +273,9 @@ function confirmRappel(){
   var dt=document.getElementById('dtInput').value;
   if(!dt){alert('Sélectionnez une date et heure');return;}
   var d=new Date(dt);
-  var label='À rappeler le '+d.toLocaleDateString('fr-FR')+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  var dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=d.getFullYear();
+  var hh=String(d.getHours()).padStart(2,'0'),mn=String(d.getMinutes()).padStart(2,'0');
+  var label='À rappeler le '+dd+'/'+mm+'/'+yyyy+' à '+hh+':'+mn;
   var tel=_pendingTel;var card=_pendingCard;
   closeDtModal();
   updateStatus(tel,label,card);
