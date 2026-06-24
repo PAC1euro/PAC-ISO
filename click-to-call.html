@@ -81,7 +81,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 
 <div class="header">
   <h1>📞 Click to Call</h1>
-  <span class="quota" id="quotaDisplay" onclick="resetCounter()" style="cursor:pointer" title="Cliquer pour remettre à 0">0/150</span>
+  <button class="quota" id="quotaDisplay" onclick="resetCounter()" style="cursor:pointer;border:none;" title="Cliquer pour remettre à 0">0/150</button>
   <button class="cfg-btn" id="syncBtn" onclick="pushLocalToGas()" title="Transférer mes statuts vers le cloud">☁️</button>
   <button class="cfg-btn" id="refreshBtn" onclick="refreshSheet()">🔄</button>
   <button class="cfg-btn" onclick="openCfg()">⚙️ Sheet</button>
@@ -143,11 +143,19 @@ var DEFAULT_GID='1575725606';
 var DEFAULT_GAS_URL='https://script.google.com/macros/s/AKfycbzVcOslX671lLsRnoae18UZX1nT3D3bTFIPfqdkRnPEXyWVxHLF4MVvkgIa6QYXWog/exec';
 var GAS_URL='';
 var QUOTA_MAX=150;
+var _countedSession={};
 
 function getTodayKey(){var d=new Date();return 'ctc_calls_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
 function getCallCount(){return parseInt(localStorage.getItem(getTodayKey())||'0',10);}
 function incrementCall(){var n=getCallCount()+1;localStorage.setItem(getTodayKey(),n);updateQuotaDisplay();return n;}
-function resetCounter(){if(!confirm('Remettre le compteur à 0 ?'))return;localStorage.removeItem(getTodayKey());localStorage.removeItem(getCountedKey());updateQuotaDisplay();}
+function resetCounter(){
+  if(!confirm('Remettre le compteur à 0 ?'))return;
+  localStorage.removeItem(getTodayKey());
+  localStorage.removeItem(getCountedKey());
+  _countedSession={};
+  updateQuotaDisplay();
+  showToast('✅ Compteur remis à 0');
+}
 function updateQuotaDisplay(){
   var n=getCallCount();
   var el=document.getElementById('quotaDisplay');
@@ -306,12 +314,17 @@ function checkRappelNotifs(){
 
 function getCountedKey(){var d=new Date();return 'ctc_counted_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
 function getCountedLeads(){try{return JSON.parse(localStorage.getItem(getCountedKey())||'[]');}catch(e){return[];}}
-function markLeadCounted(tel){var c=getCountedLeads();if(c.indexOf(tel)<0){c.push(tel);localStorage.setItem(getCountedKey(),JSON.stringify(c));return true;}return false;}
+function markLeadCounted(tel){
+  if(_countedSession[tel])return false;
+  _countedSession[tel]=true;
+  var c=getCountedLeads();
+  if(c.indexOf(tel)<0){c.push(tel);localStorage.setItem(getCountedKey(),JSON.stringify(c));}
+  return true;
+}
 
 function updateStatus(tel,statut,cardEl){
   if(statut&&markLeadCounted(tel))incrementCall();
-  var oldBadge=cardEl.querySelector('.badge');
-  if(oldBadge)oldBadge.remove();
+  cardEl.querySelectorAll('.badge,.badge-rappel').forEach(function(b){b.remove();});
   if(statut){
     var b=document.createElement('span');
     if(statut.toUpperCase().indexOf('RAPPELER')>-1){b.className='badge-rappel';b.textContent='📅 '+statut;}
@@ -401,8 +414,9 @@ function fetchGasStatuts(){
       for(var tel in data.statuts){if(data.statuts[tel])local[tel]=data.statuts[tel];else delete local[tel];}
       localStorage.setItem('ctc_statuts',JSON.stringify(local));
       if(changed)renderList();
+      checkRappelNotifs();
     })
-    .catch(function(){});
+    .catch(function(){checkRappelNotifs();});
 }
 
 function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -417,6 +431,7 @@ function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
   if(typeof Notification!=='undefined'&&Notification.permission==='default')Notification.requestPermission();
   setInterval(checkRappelNotifs,60000);
   loadSheet(id,gid);
+  setTimeout(checkRappelNotifs,3000);
 })();
 </script>
 </body>
