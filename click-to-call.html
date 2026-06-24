@@ -82,6 +82,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 <div class="header">
   <h1>📞 Click to Call</h1>
   <span class="quota" id="quotaDisplay">0/150</span>
+  <button class="cfg-btn" id="syncBtn" onclick="pushLocalToGas()" title="Transférer mes statuts vers le cloud">☁️</button>
   <button class="cfg-btn" id="refreshBtn" onclick="refreshSheet()">🔄</button>
   <button class="cfg-btn" onclick="openCfg()">⚙️ Sheet</button>
 </div>
@@ -329,6 +330,20 @@ function renderList(){
     html+='</div>';
   });
   document.getElementById('listContainer').innerHTML=html;
+}
+
+function pushLocalToGas(){
+  if(!GAS_URL){showToast('❌ URL GAS non configurée');return;}
+  var statuts=getLocalStatuts();
+  var keys=Object.keys(statuts);
+  if(!keys.length){showToast('Aucun statut local à transférer');return;}
+  var btn=document.getElementById('syncBtn');
+  btn.textContent='⏳';btn.disabled=true;
+  var done=0,total=keys.length;
+  keys.forEach(function(tel){
+    fetch(GAS_URL+'?tel='+encodeURIComponent(tel)+'&statut='+encodeURIComponent(statuts[tel]))
+      .finally(function(){done++;if(done===total){showToast('✅ '+total+' statut'+(total>1?'s':'')+' transféré'+(total>1?'s':''));btn.textContent='☁️';btn.disabled=false;}});
+  });
 }
 
 function fetchGasStatuts(){
