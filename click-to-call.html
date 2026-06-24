@@ -232,8 +232,9 @@ function confirmRappel(){
   if(!dt){alert('Sélectionnez une date et heure');return;}
   var d=new Date(dt);
   var label='À rappeler le '+d.toLocaleDateString('fr-FR')+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  var tel=_pendingTel;var card=_pendingCard;
   closeDtModal();
-  updateStatus(_pendingTel,label,_pendingCard);
+  updateStatus(tel,label,card);
 }
 
 function updateStatus(tel,statut,cardEl){
