@@ -9,6 +9,9 @@
 body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .header{background:#1e293b;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
 .header h1{color:#fff;font-size:16px;flex:1;}
+.quota{background:#334155;color:#94a3b8;font-size:12px;padding:5px 10px;border-radius:8px;font-weight:700;}
+.quota.warn{background:#92400e;color:#fef3c7;}
+.quota.done{background:#991b1b;color:#fee2e2;}
 .cfg-btn{background:#334155;border:none;color:#94a3b8;font-size:12px;padding:6px 10px;border-radius:6px;cursor:pointer;}
 .cfg-btn:hover{background:#475569;color:#fff;}
 .toolbar{padding:10px 12px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:53px;z-index:99;}
@@ -78,6 +81,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 
 <div class="header">
   <h1>📞 Click to Call</h1>
+  <span class="quota" id="quotaDisplay">0/150</span>
   <button class="cfg-btn" onclick="openCfg()">⚙️ Sheet</button>
 </div>
 
@@ -134,6 +138,18 @@ var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8};
 var DEFAULT_ID='2PACX-1vTWDzOo3ln5TMQ2Zeq_VZVUapaw0AWMY6glM57RZMiz9FB-RN0ESCVrg0vkGLGwDOry7N_wXaRjX426';
 var DEFAULT_GID='1575725606';
 var GAS_URL='';
+var QUOTA_MAX=150;
+
+function getTodayKey(){var d=new Date();return 'ctc_calls_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
+function getCallCount(){return parseInt(localStorage.getItem(getTodayKey())||'0',10);}
+function incrementCall(){var n=getCallCount()+1;localStorage.setItem(getTodayKey(),n);updateQuotaDisplay();return n;}
+function updateQuotaDisplay(){
+  var n=getCallCount();
+  var el=document.getElementById('quotaDisplay');
+  if(!el)return;
+  el.textContent=n+'/'+QUOTA_MAX+' appels';
+  el.className='quota'+(n>=QUOTA_MAX?' done':n>=120?' warn':'');
+}
 var _pendingTel='';
 var _pendingCard=null;
 
@@ -281,7 +297,7 @@ function renderList(){
     if(statut&&statut.toUpperCase().indexOf('RAPPELER')>-1){html+='<span class="badge-rappel">📅 '+e(statut)+'</span>';}
     else if(statut){html+='<span class="badge '+badgeClass(statut)+'">'+e(statut)+'</span>';}
     html+='</div>';
-    if(tel){html+='<a class="call-btn" href="tel:'+telEsc+'"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></a>';}
+    if(tel){html+='<a class="call-btn" href="tel:'+telEsc+'" onclick="incrementCall()"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></a>';}
     else{html+='<div class="no-phone"></div>';}
     html+='</div>';
     if(tel){
@@ -308,6 +324,7 @@ function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
   var id=(c&&c.id)||DEFAULT_ID;
   var gid=(c&&c.gid!==undefined?c.gid:DEFAULT_GID);
   GAS_URL=(c&&c.gas)||'';
+  updateQuotaDisplay();
   loadSheet(id,gid);
 })();
 </script>
