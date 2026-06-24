@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v33';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
+<script>var _V='v34';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -148,7 +148,15 @@ var _countedSession={};
 
 function getTodayKey(){var d=new Date();return 'ctc_calls_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
 function getCallCount(){return parseInt(localStorage.getItem(getTodayKey())||'0',10);}
-function incrementCall(){var n=getCallCount()+1;localStorage.setItem(getTodayKey(),n);updateQuotaDisplay();return n;}
+function incrementCall(){
+  var n=getCallCount()+1;localStorage.setItem(getTodayKey(),n);updateQuotaDisplay();
+  if(GAS_URL){fetch(GAS_URL+'?action=addCall').then(function(r){return r.json();}).then(function(d){if(d.ok&&d.count){var remote=parseInt(d.count,10);if(remote>getCallCount()){localStorage.setItem(getTodayKey(),remote);updateQuotaDisplay();}}}).catch(function(){});}
+  return n;
+}
+function syncCallCount(){
+  if(!GAS_URL)return;
+  fetch(GAS_URL+'?action=getCallCount',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){if(d.ok&&d.count!==undefined){var remote=parseInt(d.count,10),local=getCallCount(),final=Math.max(remote,local);if(final!==local){localStorage.setItem(getTodayKey(),final);updateQuotaDisplay();}}}).catch(function(){});
+}
 function resetCounter(){
   if(!confirm('Remettre le compteur à 0 ?'))return;
   localStorage.removeItem(getTodayKey());
@@ -176,7 +184,7 @@ function saveCfg(){
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
   GAS_URL=gas;
-  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v33'}));
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v34'}));
   closeCfg();loadSheet(id,gid);
 }
 
@@ -288,12 +296,15 @@ function showRappelBanner(){
   var rappels=getTodayRappels();var banner=document.getElementById('rappelBanner');
   if(!rappels.length){banner.style.display='none';return;}
   var now=new Date();
-  var due=rappels.filter(function(r){var d=parseRappelDate(r[C.statut]);return d&&d<=now;});
-  var coming=rappels.filter(function(r){var d=parseRappelDate(r[C.statut]);return d&&d>now;});
-  var txt='';
-  if(due.length)txt+='🔴 '+due.length+' rappel'+(due.length>1?'s':'')+' en retard  ';
-  if(coming.length)txt+='📅 '+coming.length+' rappel'+(coming.length>1?'s':'')+' à venir aujourd\'hui';
-  banner.innerHTML=txt+'<button onclick="this.parentNode.style.display=\'none\'" style="float:right;background:none;border:none;cursor:pointer;font-size:14px;color:#92400e;">✕</button>';
+  var sorted=rappels.slice().sort(function(a,b){var da=parseRappelDate(a[C.statut]),db=parseRappelDate(b[C.statut]);if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;});
+  var items=sorted.map(function(r){
+    var d=parseRappelDate(r[C.statut]);
+    var time=d?(String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')):'?';
+    var prenom=(r[C.prenom]||r[C.nom]||'').trim();
+    var late=d&&d<=now;
+    return (late?'🔴 ':'📅 ')+time+(prenom?' — '+prenom:'');
+  });
+  banner.innerHTML=items.join(' &nbsp;·&nbsp; ')+'<button onclick="this.parentNode.style.display=\'none\'" style="float:right;background:none;border:none;cursor:pointer;font-size:14px;color:#92400e;">✕</button>';
   banner.style.display='block';
 }
 function checkRappelNotifs(){
@@ -440,6 +451,7 @@ function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
   updateQuotaDisplay();
   if(typeof Notification!=='undefined'&&Notification.permission==='default')Notification.requestPermission();
   setInterval(checkRappelNotifs,60000);
+  syncCallCount();
   loadSheet(id,gid);
   setTimeout(checkRappelNotifs,3000);
 })();

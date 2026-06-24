@@ -1,6 +1,5 @@
-// Google Apps Script — Click to Call : sync statuts cross-device
-// 1. Remplacer le code existant par celui-ci
-// 2. Déployer → Gérer les déploiements → ✏️ → Nouvelle version → Déployer
+// Google Apps Script — Click to Call : sync statuts + compteur d'appels
+// Remplacer le code et déployer → Gérer les déploiements → ✏️ → Nouvelle version → Déployer
 
 function doGet(e) {
   var params = e.parameter;
@@ -15,6 +14,19 @@ function doGet(e) {
     return output({ ok: true, statuts: statuts });
   }
 
+  if (action === 'addCall') {
+    var key = 'calls_' + today();
+    var props = PropertiesService.getScriptProperties();
+    var count = parseInt(props.getProperty(key) || '0', 10) + 1;
+    props.setProperty(key, String(count));
+    return output({ ok: true, count: count });
+  }
+
+  if (action === 'getCallCount') {
+    var count = parseInt(PropertiesService.getScriptProperties().getProperty('calls_' + today()) || '0', 10);
+    return output({ ok: true, count: count });
+  }
+
   // action setStatut (défaut)
   var tel = String(params.tel || '').replace(/\s/g, '');
   var statut = params.statut !== undefined ? params.statut : '';
@@ -25,8 +37,12 @@ function doGet(e) {
   } else {
     PropertiesService.getScriptProperties().deleteProperty('s_' + tel);
   }
-
   return output({ ok: true });
+}
+
+function today() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
 function output(data) {
