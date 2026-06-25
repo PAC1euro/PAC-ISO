@@ -732,9 +732,10 @@ try{var _fb=FIREBASE_URL||localStorage.getItem('pac_firebase_url');if(_fb){var _
 postToMonday(racStr,totalRac);
 postToPixel();
 }
-var PIXEL_TOKEN='LERC_f2ffc978-ea01-492f-9344-a18d6413f8c4_PX2307';
-var PIXEL_UA='LERC_f2ffc978-ea01-492f-9344-a18d6413f8c4_PX2307';
+var PIXEL_TOKEN='9548609a-3104-461e-9fff-241b9df3fe1e';
+var PIXEL_UA='STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAILEADS';
 var PIXEL_PROJECT_ID='F5BC8CF1-6ABE-4933-9F97-BA3EB3E02307';
+var PIXEL_GAS_URL='https://script.google.com/macros/s/AKfycbyNS6dym1yOF4Kj7okNwqnc-l9fdQ6qFqiNyF1UbKO97QbwlDWRlx0irqwD8lyYhXPI/exec';
 function buildPixelBody(){
   var tcMap={'Gaz':1,'Fioul':1,'Chaudière à bois':1,'Chaudière à charbon':1,'Électrique':2,'Autre':3};
   var thMap={'prop_occ':1,'locataire':2,'prop_bail':3};
@@ -804,20 +805,20 @@ function showPixelManualPanel(body){
   panel.style.display='block';
 }
 function postToPixel(){
-  if(!PIXEL_TOKEN)return;
+  if(!PIXEL_GAS_URL)return;
   var body=buildPixelBody();
-  fetch('https://crm.pixel-crm.com/api/IJLeads',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','XINTNRGLEAD-TOKEN':PIXEL_TOKEN},
-    body:JSON.stringify(body)
-  })
-  .then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t};});})
+  var encoded=encodeURIComponent(JSON.stringify(body));
+  fetch(PIXEL_GAS_URL+'?action=sendPixel&data='+encoded,{cache:'no-store'})
+  .then(function(r){return r.json();})
   .then(function(d){
     if(d.ok){
-      var j=null;try{j=JSON.parse(d.txt);}catch(e){}
-      var id=j&&(j.Id||j.id||j.DossierId||j.PixelDealId)||null;
+      var id=null;
+      try{var j=JSON.parse(d.body);id=j&&(j.Id||j.id||j.DossierId||j.PixelDealId)||null;}catch(e){}
       showMonStatus('🟦 Pixel CRM : fiche créée ✅'+(id?' (id '+id+')':''));
-    }else{showMonStatus('🟦 Pixel CRM : erreur '+d.status+' — '+d.txt.slice(0,200));}
+    }else{
+      showMonStatus('🟦 Pixel CRM : erreur '+(d.code||'?')+' — '+(d.body||d.error||'').slice(0,200));
+      showPixelManualPanel(body);
+    }
   })
   .catch(function(e){showPixelManualPanel(buildPixelBody());});
 }

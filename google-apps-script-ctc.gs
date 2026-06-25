@@ -27,6 +27,26 @@ function doGet(e) {
     return output({ ok: true, count: count });
   }
 
+  if (action === 'sendPixel') {
+    try {
+      var data = params.data ? JSON.parse(decodeURIComponent(params.data)) : {};
+      var resp = UrlFetchApp.fetch('https://crm.pixel-crm.com/api/IJLeads', {
+        method: 'post',
+        contentType: 'application/json',
+        headers: {
+          'XINTNRGLEAD-TOKEN': '9548609a-3104-461e-9fff-241b9df3fe1e',
+          'User-Agent': 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAILEADS'
+        },
+        payload: JSON.stringify(data),
+        muteHttpExceptions: true
+      });
+      var code = resp.getResponseCode();
+      return output({ ok: code < 300, code: code, body: resp.getContentText() });
+    } catch(err) {
+      return output({ ok: false, error: err.toString() });
+    }
+  }
+
   // action setStatut (défaut)
   var tel = String(params.tel || '').replace(/\s/g, '');
   var statut = params.statut !== undefined ? params.statut : '';
