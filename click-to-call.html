@@ -173,7 +173,7 @@ function loadSheet(id,gid){
   var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'')+'&bust='+bust;
   fetch(url,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);renderList();})
+    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
 }
 
@@ -234,7 +234,8 @@ function applyLocalStatuts(){
   var s=getLocalStatuts();
   allRows.forEach(function(r){
     var tel=(r[C.tel]||'').replace(/\s/g,'');
-    if(tel&&s[tel]!==undefined){r[C.statut]=s[tel];}
+    // Sheet value takes priority; localStorage fills in only when sheet has no status
+    if(tel&&!r[C.statut]&&s[tel]!==undefined){r[C.statut]=s[tel];}
   });
 }
 
