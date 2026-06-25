@@ -16,7 +16,7 @@ function doGet(e) {
         contentType: 'application/json',
         headers: {
           'XINTNRGLEAD-TOKEN': '9548609a-3104-461e-9fff-241b9df3fe1e',
-          'User-Agent': 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAILEADS'
+          'User-Agent': 'STDR_FB46FDDD-D0ED-416B-A2E6-22CC2F20EC61_PXALLUAIJLEADS'
         },
         payload: JSON.stringify(data),
         muteHttpExceptions: true
