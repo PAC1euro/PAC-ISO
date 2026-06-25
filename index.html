@@ -1236,7 +1236,7 @@ function postToMonday(racStr,totalRac){
     var cv={};
     if(S.civilite)cv['text_mkxbcivil']=S.civilite;
     if(S.prenom)cv['text_mkxbqtwa']=S.prenom;
-    if(S.telephone)cv['phone_mkxbpxwp']={phone:S.telephone.replace(/\s/g,''),countryShortName:'FR'};
+    if(S.telephone)cv['phone_mkxbpxwp']={phone:S.telephone.replace(/[\s\-\.]/g,''),countryShortName:'FR'};
     if(S.email&&S.email.indexOf('@')>0)cv['email_mkxkgs76']={email:S.email,text:S.email};
     if(S.cp)cv['numeric_mkxb4aj']=Number(S.cp)||0;
     if(S.surfPac)cv['numeric_mkxbw0f6']=Number(S.surfPac)||0;
