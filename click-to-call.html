@@ -348,6 +348,13 @@ function renderList(){
     var txt=((r[C.nom]||'')+' '+(r[C.prenom]||'')+' '+(r[C.cp]||'')+' '+(r[C.email]||'')).toLowerCase();
     return(!q||txt.indexOf(q)>-1)&&matchFilter(r[C.statut]);
   });
+  if(currentFilter==='A RAPPELER'){
+    filtered.sort(function(a,b){
+      var da=parseRappelDate(a[C.statut]);var db=parseRappelDate(b[C.statut]);
+      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
+      return da-db;
+    });
+  }
   document.getElementById('statsBar').textContent=filtered.length+' contact'+(filtered.length>1?'s':'')+' affiché'+(filtered.length>1?'s':'')+(allRows.length!==filtered.length?' / '+allRows.length+' total':'');
   if(!filtered.length){document.getElementById('listContainer').innerHTML='<div class="empty">Aucun résultat</div>';return;}
   var html='';
