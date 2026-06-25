@@ -30,10 +30,9 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .s-nrp{background:#fef3c7;color:#92400e;}
 .s-pas{background:#fee2e2;color:#991b1b;}
 .s-cb{background:#dbeafe;color:#1e40af;}
-.s-jaune{background:#fef9c3;color:#854d0e;}
-.s-violet{background:#f3e8ff;color:#6b21a8;}
-.s-rose{background:#fce7f3;color:#9d174d;}
 .s-rdv{background:#dcfce7;color:#166534;}
+.s-ko{background:#fce7f3;color:#9d174d;}
+.s-faux{background:#f1f5f9;color:#475569;}
 .s-def{background:#f1f5f9;color:#475569;}
 .call-btn{width:54px;height:54px;min-width:54px;border-radius:50%;background:#22c55e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 8px rgba(34,197,94,.4);}
 .call-btn:active{transform:scale(.94);}
@@ -46,10 +45,9 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .s-btn.pas{background:#fee2e2;color:#991b1b;border-color:#fecaca;}
 .s-btn.cb{background:#dbeafe;color:#1e40af;border-color:#bfdbfe;}
 .s-btn.rdv{background:#dcfce7;color:#166534;border-color:#bbf7d0;}
-.s-btn.jaune{background:#fef9c3;color:#854d0e;border-color:#fef08a;}
-.s-btn.violet{background:#f3e8ff;color:#6b21a8;border-color:#e9d5ff;}
-.s-btn.rose{background:#fce7f3;color:#9d174d;border-color:#fbcfe8;}
-.s-btn.vide{background:#f1f5f9;color:#64748b;border-color:#e2e8f0;}
+.s-btn.ko{background:#fce7f3;color:#9d174d;border-color:#fbcfe8;}
+.s-btn.faux{background:#f1f5f9;color:#475569;border-color:#e2e8f0;}
+.s-btn.vide{background:#fff;color:#94a3b8;border-color:#e2e8f0;}
 .empty{text-align:center;padding:60px 20px;color:#94a3b8;font-size:14px;line-height:1.8;}
 .cfg-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
 .cfg-modal.show{display:flex;}
@@ -65,6 +63,14 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .loading{text-align:center;padding:50px 20px;color:#64748b;font-size:14px;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
 .toast.show{opacity:1;}
+.dt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;}
+.dt-modal.show{display:flex;}
+.dt-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px;}
+.dt-box h3{font-size:15px;font-weight:700;margin-bottom:16px;}
+.dt-box input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;outline:none;margin-bottom:12px;}
+.dt-box input:focus{border-color:#3b82f6;}
+.dt-confirm{width:100%;padding:13px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:bold;}
+.dt-cancel{width:100%;margin-top:8px;padding:10px;background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -82,16 +88,25 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
     <button class="filter-btn" data-f="NRP" onclick="setFilter(this)">NRP</button>
     <button class="filter-btn" data-f="A RAPPELER" onclick="setFilter(this)">À rappeler</button>
     <button class="filter-btn" data-f="RDV" onclick="setFilter(this)">RDV</button>
-    <button class="filter-btn" data-f="JAUNE" onclick="setFilter(this)">Jaune</button>
-    <button class="filter-btn" data-f="VIOLET" onclick="setFilter(this)">Violet</button>
-    <button class="filter-btn" data-f="ROSE" onclick="setFilter(this)">Rose</button>
     <button class="filter-btn" data-f="PAS INTER" onclick="setFilter(this)">Pas intéressé</button>
+    <button class="filter-btn" data-f="K.O" onclick="setFilter(this)">K.O</button>
+    <button class="filter-btn" data-f="FAUX NUM" onclick="setFilter(this)">Faux num</button>
   </div>
 </div>
 
 <div class="stats" id="statsBar"></div>
 <div class="list" id="listContainer"><div class="loading">⏳ Chargement…</div></div>
 <div class="toast" id="toast"></div>
+
+<!-- Modal date/heure pour À rappeler -->
+<div class="dt-modal" id="dtModal">
+  <div class="dt-box">
+    <h3>📅 À rappeler — date &amp; heure</h3>
+    <input type="datetime-local" id="dtInput"/>
+    <button class="dt-confirm" onclick="confirmRappel()">✅ Confirmer</button>
+    <button class="dt-cancel" onclick="closeDtModal()">Annuler</button>
+  </div>
+</div>
 
 <div class="cfg-modal" id="cfgModal">
   <div class="cfg-box">
@@ -118,6 +133,8 @@ var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8};
 var DEFAULT_ID='2PACX-1vTWDzOo3ln5TMQ2Zeq_VZVUapaw0AWMY6glM57RZMiz9FB-RN0ESCVrg0vkGLGwDOry7N_wXaRjX426';
 var DEFAULT_GID='1575725606';
 var GAS_URL='';
+var _pendingTel='';
+var _pendingCard=null;
 
 function getCfg(){try{return JSON.parse(localStorage.getItem('ctc_cfg')||'null');}catch(e){return null;}}
 function openCfg(){var c=getCfg();document.getElementById('cfgSheetId').value=(c&&c.id)||DEFAULT_ID;document.getElementById('cfgGid').value=(c&&c.gid)||DEFAULT_GID;document.getElementById('cfgGasUrl').value=(c&&c.gas)||'';document.getElementById('cfgModal').classList.add('show');}
@@ -156,12 +173,11 @@ function badgeClass(s){
   if(!s)return 's-def';
   var u=s.toUpperCase().trim();
   if(u==='NRP')return 's-nrp';
-  if(u.indexOf('PAS')>-1)return 's-pas';
-  if(u==='A RAPPELER'||u==='RAPPELER'||u==='CB')return 's-cb';
-  if(u==='JAUNE')return 's-jaune';
-  if(u==='VIOLET')return 's-violet';
-  if(u==='ROSE')return 's-rose';
+  if(u.indexOf('PAS')>-1||u==='PAS INTER')return 's-pas';
+  if(u.indexOf('RAPPELER')>-1||u==='CB')return 's-cb';
   if(u==='RDV')return 's-rdv';
+  if(u==='K.O'||u==='KO')return 's-ko';
+  if(u.indexOf('FAUX')>-1)return 's-faux';
   return 's-def';
 }
 
@@ -178,11 +194,10 @@ function matchFilter(statut){
   if(currentFilter==='VIDE')return !statut||!u;
   if(currentFilter==='NRP')return u==='NRP';
   if(currentFilter==='PAS INTER')return u.indexOf('PAS')>-1;
-  if(currentFilter==='A RAPPELER')return u==='A RAPPELER'||u==='RAPPELER'||u==='CB';
+  if(currentFilter==='A RAPPELER')return u.indexOf('RAPPELER')>-1||u==='CB';
   if(currentFilter==='RDV')return u==='RDV';
-  if(currentFilter==='JAUNE')return u==='JAUNE';
-  if(currentFilter==='VIOLET')return u==='VIOLET';
-  if(currentFilter==='ROSE')return u==='ROSE';
+  if(currentFilter==='K.O')return u==='K.O'||u==='KO';
+  if(currentFilter==='FAUX NUM')return u.indexOf('FAUX')>-1;
   return true;
 }
 
@@ -202,6 +217,23 @@ function showToast(msg){
 
 function getLocalStatuts(){try{return JSON.parse(localStorage.getItem('ctc_statuts')||'{}');}catch(e){return{};}}
 function saveLocalStatut(tel,statut){var s=getLocalStatuts();if(statut){s[tel]=statut;}else{delete s[tel];}localStorage.setItem('ctc_statuts',JSON.stringify(s));}
+
+function openRappel(tel,cardEl){
+  _pendingTel=tel;_pendingCard=cardEl;
+  var now=new Date();
+  now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('dtInput').value=now.toISOString().slice(0,16);
+  document.getElementById('dtModal').classList.add('show');
+}
+function closeDtModal(){document.getElementById('dtModal').classList.remove('show');_pendingTel='';_pendingCard=null;}
+function confirmRappel(){
+  var dt=document.getElementById('dtInput').value;
+  if(!dt){alert('Sélectionnez une date et heure');return;}
+  var d=new Date(dt);
+  var label='À rappeler le '+d.toLocaleDateString('fr-FR')+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  closeDtModal();
+  updateStatus(_pendingTel,label,_pendingCard);
+}
 
 function updateStatus(tel,statut,cardEl){
   var oldBadge=cardEl.querySelector('.badge');
@@ -251,13 +283,12 @@ function renderList(){
     html+='</div>';
     if(tel){
       html+='<div class="status-row">';
-      html+='<button class="s-btn nrp" onclick="updateStatus(\''+telEsc+'\',\'NRP\',this.closest(\'.card\'))">NRP</button>';
-      html+='<button class="s-btn cb" onclick="updateStatus(\''+telEsc+'\',\'A RAPPELER\',this.closest(\'.card\'))">À rappeler</button>';
+      html+='<button class="s-btn cb" onclick="openRappel(\''+telEsc+'\',this.closest(\'.card\'))">📅 À rappeler</button>';
       html+='<button class="s-btn rdv" onclick="updateStatus(\''+telEsc+'\',\'RDV\',this.closest(\'.card\'))">RDV</button>';
-      html+='<button class="s-btn jaune" onclick="updateStatus(\''+telEsc+'\',\'JAUNE\',this.closest(\'.card\'))">Jaune</button>';
-      html+='<button class="s-btn violet" onclick="updateStatus(\''+telEsc+'\',\'VIOLET\',this.closest(\'.card\'))">Violet</button>';
-      html+='<button class="s-btn rose" onclick="updateStatus(\''+telEsc+'\',\'ROSE\',this.closest(\'.card\'))">Rose</button>';
+      html+='<button class="s-btn nrp" onclick="updateStatus(\''+telEsc+'\',\'NRP\',this.closest(\'.card\'))">NRP</button>';
       html+='<button class="s-btn pas" onclick="updateStatus(\''+telEsc+'\',\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
+      html+='<button class="s-btn ko" onclick="updateStatus(\''+telEsc+'\',\'K.O\',this.closest(\'.card\'))">K.O</button>';
+      html+='<button class="s-btn faux" onclick="updateStatus(\''+telEsc+'\',\'FAUX NUM\',this.closest(\'.card\'))">Faux num</button>';
       html+='<button class="s-btn vide" onclick="updateStatus(\''+telEsc+'\',\'\',this.closest(\'.card\'))">✕</button>';
       html+='</div>';
     }
