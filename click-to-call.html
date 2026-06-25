@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v31';try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}if(location.search.indexOf(_V)<0)location.replace(location.pathname+'?'+_V);</script>
+<script>var _V='v32';try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}if(location.search.indexOf(_V)<0)location.replace(location.pathname+'?'+_V);</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -176,7 +176,7 @@ function saveCfg(){
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
   GAS_URL=gas;
-  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v31'}));
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v32'}));
   closeCfg();loadSheet(id,gid);
 }
 
@@ -282,7 +282,7 @@ function confirmRappel(){
 }
 
 var _notified={};
-function parseRappelDate(s){var m=(s||'').match(/(\d{2})\/(\d{2})\/(\d{4}) à (\d{2}):(\d{2})/);if(!m)return null;return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]);}
+function parseRappelDate(s){var m=(s||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\D+(\d{1,2})[h:](\d{2})/i);if(!m)return null;return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]);}
 function getTodayRappels(){var t=new Date();return allRows.filter(function(r){var s=r[C.statut]||'';if(s.toUpperCase().indexOf('RAPPELER')<0)return false;var d=parseRappelDate(s);return d&&d.getFullYear()===t.getFullYear()&&d.getMonth()===t.getMonth()&&d.getDate()===t.getDate();});}
 function showRappelBanner(){
   var rappels=getTodayRappels();var banner=document.getElementById('rappelBanner');
@@ -351,13 +351,13 @@ function renderList(){
     var txt=((r[C.nom]||'')+' '+(r[C.prenom]||'')+' '+(r[C.cp]||'')+' '+(r[C.email]||'')).toLowerCase();
     return(!q||txt.indexOf(q)>-1)&&matchFilter(r[C.statut]);
   });
-  if(currentFilter==='A RAPPELER'){
-    filtered.sort(function(a,b){
-      var da=parseRappelDate(a[C.statut]);var db=parseRappelDate(b[C.statut]);
-      if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;
-      return da-db;
-    });
-  }
+  filtered.sort(function(a,b){
+    var ua=(a[C.statut]||'').toUpperCase(),ub=(b[C.statut]||'').toUpperCase();
+    var ra=ua.indexOf('RAPPELER')>-1,rb=ub.indexOf('RAPPELER')>-1;
+    if(ra&&rb){var da=parseRappelDate(a[C.statut]),db=parseRappelDate(b[C.statut]);if(!da&&!db)return 0;if(!da)return 1;if(!db)return -1;return da-db;}
+    if(ra)return -1;if(rb)return 1;
+    return 0;
+  });
   document.getElementById('statsBar').textContent=filtered.length+' contact'+(filtered.length>1?'s':'')+' affiché'+(filtered.length>1?'s':'')+(allRows.length!==filtered.length?' / '+allRows.length+' total':'');
   if(!filtered.length){document.getElementById('listContainer').innerHTML='<div class="empty">Aucun résultat</div>';return;}
   var html='';
