@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v35';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
+<script>var _V='v36';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -184,7 +184,7 @@ function saveCfg(){
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
   GAS_URL=gas;
-  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v35'}));
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v36'}));
   closeCfg();loadSheet(id,gid);
 }
 
@@ -300,9 +300,9 @@ function showRappelBanner(){
   var items=sorted.map(function(r){
     var d=parseRappelDate(r[C.statut]);
     var time=d?(String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')):'?';
-    var prenom=(r[C.prenom]||r[C.nom]||'').trim();
+    var nom=((r[C.prenom]||'')+' '+(r[C.nom]||'')).trim();
     var late=d&&d<=now;
-    return (late?'🔴 ':'📅 ')+time+(prenom?' — '+prenom:'');
+    return (late?'🔴 ':'📅 ')+time+(nom?' — '+nom:'');
   });
   banner.innerHTML=items.join(' &nbsp;·&nbsp; ')+'<button onclick="this.parentNode.style.display=\'none\'" style="float:right;background:none;border:none;cursor:pointer;font-size:14px;color:#92400e;">✕</button>';
   banner.style.display='block';
