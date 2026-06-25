@@ -1,30 +1,32 @@
-// Google Apps Script — Click to Call : mise à jour statut
+// Google Apps Script — Click to Call : sync statuts cross-device
 // 1. Remplacer le code existant par celui-ci
 // 2. Déployer → Gérer les déploiements → ✏️ → Nouvelle version → Déployer
 
-var SHEET_ID = '1DmJUexyEZLeqa-aGmTEidWWDvDcHHKtuxI_9YE-bo8c';
-var SHEET_NAME = '';
-
-function getSheet() {
-  var ss = SpreadsheetApp.openById(SHEET_ID);
-  return SHEET_NAME ? ss.getSheetByName(SHEET_NAME) : ss.getSheets()[0];
-}
-
 function doGet(e) {
   var params = e.parameter;
+  var action = params.action || 'setStatut';
+
+  if (action === 'getStatuts') {
+    var props = PropertiesService.getScriptProperties().getProperties();
+    var statuts = {};
+    for (var k in props) {
+      if (k.indexOf('s_') === 0) statuts[k.slice(2)] = props[k];
+    }
+    return output({ ok: true, statuts: statuts });
+  }
+
+  // action setStatut (défaut)
   var tel = String(params.tel || '').replace(/\s/g, '');
-  var statut = params.statut || '';
+  var statut = params.statut !== undefined ? params.statut : '';
   if (!tel) return output({ ok: false, error: 'tel manquant' });
 
-  var sheet = getSheet();
-  var values = sheet.getDataRange().getValues();
-  for (var i = 1; i < values.length; i++) {
-    if (String(values[i][3] || '').replace(/\s/g, '') === tel) {
-      sheet.getRange(i + 1, 9).setValue(statut);
-      return output({ ok: true, row: i + 1 });
-    }
+  if (statut) {
+    PropertiesService.getScriptProperties().setProperty('s_' + tel, statut);
+  } else {
+    PropertiesService.getScriptProperties().deleteProperty('s_' + tel);
   }
-  return output({ ok: false, error: 'Contact non trouvé' });
+
+  return output({ ok: true });
 }
 
 function output(data) {

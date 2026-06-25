@@ -174,7 +174,7 @@ function loadSheet(id,gid){
   var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'')+'&bust='+bust;
   fetch(url,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();})
+    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();if(GAS_URL)fetchGasStatuts();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
 }
 
@@ -328,6 +328,24 @@ function renderList(){
     html+='</div>';
   });
   document.getElementById('listContainer').innerHTML=html;
+}
+
+function fetchGasStatuts(){
+  fetch(GAS_URL+'?action=getStatuts',{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.ok||!data.statuts)return;
+      var changed=false;
+      allRows.forEach(function(r){
+        var tel=(r[C.tel]||'').replace(/\s/g,'');
+        if(tel&&data.statuts[tel]!==undefined&&data.statuts[tel]!==r[C.statut]){r[C.statut]=data.statuts[tel];changed=true;}
+      });
+      var local=getLocalStatuts();
+      for(var tel in data.statuts){if(data.statuts[tel])local[tel]=data.statuts[tel];else delete local[tel];}
+      localStorage.setItem('ctc_statuts',JSON.stringify(local));
+      if(changed)renderList();
+    })
+    .catch(function(){});
 }
 
 function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
