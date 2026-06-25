@@ -82,6 +82,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 <div class="header">
   <h1>📞 Click to Call</h1>
   <span class="quota" id="quotaDisplay">0/150</span>
+  <button class="cfg-btn" id="refreshBtn" onclick="refreshSheet()">🔄</button>
   <button class="cfg-btn" onclick="openCfg()">⚙️ Sheet</button>
 </div>
 
@@ -168,11 +169,22 @@ function saveCfg(){
 
 function loadSheet(id,gid){
   document.getElementById('listContainer').innerHTML='<div class="loading">⏳ Chargement…</div>';
-  var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'');
-  fetch(url)
+  var bust=Date.now();
+  var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'')+'&bust='+bust;
+  fetch(url,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();})
+    .then(function(csv){allRows=parseCSV(csv);renderList();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
+}
+
+function refreshSheet(){
+  var btn=document.getElementById('refreshBtn');
+  btn.textContent='⏳';btn.disabled=true;
+  var c=getCfg();
+  var id=(c&&c.id)||DEFAULT_ID;
+  var gid=(c&&c.gid!==undefined?c.gid:DEFAULT_GID);
+  loadSheet(id,gid);
+  setTimeout(function(){btn.textContent='🔄';btn.disabled=false;},2000);
 }
 
 function parseCSV(text){
