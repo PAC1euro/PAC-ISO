@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v29';if(location.search.indexOf(_V)<0){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V){localStorage.removeItem('ctc_cfg');}}catch(e){}location.replace(location.pathname+'?'+_V);}</script>
+<script>var _V='v30';if(location.search.indexOf(_V)<0){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!=='v30'){localStorage.removeItem('ctc_cfg');}}catch(e){}location.replace(location.pathname+'?'+_V);}</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -168,7 +168,7 @@ var _pendingTel='';
 var _pendingCard=null;
 
 function getCfg(){try{return JSON.parse(localStorage.getItem('ctc_cfg')||'null');}catch(e){return null;}}
-function openCfg(){var c=getCfg();document.getElementById('cfgSheetId').value=(c&&c.id)||DEFAULT_ID;document.getElementById('cfgGid').value=(c&&c.gid)||DEFAULT_GID;document.getElementById('cfgGasUrl').value=(c&&c.gas)||'';document.getElementById('cfgModal').classList.add('show');}
+function openCfg(){var c=getCfg();document.getElementById('cfgSheetId').value=(c&&c.id)||DEFAULT_ID;document.getElementById('cfgGid').value=(c&&c.gid)||DEFAULT_GID;document.getElementById('cfgGasUrl').value=(c&&c.gas)||DEFAULT_GAS_URL;document.getElementById('cfgModal').classList.add('show');}
 function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
 function saveCfg(){
   var id=document.getElementById('cfgSheetId').value.trim();
@@ -176,7 +176,7 @@ function saveCfg(){
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
   GAS_URL=gas;
-  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v29'}));
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v30'}));
   closeCfg();loadSheet(id,gid);
 }
 
