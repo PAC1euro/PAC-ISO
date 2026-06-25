@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<script>var _V='v36';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
+<script>var _V='v37';if(localStorage.getItem('_pv')!==_V){try{var _c=JSON.parse(localStorage.getItem('ctc_cfg')||'null');if(!_c||_c._v!==_V)localStorage.removeItem('ctc_cfg');}catch(e){}localStorage.setItem('_pv',_V);location.replace(location.pathname+'?t='+Date.now());}</script>
 <title>Click to Call</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -85,6 +85,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
   <button class="quota" id="quotaDisplay" onclick="resetCounter()" style="cursor:pointer;border:none;" title="Cliquer pour remettre à 0">0/150</button>
   <button class="cfg-btn" id="syncBtn" onclick="pushLocalToGas()" title="Transférer mes statuts vers le cloud">☁️</button>
   <button class="cfg-btn" id="refreshBtn" onclick="refreshSheet()">🔄</button>
+  <button class="cfg-btn" onclick="openExtModal()" style="background:#22c55e;color:#fff;font-weight:700;">➕</button>
   <button class="cfg-btn" onclick="openCfg()">⚙️ Sheet</button>
 </div>
 
@@ -106,6 +107,19 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 <div class="stats" id="statsBar"></div>
 <div class="list" id="listContainer"><div class="loading">⏳ Chargement…</div></div>
 <div class="toast" id="toast"></div>
+
+<!-- Modal lead externe -->
+<div class="dt-modal" id="extModal">
+  <div class="dt-box">
+    <h3>➕ Nouveau rappel externe</h3>
+    <input type="text" id="extNom" placeholder="Nom *" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;outline:none;margin-bottom:8px;"/>
+    <input type="text" id="extPrenom" placeholder="Prénom" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;outline:none;margin-bottom:8px;"/>
+    <input type="tel" id="extTel" placeholder="Téléphone (optionnel)" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;outline:none;margin-bottom:8px;"/>
+    <input type="datetime-local" id="extDt" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;outline:none;margin-bottom:12px;"/>
+    <button class="dt-confirm" onclick="confirmExternal()">✅ Ajouter</button>
+    <button class="dt-cancel" onclick="closeExtModal()">Annuler</button>
+  </div>
+</div>
 
 <!-- Modal date/heure pour À rappeler -->
 <div class="dt-modal" id="dtModal">
@@ -184,7 +198,7 @@ function saveCfg(){
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
   GAS_URL=gas;
-  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v36'}));
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v37'}));
   closeCfg();loadSheet(id,gid);
 }
 
@@ -194,7 +208,7 @@ function loadSheet(id,gid){
   var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'')+'&bust='+bust;
   fetch(url,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);applyLocalStatuts();renderList();if(GAS_URL)fetchGasStatuts();})
+    .then(function(csv){allRows=parseCSV(csv);mergeExternalLeads();applyLocalStatuts();renderList();if(GAS_URL)fetchGasStatuts();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
 }
 
@@ -287,6 +301,32 @@ function confirmRappel(){
   var tel=_pendingTel;var card=_pendingCard;
   closeDtModal();
   updateStatus(tel,label,card);
+}
+
+function getExternalLeads(){try{return JSON.parse(localStorage.getItem('ctc_external')||'[]');}catch(e){return[];}}
+function saveExternalLeads(arr){localStorage.setItem('ctc_external',JSON.stringify(arr));}
+function deleteExternalLead(id){var arr=getExternalLeads().filter(function(l){return l.id!==id;});saveExternalLeads(arr);allRows=allRows.filter(function(r){return r._extId!==id;});renderList();}
+function mergeExternalLeads(){
+  var ext=getExternalLeads();
+  ext.forEach(function(lead){
+    var exists=allRows.some(function(r){return r._extId===lead.id;});
+    if(!exists){var row=new Array(9).fill('');row[C.nom]=lead.nom||'';row[C.prenom]=lead.prenom||'';row[C.tel]=lead.tel||lead.id;row[C.statut]=lead.statut||'';row._ext=true;row._extId=lead.id;allRows.push(row);}
+  });
+}
+function openExtModal(){var now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());document.getElementById('extDt').value=now.toISOString().slice(0,16);document.getElementById('extNom').value='';document.getElementById('extPrenom').value='';document.getElementById('extTel').value='';document.getElementById('extModal').classList.add('show');}
+function closeExtModal(){document.getElementById('extModal').classList.remove('show');}
+function confirmExternal(){
+  var nom=document.getElementById('extNom').value.trim();
+  if(!nom){alert('Le nom est obligatoire');return;}
+  var prenom=document.getElementById('extPrenom').value.trim();
+  var tel=document.getElementById('extTel').value.replace(/\s/g,'')||'EXT'+Date.now();
+  var dt=document.getElementById('extDt').value;
+  var statut='';
+  if(dt){var d=new Date(dt);var dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=d.getFullYear(),hh=String(d.getHours()).padStart(2,'0'),mn=String(d.getMinutes()).padStart(2,'0');statut='À rappeler le '+dd+'/'+mm+'/'+yyyy+' à '+hh+':'+mn;}
+  var id='EXT'+Date.now();
+  var arr=getExternalLeads();arr.push({id:id,nom:nom,prenom:prenom,tel:tel,statut:statut});saveExternalLeads(arr);
+  var row=new Array(9).fill('');row[C.nom]=nom;row[C.prenom]=prenom;row[C.tel]=tel;row[C.statut]=statut;row._ext=true;row._extId=id;allRows.push(row);
+  closeExtModal();renderList();showToast('✅ Rappel ajouté');
 }
 
 var _notified={};
@@ -384,6 +424,7 @@ function renderList(){
     if(sub)html+='<div class="card-sub">'+e(sub)+'</div>';
     if(email)html+='<div class="card-sub">✉️ '+e(email)+'</div>';
     if(tel)html+='<div class="card-phone">📞 '+e(tel)+'</div>';
+    if(r._ext)html+='<span class="badge s-def" style="background:#ede9fe;color:#5b21b6;">⚡ Externe</span>';
     if(statut&&statut.toUpperCase().indexOf('RAPPELER')>-1){html+='<span class="badge-rappel">📅 '+e(statut)+'</span>';}
     else if(statut){html+='<span class="badge '+badgeClass(statut)+'">'+e(statut)+'</span>';}
     html+='</div>';
@@ -398,7 +439,8 @@ function renderList(){
       html+='<button class="s-btn pas" onclick="updateStatus(\''+telEsc+'\',\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
       html+='<button class="s-btn ko" onclick="updateStatus(\''+telEsc+'\',\'K.O\',this.closest(\'.card\'))">K.O</button>';
       html+='<button class="s-btn faux" onclick="updateStatus(\''+telEsc+'\',\'FAUX NUM\',this.closest(\'.card\'))">Faux num</button>';
-      html+='<button class="s-btn vide" onclick="updateStatus(\''+telEsc+'\',\'\',this.closest(\'.card\'))">✕</button>';
+      if(r._ext){html+='<button class="s-btn vide" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;" onclick="if(confirm(\'Supprimer ce rappel ?\'))deleteExternalLead(\''+e(r._extId||'')+'\')">🗑️</button>';}
+      else{html+='<button class="s-btn vide" onclick="updateStatus(\''+telEsc+'\',\'\',this.closest(\'.card\'))">✕</button>';}
       html+='</div>';
     }
     html+='</div>';
