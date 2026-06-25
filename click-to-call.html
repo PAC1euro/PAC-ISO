@@ -97,7 +97,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 var allRows=[];
 var currentFilter='';
 var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8};
-var DEFAULT_ID='1DmJUexyEZLeqa-aGmTEidWWDvDcHHKtuxI_9YE-bo8c';
+var DEFAULT_ID='2PACX-1vTWDzOo3ln5TMQ2Zeq_VZVUapaw0AWMY6glM57RZMiz9FB-RN0ESCVrg0vkGLGwDOry7N_wXaRjX426';
 var DEFAULT_GID='1575725606';
 
 function getCfg(){try{return JSON.parse(localStorage.getItem('ctc_cfg')||'null');}catch(e){return null;}}
@@ -107,7 +107,7 @@ function saveCfg(){var id=document.getElementById('cfgSheetId').value.trim();var
 
 function loadSheet(id,gid){
   document.getElementById('listContainer').innerHTML='<div class="loading">⏳ Chargement…</div>';
-  var url='https://docs.google.com/spreadsheets/d/'+id+'/export?format=csv'+(gid?'&gid='+gid:'');
+  var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'');
   fetch(url)
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
     .then(function(csv){allRows=parseCSV(csv);renderList();})
