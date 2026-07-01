@@ -433,14 +433,14 @@ function renderList(){
     html+='</div>';
     if(tel){
       html+='<div class="status-row">';
-      html+='<button class="s-btn cb" onclick="openRappel(\''+telEsc+'\',this.closest(\'.card\'))">📅 À rappeler</button>';
-      html+='<button class="s-btn rdv" onclick="updateStatus(\''+telEsc+'\',\'RDV\',this.closest(\'.card\'))">RDV</button>';
-      html+='<button class="s-btn nrp" onclick="updateStatus(\''+telEsc+'\',\'NRP\',this.closest(\'.card\'))">NRP</button>';
-      html+='<button class="s-btn pas" onclick="updateStatus(\''+telEsc+'\',\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
-      html+='<button class="s-btn ko" onclick="updateStatus(\''+telEsc+'\',\'K.O\',this.closest(\'.card\'))">K.O</button>';
-      html+='<button class="s-btn faux" onclick="updateStatus(\''+telEsc+'\',\'FAUX NUM\',this.closest(\'.card\'))">Faux num</button>';
+      html+='<button class="s-btn cb" onclick="openRappel(this.closest(\'.card\').dataset.tel,this.closest(\'.card\'))">📅 À rappeler</button>';
+      html+='<button class="s-btn rdv" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'RDV\',this.closest(\'.card\'))">RDV</button>';
+      html+='<button class="s-btn nrp" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'NRP\',this.closest(\'.card\'))">NRP</button>';
+      html+='<button class="s-btn pas" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
+      html+='<button class="s-btn ko" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'K.O\',this.closest(\'.card\'))">K.O</button>';
+      html+='<button class="s-btn faux" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'FAUX NUM\',this.closest(\'.card\'))">Faux num</button>';
       if(r._ext){html+='<button class="s-btn vide" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;" onclick="if(confirm(\'Supprimer ce rappel ?\'))deleteExternalLead(\''+e(r._extId||'')+'\')">🗑️</button>';}
-      else{html+='<button class="s-btn vide" onclick="updateStatus(\''+telEsc+'\',\'\',this.closest(\'.card\'))">✕</button>';}
+      else{html+='<button class="s-btn vide" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'\',this.closest(\'.card\'))">✕</button>';}
       html+='</div>';
     }
     html+='</div>';
