@@ -38,6 +38,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .s-rdv{background:#dcfce7;color:#166534;}
 .s-ko{background:#fce7f3;color:#9d174d;}
 .s-faux{background:#f1f5f9;color:#475569;}
+.s-riad{background:#f3e8ff;color:#6b21a8;}
 .s-def{background:#f1f5f9;color:#475569;}
 .call-btn{width:54px;height:54px;min-width:54px;border-radius:50%;background:#22c55e;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 8px rgba(34,197,94,.4);}
 .call-btn:active{transform:scale(.94);}
@@ -52,6 +53,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .s-btn.rdv{background:#dcfce7;color:#166534;border-color:#bbf7d0;}
 .s-btn.ko{background:#fce7f3;color:#9d174d;border-color:#fbcfe8;}
 .s-btn.faux{background:#f1f5f9;color:#475569;border-color:#e2e8f0;}
+.s-btn.riad{background:#f3e8ff;color:#6b21a8;border-color:#e9d5ff;}
 .s-btn.vide{background:#fff;color:#94a3b8;border-color:#e2e8f0;}
 .empty{text-align:center;padding:60px 20px;color:#94a3b8;font-size:14px;line-height:1.8;}
 .cfg-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
@@ -100,6 +102,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
     <button class="filter-btn" data-f="PAS INTER" onclick="setFilter(this)">Pas intéressé</button>
     <button class="filter-btn" data-f="K.O" onclick="setFilter(this)">K.O</button>
     <button class="filter-btn" data-f="FAUX NUM" onclick="setFilter(this)">Faux num</button>
+    <button class="filter-btn" data-f="RIAD" onclick="setFilter(this)">Riad</button>
   </div>
 </div>
 
@@ -242,6 +245,7 @@ function badgeClass(s){
   if(u==='RDV')return 's-rdv';
   if(u==='K.O'||u==='KO')return 's-ko';
   if(u.indexOf('FAUX')>-1)return 's-faux';
+  if(u==='RIAD')return 's-riad';
   return 's-def';
 }
 
@@ -262,6 +266,7 @@ function matchFilter(statut){
   if(currentFilter==='RDV')return u==='RDV';
   if(currentFilter==='K.O')return u==='K.O'||u==='KO';
   if(currentFilter==='FAUX NUM')return u.indexOf('FAUX')>-1;
+  if(currentFilter==='RIAD')return u==='RIAD';
   return true;
 }
 
@@ -434,6 +439,8 @@ function renderList(){
     if(tel){
       html+='<div class="status-row">';
       html+='<button class="s-btn cb" onclick="openRappel(this.closest(\'.card\').dataset.tel,this.closest(\'.card\'))">📅 À rappeler</button>';
+      html+='<button class="s-btn cb" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'À RAPPELER\',this.closest(\'.card\'))">📞 À rappeler</button>';
+      html+='<button class="s-btn riad" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'RIAD\',this.closest(\'.card\'))">Riad</button>';
       html+='<button class="s-btn rdv" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'RDV\',this.closest(\'.card\'))">RDV</button>';
       html+='<button class="s-btn nrp" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'NRP\',this.closest(\'.card\'))">NRP</button>';
       html+='<button class="s-btn pas" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
