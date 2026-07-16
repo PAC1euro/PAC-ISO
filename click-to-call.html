@@ -92,7 +92,14 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 </div>
 
 <div class="toolbar">
-  <input class="search" id="searchInput" placeholder="🔍 Nom, prénom, CP…" oninput="renderList()"/>
+  <input class="search" id="searchInput" placeholder="🔍 Rechercher…" oninput="renderList()"/>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 0 2px 0;">
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer;"><input type="radio" name="searchType" value="all" checked onchange="renderList()"> Tout</label>
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer;"><input type="radio" name="searchType" value="dept" onchange="renderList()"> Département</label>
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer;"><input type="radio" name="searchType" value="tel" onchange="renderList()"> Téléphone</label>
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer;"><input type="radio" name="searchType" value="nom" onchange="renderList()"> Nom</label>
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer;"><input type="radio" name="searchType" value="prenom" onchange="renderList()"> Prénom</label>
+  </div>
   <div class="filters">
     <button class="filter-btn active" data-f="" onclick="setFilter(this)">Tous</button>
     <button class="filter-btn" data-f="VIDE" onclick="setFilter(this)">Sans statut</button>
@@ -402,10 +409,19 @@ function updateStatus(tel,statut,cardEl){
 }
 
 function renderList(){
-  var q=document.getElementById('searchInput').value.toLowerCase();
+  var q=document.getElementById('searchInput').value.toLowerCase().trim();
+  var stEl=document.querySelector('input[name="searchType"]:checked');
+  var st=stEl?stEl.value:'all';
   var filtered=allRows.filter(function(r){
-    var txt=((r[C.nom]||'')+' '+(r[C.prenom]||'')+' '+(r[C.cp]||'')+' '+(r[C.email]||'')).toLowerCase();
-    return(!q||txt.indexOf(q)>-1)&&matchFilter(r[C.statut]);
+    var match=true;
+    if(q){
+      if(st==='dept'){var cp=(r[C.cp]||'').replace(/\s/g,'');match=cp.indexOf(q)===0||cp.slice(0,q.length)===q;}
+      else if(st==='tel'){match=(r[C.tel]||'').replace(/\s/g,'').indexOf(q)>-1;}
+      else if(st==='nom'){match=(r[C.nom]||'').toLowerCase().indexOf(q)>-1;}
+      else if(st==='prenom'){match=(r[C.prenom]||'').toLowerCase().indexOf(q)>-1;}
+      else{var txt=((r[C.nom]||'')+' '+(r[C.prenom]||'')+' '+(r[C.cp]||'')+' '+(r[C.email]||'')).toLowerCase();match=txt.indexOf(q)>-1;}
+    }
+    return match&&matchFilter(r[C.statut]);
   });
   filtered.sort(function(a,b){
     var ua=(a[C.statut]||'').toUpperCase(),ub=(b[C.statut]||'').toUpperCase();
