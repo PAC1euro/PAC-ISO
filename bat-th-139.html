@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eligibilité BAT-TH-139 — Récupération de chaleur sur groupe froid</title>
+<style>
+:root {
+  --navy:    #162847;
+  --navy2:   #1E3A5E;
+  --cold:    #1E7BC4;
+  --cold-lt: #D6EAF8;
+  --warm:    #D4720A;
+  --warm-lt: #FDEBD0;
+  --bg:      #F2F6FB;
+  --surf:    #FFFFFF;
+  --border:  #D1DCE8;
+  --txt:     #1A2332;
+  --txt2:    #5A6B7E;
+  --ok:      #1A7A4A;
+  --ok-lt:   #D4EDDA;
+  --warn:    #92620A;
+  --warn-lt: #FFF3CD;
+  --err:     #C0392B;
+  --err-lt:  #FDECEA;
+  --radius:  10px;
+  --shadow:  0 2px 12px rgba(22,40,71,.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #0E1928;
+    --surf:    #162235;
+    --border:  #2A3D57;
+    --txt:     #E4EAF4;
+    --txt2:    #8FA4BC;
+    --cold-lt: #1A3650;
+    --warm-lt: #3A2008;
+    --ok-lt:   #0D3020;
+    --warn-lt: #2E1F06;
+    --err-lt:  #2E0B08;
+    --shadow:  0 2px 16px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:      #0E1928;
+  --surf:    #162235;
+  --border:  #2A3D57;
+  --txt:     #E4EAF4;
+  --txt2:    #8FA4BC;
+  --cold-lt: #1A3650;
+  --warm-lt: #3A2008;
+  --ok-lt:   #0D3020;
+  --warn-lt: #2E1F06;
+  --err-lt:  #2E0B08;
+  --shadow:  0 2px 16px rgba(0,0,0,.35);
+}
+:root[data-theme="light"] {
+  --navy:    #162847;
+  --bg:      #F2F6FB;
+  --surf:    #FFFFFF;
+  --border:  #D1DCE8;
+  --txt:     #1A2332;
+  --txt2:    #5A6B7E;
+  --cold-lt: #D6EAF8;
+  --warm-lt: #FDEBD0;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.55;}
+
+/* ── HEADER ── */
+.hdr{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;gap:16px;height:60px;position:sticky;top:0;z-index:100;}
+.hdr-logo{font-family:'Trebuchet MS',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.3px;color:#fff;}
+.hdr-logo span{color:#4FAFD4;}
+.hdr-sub{font-size:12px;color:#8FA4BC;letter-spacing:.4px;text-transform:uppercase;}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:calc(100vh - 60px);}
+.sidebar{width:240px;flex-shrink:0;background:var(--navy2);padding:28px 20px;display:flex;flex-direction:column;gap:4px;}
+.main{flex:1;padding:32px 28px;max-width:720px;}
+
+/* ── STEP NAV ── */
+.step-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .15s;}
+.step-item:hover{background:rgba(255,255,255,.07);}
+.step-item.active{background:rgba(78,175,212,.15);}
+.step-dot{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);flex-shrink:0;transition:all .2s;}
+.step-item.done .step-dot{background:var(--ok);border-color:var(--ok);color:#fff;}
+.step-item.active .step-dot{border-color:#4FAFD4;color:#4FAFD4;}
+.step-label{font-size:12.5px;color:rgba(255,255,255,.5);font-weight:500;line-height:1.3;}
+.step-item.active .step-label{color:#D6EAF8;}
+.step-item.done .step-label{color:rgba(255,255,255,.65);}
+
+/* ── MOBILE PROGRESS ── */
+.mob-prog{display:none;background:var(--navy);padding:10px 16px;position:sticky;top:60px;z-index:99;}
+.prog-bar{height:4px;background:rgba(255,255,255,.15);border-radius:2px;}
+.prog-fill{height:4px;background:linear-gradient(90deg,#1E7BC4,#4FAFD4);border-radius:2px;transition:width .3s;}
+.prog-label{font-size:11px;color:rgba(255,255,255,.6);margin-top:5px;}
+
+/* ── STEP CARD ── */
+.step-pane{display:none;}
+.step-pane.active{display:block;}
+.step-title{font-family:'Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:var(--txt);margin-bottom:4px;text-wrap:balance;}
+.step-desc{font-size:13.5px;color:var(--txt2);margin-bottom:24px;}
+.divider-cold{height:3px;background:linear-gradient(90deg,var(--cold),#4FAFD4);border-radius:2px;margin-bottom:24px;width:48px;}
+.divider-warm{height:3px;background:linear-gradient(90deg,var(--warm),#F0A000);border-radius:2px;margin-bottom:24px;width:48px;}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:18px;}
+.field-row{display:grid;gap:14px;grid-template-columns:1fr 1fr;}
+label{display:block;font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+label .req{color:var(--warm);margin-left:2px;}
+input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea{
+  width:100%;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:10px 12px;font-size:14px;color:var(--txt);font-family:inherit;transition:border-color .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cold);box-shadow:0 0 0 3px rgba(30,123,196,.15);}
+input[type=number]{font-family:'Courier New',monospace;font-size:15px;font-variant-numeric:tabular-nums;}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A6B7E' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+
+/* Radio/checkbox groups */
+.choice-group{display:flex;flex-wrap:wrap;gap:8px;}
+.choice-item{display:flex;align-items:center;gap:0;}
+.choice-item input[type=radio],.choice-item input[type=checkbox]{display:none;}
+.choice-item label{
+  padding:7px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:600;
+  text-transform:none;letter-spacing:0;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap;margin:0;
+}
+.choice-item input[type=radio]:checked+label,.choice-item input[type=checkbox]:checked+label{
+  background:var(--cold);border-color:var(--cold);color:#fff;
+}
+.choice-item.warm input[type=radio]:checked+label,.choice-item.warm input[type=checkbox]:checked+label{
+  background:var(--warm);border-color:var(--warm);color:#fff;
+}
+
+/* Slider */
+.slider-wrap{display:flex;align-items:center;gap:12px;}
+input[type=range]{flex:1;accent-color:var(--cold);height:4px;}
+.slider-val{font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:var(--cold);min-width:60px;text-align:right;}
+
+/* Sub-section (conditional) */
+.sub-section{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:12px;display:none;}
+.sub-section.show{display:block;}
+.sub-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:12px;}
+
+/* Info box */
+.info-box{background:var(--cold-lt);border:1.5px solid rgba(30,123,196,.25);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--txt);margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;}
+.info-box.warm{background:var(--warm-lt);border-color:rgba(212,114,10,.25);}
+.info-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;gap:10px;margin-top:28px;}
+.btn{padding:11px 24px;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
+.btn-prev{background:var(--bg);border:1.5px solid var(--border);color:var(--txt2);}
+.btn-prev:hover{border-color:var(--cold);color:var(--cold);}
+.btn-next{background:var(--cold);color:#fff;box-shadow:0 2px 8px rgba(30,123,196,.35);}
+.btn-next:hover{background:#1668A8;box-shadow:0 4px 14px rgba(30,123,196,.45);}
+.btn-submit{background:var(--warm);color:#fff;box-shadow:0 2px 8px rgba(212,114,10,.35);}
+.btn-submit:hover{background:#B85E08;}
+
+/* ── RÉSUMÉ / ÉLIGIBILITÉ ── */
+.elig-card{border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);}
+.elig-ok{background:var(--ok-lt);border:2px solid var(--ok);}
+.elig-warn{background:var(--warn-lt);border:2px solid var(--warn);}
+.elig-ko{background:var(--err-lt);border:2px solid var(--err);}
+.elig-header{display:flex;align-items:center;gap:10px;font-family:'Trebuchet MS',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;}
+.elig-header.ok{color:var(--ok);}
+.elig-header.warn{color:var(--warn);}
+.elig-header.ko{color:var(--err);}
+.elig-detail{font-size:13px;color:var(--txt);line-height:1.6;}
+.summary-grid{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:20px;}
+.sum-block{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);}
+.sum-block-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:8px;}
+.sum-row{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border);}
+.sum-row:last-child{border-bottom:none;}
+.sum-key{color:var(--txt2);}
+.sum-val{font-weight:600;color:var(--txt);text-align:right;}
+.metric-big{font-family:'Courier New',monospace;font-size:28px;font-weight:700;color:var(--cold);}
+.metric-big.warm{color:var(--warm);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:720px){
+  .sidebar{display:none;}
+  .mob-prog{display:block;}
+  .main{padding:20px 16px;}
+  .field-row{grid-template-columns:1fr;}
+  .summary-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div class="hdr-logo">PAC<span>·</span>ISO</div>
+    <div class="hdr-sub">Questionnaire BAT-TH-139</div>
+  </div>
+</header>
+
+<div class="mob-prog">
+  <div class="prog-bar"><div class="prog-fill" id="mobFill" style="width:16.6%"></div></div>
+  <div class="prog-label" id="mobLabel">Étape 1 / 6 — Contact</div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="step-item active" data-step="1" onclick="goStep(1)">
+      <div class="step-dot">1</div>
+      <div class="step-label">Contact &amp; Entreprise</div>
+    </div>
+    <div class="step-item" data-step="2" onclick="goStep(2)">
+      <div class="step-dot">2</div>
+      <div class="step-label">Site &amp; Activité</div>
+    </div>
+    <div class="step-item" data-step="3" onclick="goStep(3)">
+      <div class="step-dot">3</div>
+      <div class="step-label">Groupes froids</div>
+    </div>
+    <div class="step-item" data-step="4" onclick="goStep(4)">
+      <div class="step-dot">4</div>
+      <div class="step-label">Chambres froides</div>
+    </div>
+    <div class="step-item" data-step="5" onclick="goStep(5)">
+      <div class="step-dot">5</div>
+      <div class="step-label">Besoins thermiques</div>
+    </div>
+    <div class="step-item" data-step="6" onclick="goStep(6)">
+      <div class="step-dot">6</div>
+      <div class="step-label">Paramètres &amp; Résumé</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── ÉTAPE 1 : CONTACT ── -->
+    <div class="step-pane active" id="pane1">
+      <div class="divider-cold"></div>
+      <div class="step-title">Contact &amp; Entreprise</div>
+      <div class="step-desc">Informations du responsable et de la société bénéficiaire de l'opération CEE.</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Civilité</label>
+          <div class="choice-group">
+            <div class="choice-item"><input type="radio" name="civilite" id="civ_m" value="M." checked><label for="civ_m">M.</label></div>
+            <div class="choice-item"><input type="radio" name="civilite" id="civ_mme" value="Mme"><label for="civ_mme">Mme</label></div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="prenom" placeholder="Jean"></div>
+        <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="nom" placeholder="Dupont"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="tel" placeholder="06 00 00 00 00"></div>
+        <div class="field"><label>Email</label><input type="email" id="email" placeholder="jean@entreprise.fr"></div>
+      </div>
+      <div class="field"><label>Raison sociale / Entreprise <span class="req">*</span></label><input type="text" id="entreprise" placeholder="Société Frigorifique du Nord"></div>
+      <div class="field"><label>SIRET</label><input type="text" id="siret" placeholder="123 456 789 00012" maxlength="17"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-next" onclick="next(1)">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- ── ÉTAPE 2 : SITE ── -->
+    <div class="step-pane" id="pane2">
+      <div class="divider-cold"></div>
+      <div class="step-title">Site &amp; Activité</div>
+      <div class="step-desc">Localisation du site et secteur d'activité concerné par l'installation.</div>
+
+      <div class="field"><label>Adresse du site <span class="req">*</span></label><input type="text" id="adresse" placeholder="12 rue du Commerce"></div>
+      <div class="field-row">
+        <div class="field"><label>Code postal <span class="req">*</span></label><input type="text" id="cp" placeholder="75011" maxlength="5"></div>
+        <div class="field"><label>Ville <span class="req">*</span></label><input type="text" id="ville" placeholder="Paris"></div>
+      </div>
+
+      <div class="field">
+        <label>Secteur d'activité <span class="req">*</span></label>
+        <select id="secteur">
+          <option value="">— Choisir —</option>
+          <option value="gd">Grande distribution / Supermarché</option>
+          <option value="agro">Industrie agroalimentaire</option>
+          <option value="resto">Restauration / CHR</option>
+          <option value="pharma">Pharmacie / Médical</option>
+          <option value="logis">Logistique / Entrepôt</option>
+          <option value="bouche">Boucherie / Charcuterie / Traiteur</option>
+          <option value="prod">Usine de production</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Type de bâtiment</label>
+        <select id="typeBat">
+          <option value="">— Choisir —</option>
+          <option value="entrepot">Entrepôt frigorifique</option>
+          <option value="supermarche">Supermarché / Hypermarché</option>
+          <option value="labo">Chambre froide laboratoire</option>
+          <option value="usine">Usine / Site industriel</option>
+          <option value="resto">Restaurant / Cuisine professionnelle</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Propriétaire des locaux ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="proprio" id="pr_oui" value="oui" checked><label for="pr_oui">Propriétaire</label></div>
+          <div class="choice-item"><input type="radio" name="proprio" id="pr_loc" value="loc"><label for="pr_loc">Locataire</label></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-prev" onclick="prev(2)">← Retour</button>
+        <button class="btn btn-next" onclick="next(2)">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- ── ÉTAPE 3 : GROUPES FROIDS ── -->
+    <div class="step-pane" id="pane3">
+      <div class="divider-cold"></div>
+      <div class="step-title">Groupes de production de froid</div>
+      <div class="step-desc">Caractéristiques de l'installation frigorifique existante.</div>
+
+      <div class="info-box">
+        <div class="info-icon">❄️</div>
+        <div>La puissance frigorifique totale est le critère dimensionnant principal pour le calcul du volume CEE BAT-TH-139.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Nombre de groupes froids <span class="req">*</span></label>
+          <input type="number" id="nbGroupes" min="1" max="50" placeholder="Ex : 2" oninput="updateSlider()">
+        </div>
+        <div class="field">
+          <label>Puissance frigorifique totale (kW) <span class="req">*</span></label>
+          <input type="number" id="puissanceFrigo" min="1" max="5000" step="0.5" placeholder="Ex : 150" oninput="updateMetrics()">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Type de froid <span class="req">*</span></label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="typeFroid" id="tf_pos" value="positif"><label for="tf_pos">Positif (&gt; 0 °C)</label></div>
+          <div class="choice-item"><input type="radio" name="typeFroid" id="tf_neg" value="negatif"><label for="tf_neg">Négatif (&lt; 0 °C)</label></div>
+          <div class="choice-item"><input type="radio" name="typeFroid" id="tf_mix" value="mixte" checked><label for="tf_mix">Mixte</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Fluide frigorigène utilisé</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="fluide" id="fl_404" value="R404A" checked><label for="fl_404">R404A</label></div>
+          <div class="choice-item"><input type="radio" name="fluide" id="fl_134" value="R134a"><label for="fl_134">R134a</label></div>
+          <div class="choice-item"><input type="radio" name="fluide" id="fl_744" value="R744/CO2"><label for="fl_744">R744/CO₂</label></div>
+          <div class="choice-item"><input type="radio" name="fluide" id="fl_448" value="R448A/R449A"><label for="fl_448">R448A/R449A</label></div>
+          <div class="choice-item"><input type="radio" name="fluide" id="fl_aut" value="Autre"><label for="fl_aut">Autre</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Type de compresseur</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="compresseur" id="cp_pis" value="Pistons"><label for="cp_pis">À pistons</label></div>
+          <div class="choice-item"><input type="radio" name="compresseur" id="cp_vis" value="À vis"><label for="cp_vis">À vis</label></div>
+          <div class="choice-item"><input type="radio" name="compresseur" id="cp_scr" value="Scroll"><label for="cp_scr">Scroll</label></div>
+          <div class="choice-item"><input type="radio" name="compresseur" id="cp_inc" value="Inconnu" checked><label for="cp_inc">Inconnu</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Type de condenseur</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="condenseur" id="cd_air" value="À air" checked><label for="cd_air">À air</label></div>
+          <div class="choice-item"><input type="radio" name="condenseur" id="cd_eau" value="À eau"><label for="cd_eau">À eau</label></div>
+          <div class="choice-item"><input type="radio" name="condenseur" id="cd_eva" value="Évaporatif"><label for="cd_eva">Évaporatif</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ancienneté de l'installation</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="anciennete" id="an_5" value="Moins de 5 ans"><label for="an_5">–5 ans</label></div>
+          <div class="choice-item"><input type="radio" name="anciennete" id="an_10" value="5 à 10 ans" checked><label for="an_10">5–10 ans</label></div>
+          <div class="choice-item"><input type="radio" name="anciennete" id="an_p10" value="Plus de 10 ans"><label for="an_p10">+10 ans</label></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-prev" onclick="prev(3)">← Retour</button>
+        <button class="btn btn-next" onclick="next(3)">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- ── ÉTAPE 4 : CHAMBRES FROIDES ── -->
+    <div class="step-pane" id="pane4">
+      <div class="divider-cold"></div>
+      <div class="step-title">Chambres froides</div>
+      <div class="step-desc">Inventaire et caractéristiques des volumes réfrigérés.</div>
+
+      <div class="field">
+        <label>Y a-t-il des chambres froides sur le site ? <span class="req">*</span></label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="hasCF" id="cf_oui" value="oui" checked onchange="toggleCF()"><label for="cf_oui">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="hasCF" id="cf_non" value="non" onchange="toggleCF()"><label for="cf_non">Non</label></div>
+        </div>
+      </div>
+
+      <div id="cfSection">
+        <div class="field-row">
+          <div class="field"><label>Nombre total de chambres froides</label><input type="number" id="nbCF" min="0" max="100" placeholder="Ex : 3"></div>
+          <div class="field"><label>Surface totale réfrigérée (m²)</label><input type="number" id="surfCF" min="0" max="50000" placeholder="Ex : 200"></div>
+        </div>
+        <div class="field">
+          <label>Volume total réfrigéré (m³) — si connu</label>
+          <input type="number" id="volCF" min="0" max="200000" placeholder="Ex : 600">
+        </div>
+
+        <div class="field">
+          <label>Chambres froides positives (T° consigne en °C)</label>
+          <div class="choice-group">
+            <div class="choice-item"><input type="radio" name="tPos" id="tp_0_4" value="0 à +4 °C" checked><label for="tp_0_4">0 à +4 °C</label></div>
+            <div class="choice-item"><input type="radio" name="tPos" id="tp_4_8" value="+4 à +8 °C"><label for="tp_4_8">+4 à +8 °C</label></div>
+            <div class="choice-item"><input type="radio" name="tPos" id="tp_aucun" value="Aucune"><label for="tp_aucun">Aucune</label></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Chambres froides négatives (T° consigne en °C)</label>
+          <div class="choice-group">
+            <div class="choice-item"><input type="radio" name="tNeg" id="tn_18" value="-18 °C (congélation)" checked><label for="tn_18">−18 °C</label></div>
+            <div class="choice-item"><input type="radio" name="tNeg" id="tn_25" value="-25 °C"><label for="tn_25">−25 °C</label></div>
+            <div class="choice-item"><input type="radio" name="tNeg" id="tn_aucun" value="Aucune"><label for="tn_aucun">Aucune</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-prev" onclick="prev(4)">← Retour</button>
+        <button class="btn btn-next" onclick="next(4)">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- ── ÉTAPE 5 : BESOINS THERMIQUES ── -->
+    <div class="step-pane" id="pane5">
+      <div class="divider-warm"></div>
+      <div class="step-title">Besoins thermiques</div>
+      <div class="step-desc">La récupération de chaleur des groupes froids vient couvrir ces besoins. Au moins un besoin est requis.</div>
+
+      <div class="info-box warm">
+        <div class="info-icon">🔥</div>
+        <div>BAT-TH-139 prime la <strong>récupération de chaleur fatale</strong> du condenseur du groupe froid, qui est normalement dissipée dans l'air. Identifiez ici vos besoins en chaleur.</div>
+      </div>
+
+      <!-- ECS -->
+      <div class="field">
+        <label>Besoin en eau chaude sanitaire (ECS) ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="ecs" id="ecs_oui" value="oui" onchange="toggleSub('ecs')"><label for="ecs_oui">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="ecs" id="ecs_non" value="non" checked onchange="toggleSub('ecs')"><label for="ecs_non">Non</label></div>
+        </div>
+      </div>
+      <div class="sub-section" id="sub_ecs">
+        <div class="sub-title">Détail eau chaude sanitaire</div>
+        <div class="field-row">
+          <div class="field"><label>T° souhaitée (°C)</label><input type="number" id="ecs_temp" min="40" max="90" placeholder="Ex : 60" value="60"></div>
+          <div class="field"><label>Volume journalier estimé (L/jour)</label><input type="number" id="ecs_vol" min="0" max="100000" placeholder="Ex : 500"></div>
+        </div>
+      </div>
+
+      <!-- CHAUFFAGE -->
+      <div class="field">
+        <label>Besoin de chauffage des locaux ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="chauf" id="ch_oui" value="oui" onchange="toggleSub('chauf')"><label for="ch_oui">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="chauf" id="ch_non" value="non" checked onchange="toggleSub('chauf')"><label for="ch_non">Non</label></div>
+        </div>
+      </div>
+      <div class="sub-section" id="sub_chauf">
+        <div class="sub-title">Détail chauffage locaux</div>
+        <div class="field-row">
+          <div class="field"><label>Surface à chauffer (m²)</label><input type="number" id="ch_surf" min="0" max="50000" placeholder="Ex : 800"></div>
+          <div class="field"><label>T° de consigne chauffage (°C)</label><input type="number" id="ch_temp" min="14" max="30" placeholder="Ex : 18" value="18"></div>
+        </div>
+      </div>
+
+      <!-- PROCESS -->
+      <div class="field">
+        <label>Besoin de chaleur pour process industriel ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="process" id="pr_oui2" value="oui" onchange="toggleSub('process')"><label for="pr_oui2">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="process" id="pr_non" value="non" checked onchange="toggleSub('process')"><label for="pr_non">Non</label></div>
+        </div>
+      </div>
+      <div class="sub-section" id="sub_process">
+        <div class="sub-title">Détail process industriel</div>
+        <div class="field-row">
+          <div class="field"><label>T° besoin process (°C)</label><input type="number" id="proc_temp" min="30" max="200" placeholder="Ex : 80"></div>
+          <div class="field"><label>Débit estimé (m³/h) — si connu</label><input type="number" id="proc_debit" min="0" placeholder="Ex : 5"></div>
+        </div>
+        <div class="field"><label>Description du process</label><input type="text" id="proc_desc" placeholder="Ex : lavage industriel, pasteurisation, séchage…"></div>
+      </div>
+
+      <!-- AIR CHAUD -->
+      <div class="field">
+        <label>Besoin de préchauffage d'air de ventilation ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="airchaud" id="ac_oui" value="oui"><label for="ac_oui">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="airchaud" id="ac_non" value="non" checked><label for="ac_non">Non</label></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-prev" onclick="prev(5)">← Retour</button>
+        <button class="btn btn-next" onclick="next(5)">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- ── ÉTAPE 6 : PARAMÈTRES + RÉSUMÉ ── -->
+    <div class="step-pane" id="pane6">
+      <div class="divider-cold"></div>
+      <div class="step-title">Paramètres opérationnels &amp; Résumé</div>
+      <div class="step-desc">Derniers paramètres de fonctionnement, puis votre bilan d'éligibilité.</div>
+
+      <div class="field">
+        <label>Heures de fonctionnement par jour</label>
+        <div class="slider-wrap">
+          <input type="range" id="hJour" min="1" max="24" value="18" oninput="document.getElementById('hJourVal').textContent=this.value+'h/j'">
+          <span class="slider-val" id="hJourVal">18h/j</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Jours de fonctionnement par an</label>
+        <div class="slider-wrap">
+          <input type="range" id="jAn" min="100" max="365" value="340" oninput="document.getElementById('jAnVal').textContent=this.value+' j/an'">
+          <span class="slider-val" id="jAnVal">340 j/an</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Consommation électrique annuelle de l'installation (kWh/an) — si connue</label>
+        <input type="number" id="consoElec" min="0" placeholder="Ex : 180 000">
+      </div>
+
+      <div class="field">
+        <label>Présence d'un système de régulation/GTB existant ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="regul" id="rg_oui" value="oui"><label for="rg_oui">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="regul" id="rg_non" value="non" checked><label for="rg_non">Non</label></div>
+          <div class="choice-item"><input type="radio" name="regul" id="rg_part" value="partiel"><label for="rg_part">Partiel</label></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes / observations complémentaires</label>
+        <textarea id="notes" rows="3" placeholder="Contraintes techniques, demandes particulières, historique…" style="resize:vertical;"></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-prev" onclick="prev(6)">← Retour</button>
+        <button class="btn btn-submit" onclick="submitForm()">✓ Voir mon bilan d'éligibilité</button>
+      </div>
+
+      <!-- RÉSUMÉ -->
+      <div id="resultat" style="display:none;margin-top:32px;">
+        <hr style="border:none;border-top:2px solid var(--border);margin-bottom:24px;">
+        <div style="font-family:'Trebuchet MS',sans-serif;font-size:19px;font-weight:700;margin-bottom:16px;">Bilan d'éligibilité BAT-TH-139</div>
+        <div id="eligCards"></div>
+        <div class="summary-grid" id="summaryGrid"></div>
+        <div style="margin-top:20px;text-align:center;">
+          <button class="btn btn-next" onclick="window.print()">🖨️ Imprimer / Exporter PDF</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+var cur=1;
+
+function goStep(n){
+  if(n>cur)return; // only go back via sidebar
+  switchTo(n);
+}
+
+function next(n){
+  if(!validateStep(n))return;
+  switchTo(n+1);
+}
+function prev(n){
+  switchTo(n-1);
+}
+function switchTo(n){
+  document.getElementById('pane'+cur).classList.remove('active');
+  document.querySelectorAll('[data-step="'+cur+'"]').forEach(function(el){el.classList.remove('active');if(cur<n)el.classList.add('done');});
+  cur=n;
+  document.getElementById('pane'+n).classList.add('active');
+  document.querySelectorAll('[data-step="'+n+'"]').forEach(function(el){el.classList.add('active');el.classList.remove('done');});
+  var fill=Math.round((n/6)*100)+'%';
+  document.getElementById('mobFill').style.width=fill;
+  var labels=['Contact','Site & Activité','Groupes froids','Chambres froides','Besoins thermiques','Résumé'];
+  document.getElementById('mobLabel').textContent='Étape '+n+' / 6 — '+labels[n-1];
+  window.scrollTo(0,0);
+}
+
+function validateStep(n){
+  var ok=true;
+  if(n===1){
+    if(!v('prenom'))ok=err('prenom');
+    if(!v('nom'))ok=err('nom');
+    if(!v('tel'))ok=err('tel');
+    if(!v('entreprise'))ok=err('entreprise');
+  }
+  if(n===2){
+    if(!v('adresse'))ok=err('adresse');
+    if(!v('cp'))ok=err('cp');
+    if(!v('ville'))ok=err('ville');
+    if(!document.getElementById('secteur').value)ok=err('secteur');
+  }
+  if(n===3){
+    if(!v('nbGroupes'))ok=err('nbGroupes');
+    if(!v('puissanceFrigo'))ok=err('puissanceFrigo');
+  }
+  if(!ok)alert('Merci de remplir les champs obligatoires (*).');
+  return ok;
+}
+function v(id){return (document.getElementById(id).value||'').trim();}
+function err(id){document.getElementById(id).style.borderColor='var(--err)';document.getElementById(id).focus();return false;}
+
+function toggleCF(){
+  var val=document.querySelector('input[name="hasCF"]:checked').value;
+  document.getElementById('cfSection').style.display=val==='oui'?'':'none';
+}
+function toggleSub(name){
+  var val=document.querySelector('input[name="'+name+'"]:checked').value;
+  document.getElementById('sub_'+name).classList.toggle('show',val==='oui');
+}
+
+function g(id){return (document.getElementById(id)||{}).value||'';}
+function rb(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+
+function submitForm(){
+  var pf=parseFloat(g('puissanceFrigo'))||0;
+  var ecs=rb('ecs')==='oui';
+  var chauf=rb('chauf')==='oui';
+  var process=rb('process')==='oui';
+  var air=rb('airchaud')==='oui';
+  var hasNeed=ecs||chauf||process||air;
+  var hj=parseInt(g('hJour'))||18;
+  var jan=parseInt(g('jAn'))||340;
+  var nbG=parseInt(g('nbGroupes'))||0;
+
+  // Eligibility assessment
+  var cards='';
+  var allOk=true;
+
+  // Critère 1 : puissance frigorifique
+  if(pf>=40){
+    cards+=makeCard('ok','❄️ Puissance frigorifique','La puissance de '+pf+' kW est supérieure au seuil de 40 kW. Ce critère est validé.');
+  } else if(pf>0){
+    cards+=makeCard('warn','⚠️ Puissance frigorifique','La puissance déclarée ('+pf+' kW) est inférieure à 40 kW. Vérifier l\'éligibilité avec votre bureau d\'études — des opérations spécifiques peuvent s\'appliquer.');
+    allOk=false;
+  } else {
+    cards+=makeCard('ko','❌ Puissance frigorifique','La puissance frigorifique est obligatoire. Merci de la renseigner.');
+    allOk=false;
+  }
+
+  // Critère 2 : besoin thermique
+  if(hasNeed){
+    var besoins=[];
+    if(ecs)besoins.push('eau chaude sanitaire');
+    if(chauf)besoins.push('chauffage des locaux');
+    if(process)besoins.push('chaleur process');
+    if(air)besoins.push('préchauffage d\'air');
+    cards+=makeCard('ok','🔥 Besoin thermique identifié','Un ou plusieurs besoins sont déclarés : '+besoins.join(', ')+'. La chaleur récupérée pourra être valorisée.');
+  } else {
+    cards+=makeCard('ko','❌ Aucun besoin thermique','BAT-TH-139 exige une valorisation de la chaleur récupérée. Aucun besoin thermique n\'a été déclaré.');
+    allOk=false;
+  }
+
+  // Critère 3 : fonctionnement
+  var hAn=hj*jan;
+  if(hAn>=2000){
+    cards+=makeCard('ok','🕐 Heures de fonctionnement',''+hj+'h/j × '+jan+' j/an = '+hAn+' h/an. Fonctionnement suffisant pour optimiser le retour sur investissement.');
+  } else {
+    cards+=makeCard('warn','⚠️ Heures de fonctionnement',''+hAn+' h/an estimées — un faible taux d\'utilisation réduira les économies réalisées et la valeur CEE.');
+    allOk=false;
+  }
+
+  // Verdict global
+  var verdict='';
+  if(allOk){
+    verdict='<div class="elig-card elig-ok" style="margin-bottom:20px;"><div class="elig-header ok">✅ Dossier a priori éligible à BAT-TH-139</div><div class="elig-detail">L\'installation semble réunir les conditions requises pour bénéficier de l\'opération CEE BAT-TH-139 (récupération de chaleur sur groupe de production de froid). Un audit technique et la vérification des pièces justificatives seront nécessaires avant engagement.</div></div>';
+  } else {
+    verdict='<div class="elig-card elig-warn" style="margin-bottom:20px;"><div class="elig-header warn">⚠️ Eligibilité partielle — points à vérifier</div><div class="elig-detail">Certains critères nécessitent une vérification complémentaire. Consultez notre équipe technique pour étudier votre dossier.</div></div>';
+  }
+
+  document.getElementById('eligCards').innerHTML=verdict+cards;
+
+  // Summary grid
+  var grid='';
+  grid+=sumBlock('👤 Contact',[
+    ['Nom',g('prenom')+' '+g('nom')],
+    ['Tél.',g('tel')],
+    ['Entreprise',g('entreprise')],
+    ['Ville',g('cp')+' '+g('ville')]
+  ]);
+  grid+=sumBlock('❄️ Installation',[
+    ['Puissance frigo',pf?pf+' kW':'—'],
+    ['Nb groupes',nbG||'—'],
+    ['Type froid',rb('typeFroid')||'—'],
+    ['Fluide',rb('fluide')||'—'],
+    ['Ancienneté',rb('anciennete')||'—']
+  ]);
+  grid+=sumBlock('🏭 Chambres froides',[
+    ['Présence',rb('hasCF')==='oui'?'Oui':'Non'],
+    ['Nombre',g('nbCF')||'—'],
+    ['Surface',g('surfCF')?(g('surfCF')+' m²'):'—'],
+    ['Volume',g('volCF')?(g('volCF')+' m³'):'—']
+  ]);
+  grid+=sumBlock('🔥 Besoins thermiques',[
+    ['ECS',ecs?'✅ Oui ('+g('ecs_temp')+'°C)':'Non'],
+    ['Chauffage',chauf?'✅ Oui':'Non'],
+    ['Process',process?'✅ Oui ('+g('proc_temp')+'°C)':'Non'],
+    ['Préchauffage air',air?'✅ Oui':'Non']
+  ]);
+  grid+=sumBlock('⏱ Fonctionnement',[
+    ['H/jour',hj+'h/j'],
+    ['Jours/an',jan+' j/an'],
+    ['Total estimé',hAn+' h/an'],
+    ['Régulation',rb('regul')||'—']
+  ]);
+  if(g('notes')){
+    grid+='<div class="sum-block" style="grid-column:1/-1"><div class="sum-block-title">📝 Notes</div><div style="font-size:13px;color:var(--txt)">'+g('notes')+'</div></div>';
+  }
+  document.getElementById('summaryGrid').innerHTML=grid;
+  document.getElementById('resultat').style.display='block';
+  setTimeout(function(){document.getElementById('resultat').scrollIntoView({behavior:'smooth'});},100);
+}
+
+function makeCard(type,title,detail){
+  var cls=type==='ok'?'elig-ok':type==='warn'?'elig-warn':'elig-ko';
+  var tcls=type==='ok'?'ok':type==='warn'?'warn':'ko';
+  return '<div class="elig-card '+cls+'"><div class="elig-header '+tcls+'">'+title+'</div><div class="elig-detail">'+detail+'</div></div>';
+}
+function sumBlock(title,rows){
+  var html='<div class="sum-block"><div class="sum-block-title">'+title+'</div>';
+  rows.forEach(function(r){html+='<div class="sum-row"><span class="sum-key">'+r[0]+'</span><span class="sum-val">'+r[1]+'</span></div>';});
+  return html+'</div>';
+}
+</script>
+</body>
+</html>
