@@ -143,28 +143,65 @@ input[type=range]{flex:1;accent-color:var(--cold);}
 </header>
 
 <div class="mob-prog">
-  <div class="prog-bar"><div class="prog-fill" id="mobFill" style="width:16.6%"></div></div>
-  <div class="prog-label" id="mobLabel">Étape 1 / 6 — Site & Activité</div>
+  <div class="prog-bar"><div class="prog-fill" id="mobFill" style="width:20%"></div></div>
+  <div class="prog-label" id="mobLabel">Étape 1 / 5 — Contact & Site</div>
 </div>
 
 <div class="app">
   <nav class="sidebar" id="sidebar">
-    <div class="step-item active" data-step="1" onclick="goStep(1)"><div class="step-dot">1</div><div class="step-label">Site &amp; Activité</div></div>
+    <div class="step-item active" data-step="1" onclick="goStep(1)"><div class="step-dot">1</div><div class="step-label">Contact &amp; Site</div></div>
     <div class="step-item" data-step="2" onclick="goStep(2)"><div class="step-dot">2</div><div class="step-label">Groupes froids</div></div>
     <div class="step-item" data-step="3" onclick="goStep(3)"><div class="step-dot">3</div><div class="step-label">Chambres froides</div></div>
     <div class="step-item" data-step="4" onclick="goStep(4)"><div class="step-dot">4</div><div class="step-label">Besoins thermiques</div></div>
     <div class="step-item" data-step="5" onclick="goStep(5)"><div class="step-dot">5</div><div class="step-label">Paramètres</div></div>
-    <div class="step-item" data-step="6" onclick="goStep(6)"><div class="step-dot">6</div><div class="step-label">Contact &amp; Entreprise</div></div>
   </nav>
 
   <main class="main">
 
-    <!-- ── ÉTAPE 1 : SITE ── -->
+    <!-- ── ÉTAPE 1 : CONTACT & SITE (fusionné) ── -->
     <div class="step-pane active" id="pane1">
       <div class="divider-cold"></div>
-      <div class="step-title">Site &amp; Activité</div>
-      <div class="step-desc">Localisation du site et secteur d'activité concerné par l'installation.</div>
-      <div class="field"><label>Adresse du site</label><input type="text" id="adresse" placeholder="12 rue du Commerce"></div>
+      <div class="step-title">Contact, Entreprise &amp; Site</div>
+      <div class="step-desc">Informations de la société, du gestionnaire et du site. Aucun champ obligatoire.</div>
+
+      <div class="section-label">Entreprise</div>
+      <div class="field">
+        <label>SIRET</label>
+        <div class="siret-row">
+          <input type="text" id="siret" placeholder="123 456 789 00012" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
+          <button class="btn-siret" id="btnSiret" onclick="lookupSiret()">Rechercher</button>
+        </div>
+        <div class="siret-status" id="siretStatus"></div>
+      </div>
+      <div class="field"><label>Raison sociale / Entreprise</label><input type="text" id="entreprise" placeholder="Société Frigorifique du Nord"></div>
+      <div class="field"><label>Adresse entreprise</label><input type="text" id="ent_adresse" placeholder="12 rue du Commerce"></div>
+      <div class="field-row">
+        <div class="field"><label>Code postal entreprise</label><input type="text" id="ent_cp" placeholder="75011" maxlength="5"></div>
+        <div class="field"><label>Ville entreprise</label><input type="text" id="ent_ville" placeholder="Paris"></div>
+      </div>
+
+      <hr class="sep">
+      <div class="section-label">Gestionnaire du dossier</div>
+      <div class="field">
+        <label>Civilité</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="civilite" id="civ_m" value="M." checked><label for="civ_m">M.</label></div>
+          <div class="choice-item"><input type="radio" name="civilite" id="civ_mme" value="Mme"><label for="civ_mme">Mme</label></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Jean"></div>
+        <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Dupont"></div>
+      </div>
+      <div class="field"><label>Fonction / Poste</label><input type="text" id="poste" placeholder="Responsable technique, Gérant, Directeur…"></div>
+      <div class="field-row">
+        <div class="field"><label>Téléphone</label><input type="tel" id="tel" placeholder="06 00 00 00 00"></div>
+        <div class="field"><label>Email</label><input type="email" id="email" placeholder="jean@entreprise.fr"></div>
+      </div>
+
+      <hr class="sep">
+      <div class="section-label">Site d'installation</div>
+      <div class="field"><label>Adresse du site</label><input type="text" id="adresse" placeholder="12 rue du Commerce (si différente de l'entreprise)"></div>
       <div class="field-row">
         <div class="field"><label>Code postal</label><input type="text" id="cp" placeholder="75011" maxlength="5"></div>
         <div class="field"><label>Ville</label><input type="text" id="ville" placeholder="Paris"></div>
@@ -202,6 +239,7 @@ input[type=range]{flex:1;accent-color:var(--cold);}
           <div class="choice-item"><input type="radio" name="proprio" id="pr_loc" value="Locataire"><label for="pr_loc">Locataire</label></div>
         </div>
       </div>
+
       <div class="btn-row"><button class="btn btn-next" onclick="next(1)">Suivant →</button></div>
     </div>
 
@@ -392,56 +430,8 @@ input[type=range]{flex:1;accent-color:var(--cold);}
         </div>
       </div>
       <div class="field"><label>Notes / observations</label><textarea id="notes" rows="3" placeholder="Contraintes techniques, demandes particulières…" style="resize:vertical;"></textarea></div>
-      <div class="btn-row"><button class="btn btn-prev" onclick="prev(5)">← Retour</button><button class="btn btn-next" onclick="next(5)">Suivant →</button></div>
-    </div>
-
-    <!-- ── ÉTAPE 6 : CONTACT & ENTREPRISE ── -->
-    <div class="step-pane" id="pane6">
-      <div class="divider-cold"></div>
-      <div class="step-title">Contact &amp; Entreprise</div>
-      <div class="step-desc">Informations de la société et de la personne en charge du dossier. Aucun champ obligatoire.</div>
-
-      <!-- SIRET auto-fill -->
-      <div class="section-label">Entreprise</div>
-      <div class="field">
-        <label>SIRET</label>
-        <div class="siret-row">
-          <input type="text" id="siret" placeholder="123 456 789 00012" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
-          <button class="btn-siret" id="btnSiret" onclick="lookupSiret()">Rechercher</button>
-        </div>
-        <div class="siret-status" id="siretStatus"></div>
-      </div>
-      <div class="field"><label>Raison sociale / Entreprise</label><input type="text" id="entreprise" placeholder="Société Frigorifique du Nord"></div>
-      <div class="field"><label>Adresse entreprise</label><input type="text" id="ent_adresse" placeholder="12 rue du Commerce"></div>
-      <div class="field-row">
-        <div class="field"><label>Code postal</label><input type="text" id="ent_cp" placeholder="75011" maxlength="5"></div>
-        <div class="field"><label>Ville</label><input type="text" id="ent_ville" placeholder="Paris"></div>
-      </div>
-
-      <hr class="sep">
-
-      <!-- Gestionnaire du dossier -->
-      <div class="section-label">Gestionnaire du dossier</div>
-      <div class="info-box"><div class="info-icon">👤</div><div>Personne au sein de la société qui gère ce projet CEE.</div></div>
-      <div class="field">
-        <label>Civilité</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="civilite" id="civ_m" value="M." checked><label for="civ_m">M.</label></div>
-          <div class="choice-item"><input type="radio" name="civilite" id="civ_mme" value="Mme"><label for="civ_mme">Mme</label></div>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Jean"></div>
-        <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Dupont"></div>
-      </div>
-      <div class="field"><label>Fonction / Poste</label><input type="text" id="poste" placeholder="Responsable technique, Gérant, Directeur…"></div>
-      <div class="field-row">
-        <div class="field"><label>Téléphone</label><input type="tel" id="tel" placeholder="06 00 00 00 00"></div>
-        <div class="field"><label>Email</label><input type="email" id="email" placeholder="jean@entreprise.fr"></div>
-      </div>
-
       <div class="btn-row">
-        <button class="btn btn-prev" onclick="prev(6)">← Retour</button>
+        <button class="btn btn-prev" onclick="prev(5)">← Retour</button>
         <button class="btn btn-submit" onclick="submitForm()">✓ Voir mon bilan d'éligibilité</button>
       </div>
 
@@ -462,7 +452,7 @@ input[type=range]{flex:1;accent-color:var(--cold);}
 
 <script>
 var cur=1;
-var LABELS=['Site & Activité','Groupes froids','Chambres froides','Besoins thermiques','Paramètres','Contact & Entreprise'];
+var LABELS=['Contact & Site','Groupes froids','Chambres froides','Besoins thermiques','Paramètres'];
 
 function goStep(n){if(n<cur)switchTo(n);}
 function next(n){switchTo(n+1);}
@@ -473,8 +463,8 @@ function switchTo(n){
   cur=n;
   document.getElementById('pane'+n).classList.add('active');
   document.querySelectorAll('[data-step="'+n+'"]').forEach(function(el){el.classList.add('active');el.classList.remove('done');});
-  document.getElementById('mobFill').style.width=Math.round((n/6)*100)+'%';
-  document.getElementById('mobLabel').textContent='Étape '+n+' / 6 — '+LABELS[n-1];
+  document.getElementById('mobFill').style.width=Math.round((n/5)*100)+'%';
+  document.getElementById('mobLabel').textContent='Étape '+n+' / 5 — '+LABELS[n-1];
   window.scrollTo(0,0);
 }
 
