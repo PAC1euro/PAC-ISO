@@ -3,647 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Questionnaire BAT-TH-139 — Récupération de chaleur sur groupe froid</title>
+<title>Fiche de Qualification BAT-TH-139</title>
 <style>
-:root{
-  --navy:#162847;--cold:#1E7BC4;--cold-lt:#D6EAF8;
-  --warm:#D4720A;--warm-lt:#FDEBD0;--bg:#F2F6FB;--surf:#FFFFFF;
-  --border:#D1DCE8;--txt:#1A2332;--txt2:#5A6B7E;
-  --ok:#1A7A4A;--ok-lt:#D4EDDA;--warn:#92620A;--warn-lt:#FFF3CD;
-  --err:#C0392B;--err-lt:#FDECEA;--radius:8px;--shadow:0 2px 12px rgba(22,40,71,.10);
-}
-@media(prefers-color-scheme:dark){
-  :root{--bg:#0E1928;--surf:#162235;--border:#2A3D57;--txt:#E4EAF4;--txt2:#8FA4BC;
-    --cold-lt:#1A3650;--warm-lt:#3A2008;--ok-lt:#0D3020;--warn-lt:#2E1F06;--err-lt:#2E0B08;}
-}
-:root[data-theme="dark"]{--bg:#0E1928;--surf:#162235;--border:#2A3D57;--txt:#E4EAF4;--txt2:#8FA4BC;--cold-lt:#1A3650;--warm-lt:#3A2008;--ok-lt:#0D3020;--warn-lt:#2E1F06;--err-lt:#2E0B08;}
-:root[data-theme="light"]{--bg:#F2F6FB;--surf:#FFFFFF;--border:#D1DCE8;--txt:#1A2332;--txt2:#5A6B7E;--cold-lt:#D6EAF8;--warm-lt:#FDEBD0;}
-
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.55;}
+body{font-family:'Google Sans',system-ui,sans-serif;background:#e8f0e9;min-height:100vh;padding-bottom:60px;}
 
-.hdr{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;gap:12px;}
-.hdr-logo{font-family:'Trebuchet MS',sans-serif;font-size:17px;font-weight:700;}
-.hdr-logo span{color:#4FAFD4;}
-.hdr-sub{font-size:11px;color:#8FA4BC;letter-spacing:.3px;text-transform:uppercase;}
-.hdr-sep{color:rgba(255,255,255,.2);font-size:18px;}
+/* Banner */
+.banner{background:#162847;color:#fff;padding:20px 24px 18px;}
+.banner-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.banner-logo{font-family:'Trebuchet MS',sans-serif;font-size:16px;font-weight:700;color:#fff;}
+.banner-logo span{color:#4FAFD4;}
+.banner-title{font-size:13px;font-weight:600;color:#9fc5d8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.banner-sub{font-size:12px;color:rgba(255,255,255,.55);}
+.banner-stats{display:flex;gap:28px;margin-top:12px;}
+.stat-val{font-size:22px;font-weight:700;color:#4FAFD4;}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.3px;}
 
-.wrap{max-width:700px;margin:0 auto;padding:32px 20px 60px;}
+/* Header card */
+.form-wrap{max-width:640px;margin:0 auto;padding:18px 14px;}
+.card-title{background:#fff;border-radius:8px;border-top:8px solid #2e7d32;padding:24px 28px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.card-title h1{font-size:28px;font-weight:500;color:#202124;margin-bottom:4px;}
+.card-title .step{font-size:14px;color:#444;margin-bottom:14px;}
+.card-title .required-note{font-size:13px;color:#d93025;}
 
-/* ── Questionnaire card ── */
-.q-card{background:var(--surf);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;}
+/* Question cards */
+.q{background:#fff;border-radius:8px;padding:22px 28px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.q-title{font-size:15px;font-weight:700;font-style:italic;color:#202124;margin-bottom:2px;line-height:1.4;}
+.q-title .req{color:#d93025;margin-left:2px;}
+.q-hint{font-size:13px;font-style:italic;color:#5f6368;margin-bottom:14px;}
 
-.q-section{border-top:3px solid var(--cold);background:var(--cold-lt);padding:12px 22px;display:flex;align-items:center;gap:10px;}
-.q-section-icon{font-size:18px;}
-.q-section-title{font-family:'Trebuchet MS',sans-serif;font-size:14px;font-weight:700;color:var(--navy);letter-spacing:.2px;}
-:root[data-theme="dark"] .q-section-title,:root:not([data-theme]) .q-section-title{color:var(--cold);}
-@media(prefers-color-scheme:dark){.q-section-title{color:var(--cold);}}
-
-.q-row{display:flex;align-items:baseline;border-top:1px solid var(--border);padding:14px 22px;gap:16px;}
-.q-row:first-of-type{border-top:none;}
-.q-num{font-size:11px;font-weight:700;color:var(--cold);min-width:24px;padding-top:2px;flex-shrink:0;}
-.q-body{flex:1;}
-.q-label{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:8px;display:block;}
-.q-hint{font-size:11px;color:var(--txt2);margin-bottom:8px;font-style:italic;}
-
-input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{
-  width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);
-  padding:9px 12px;font-size:14px;color:var(--txt);font-family:inherit;transition:border-color .15s,box-shadow .15s;
+/* Inputs */
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],input[type=time],textarea,select{
+  width:100%;border:none;border-bottom:1.5px solid #9aa0a6;background:transparent;
+  padding:6px 0 6px 2px;font-size:15px;color:#202124;font-family:inherit;outline:none;transition:border-color .2s;
 }
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cold);box-shadow:0 0 0 3px rgba(30,123,196,.15);}
-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A6B7E' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
-textarea{resize:vertical;}
+input:focus,textarea:focus,select:focus{border-bottom:2px solid #2e7d32;}
+input::placeholder,textarea::placeholder{color:#9aa0a6;}
+textarea{resize:vertical;min-height:80px;}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235f6368' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;cursor:pointer;}
 
-/* Cols inside a row */
-.q-cols{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
-@media(max-width:520px){.q-cols{grid-template-columns:1fr;}}
-.q-col-label{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+/* Checkboxes */
+.check-list{display:flex;flex-direction:column;gap:14px;margin-top:4px;}
+.check-item{display:flex;align-items:center;gap:14px;cursor:pointer;}
+.check-item input[type=checkbox]{width:18px;height:18px;accent-color:#2e7d32;flex-shrink:0;cursor:pointer;}
+.check-item span{font-size:14px;font-weight:600;color:#202124;text-transform:uppercase;letter-spacing:.3px;}
 
-/* Radio / checkbox pill group */
-.pill-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
-.pill input{display:none;}
-.pill label{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
-.pill input:checked+label{background:var(--cold);border-color:var(--cold);color:#fff;}
-.pill.warm input:checked+label{background:var(--warm);border-color:var(--warm);color:#fff;}
-.pill.ok input:checked+label{background:var(--ok);border-color:var(--ok);color:#fff;}
+/* Date + time row */
+.date-time{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:480px){.date-time{grid-template-columns:1fr;}}
+.dt-label{font-size:12px;color:#5f6368;margin-bottom:4px;}
 
-/* SIRET */
-.siret-wrap{display:flex;gap:8px;}
-.siret-wrap input{flex:1;}
-.btn-siret{padding:9px 16px;border-radius:var(--radius);background:var(--cold);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s;}
-.btn-siret:hover{background:#1668A8;}
-.btn-siret:disabled{background:var(--border);cursor:not-allowed;}
+/* SIRET row */
+.siret-row{display:flex;gap:8px;align-items:flex-end;}
+.siret-row input{flex:1;}
+.btn-siret{padding:7px 14px;background:#2e7d32;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s;}
+.btn-siret:hover{background:#1b5e20;}
+.btn-siret:disabled{background:#bdbdbd;cursor:not-allowed;}
 .siret-status{font-size:12px;margin-top:5px;min-height:16px;}
-.siret-status.ok{color:var(--ok);}
-.siret-status.err{color:var(--err);}
-.siret-status.loading{color:var(--txt2);}
+.siret-status.ok{color:#2e7d32;}
+.siret-status.err{color:#d93025;}
+.siret-status.loading{color:#5f6368;}
 
-/* Sub-reveal */
-.q-sub{display:none;margin-top:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
-.q-sub.show{display:block;}
+/* Section separator */
+.section-sep{background:#fff;border-radius:8px;padding:16px 28px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.12);border-top:4px solid #4FAFD4;}
+.section-sep h2{font-size:18px;font-weight:500;color:#202124;}
 
 /* Submit */
-.submit-wrap{text-align:center;margin-top:28px;}
-.btn-submit{padding:13px 36px;background:var(--warm);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(212,114,10,.35);transition:background .15s;}
-.btn-submit:hover{background:#B85E08;}
+.btn-submit{background:#2e7d32;color:#fff;border:none;border-radius:4px;padding:12px 28px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;transition:background .15s;}
+.btn-submit:hover{background:#1b5e20;}
+.submit-wrap{display:flex;justify-content:flex-end;margin-top:6px;}
 
-/* ── Fiche Prospect (résultat) ── */
-#resultat{display:none;margin-top:32px;}
-.elig-banner{border-radius:var(--radius);padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px;box-shadow:var(--shadow);}
-.elig-banner.ok{background:var(--ok-lt);color:var(--ok);border:2px solid var(--ok);}
-.elig-banner.warn{background:var(--warn-lt);color:var(--warn);border:2px solid var(--warn);}
-.elig-points{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
-.elig-pt{border-radius:var(--radius);padding:11px 16px;font-size:13px;display:flex;gap:10px;align-items:flex-start;}
-.elig-pt.ok{background:var(--ok-lt);border-left:4px solid var(--ok);}
-.elig-pt.warn{background:var(--warn-lt);border-left:4px solid var(--warn);}
-.elig-pt.ko{background:var(--err-lt);border-left:4px solid var(--err);}
-.elig-pt-icon{font-size:15px;flex-shrink:0;}
+/* Result */
+#resultat{display:none;margin-top:20px;}
+.result-card{background:#fff;border-radius:8px;padding:22px 28px;box-shadow:0 1px 3px rgba(0,0,0,.12);margin-bottom:14px;}
+.result-banner{border-radius:6px;padding:14px 18px;margin-bottom:16px;font-size:15px;font-weight:700;}
+.result-banner.ok{background:#e8f5e9;color:#1b5e20;border-left:5px solid #2e7d32;}
+.result-banner.warn{background:#fff8e1;color:#e65100;border-left:5px solid #fb8c00;}
+.result-pts{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.result-pt{padding:10px 14px;border-radius:4px;font-size:13px;display:flex;gap:10px;}
+.result-pt.ok{background:#e8f5e9;border-left:4px solid #2e7d32;}
+.result-pt.warn{background:#fff8e1;border-left:4px solid #fb8c00;}
+.result-pt.ko{background:#fce4ec;border-left:4px solid #d93025;}
+.fiche-title{font-size:16px;font-weight:700;color:#202124;margin-bottom:12px;border-bottom:2px solid #e0e0e0;padding-bottom:8px;}
+.fiche-row{display:flex;padding:7px 0;border-bottom:1px solid #f1f3f4;font-size:14px;}
+.fiche-key{width:55%;color:#5f6368;}
+.fiche-val{width:45%;font-weight:600;color:#202124;}
+.fiche-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#2e7d32;margin:14px 0 6px;}
+.btn-print{background:#1565c0;color:#fff;border:none;border-radius:4px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:12px;}
 
-.fiche{background:var(--surf);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
-.fiche-hd{background:var(--navy);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
-.fiche-hd-title{font-family:'Trebuchet MS',sans-serif;font-size:14px;font-weight:700;}
-.fiche-hd-date{font-size:11px;color:#8FA4BC;}
-.fiche-sec-hd{background:var(--cold-lt);border-top:1.5px solid var(--border);padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--cold);}
-.fiche-row{display:flex;border-top:1px solid var(--border);font-size:13px;}
-.fiche-key{width:52%;padding:8px 20px;color:var(--txt2);background:var(--bg);}
-.fiche-val{width:48%;padding:8px 20px;font-weight:600;color:var(--txt);border-left:1px solid var(--border);}
-
-.print-btn{margin-top:16px;text-align:center;}
-.btn-print{padding:10px 28px;background:var(--cold);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;}
-.btn-print:hover{background:#1668A8;}
-
-@media(max-width:600px){.wrap{padding:16px 12px 40px;}.q-row{padding:12px 14px;}.fiche-key,.fiche-val{padding:7px 12px;}}
-@media print{
-  .hdr,.submit-wrap,.print-btn{display:none!important;}
-  #resultat{display:block!important;}
-  .q-card,.fiche{box-shadow:none;border:1px solid #ccc;}
-  body{background:#fff;}
-}
+@media(max-width:480px){.form-wrap{padding:12px 8px;}.q,.card-title,.section-sep,.result-card{padding:18px 18px;}}
+@media print{.banner,.btn-submit,.submit-wrap,.btn-print{display:none!important;}#resultat{display:block!important;}body{background:#fff;}}
 </style>
 </head>
 <body>
 
-<header class="hdr">
-  <div class="hdr-logo">PAC<span>·</span>ISO</div>
-  <span class="hdr-sep">|</span>
-  <div class="hdr-sub">Questionnaire BAT-TH-139</div>
-</header>
-
-<div class="wrap">
-
-  <!-- ══════════════════════════════════════
-       SECTION 1 — ENTREPRISE
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">🏢</div><div class="q-section-title">Entreprise</div></div>
-
-    <div class="q-row">
-      <div class="q-num">1</div>
-      <div class="q-body">
-        <span class="q-label">SIRET</span>
-        <div class="siret-wrap">
-          <input type="text" id="siret" placeholder="123 456 789 00012" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
-          <button class="btn-siret" id="btnSiret" onclick="lookupSiret()" disabled>Rechercher</button>
-        </div>
-        <div class="siret-status" id="siretStatus"></div>
-      </div>
+<div class="banner">
+  <div class="banner-top">
+    <div>
+      <div class="banner-logo">PAC<span>·</span>ISO</div>
     </div>
+  </div>
+  <div class="banner-title">Récupération de Chaleur Fatale sur Groupes Froids</div>
+  <div class="banner-sub">Tertiaire — Efficacité Énergétique (CEE) · BAT-TH-139</div>
+  <div class="banner-stats">
+    <div><div class="stat-val">-70%</div><div class="stat-lbl">Économies Majeures</div></div>
+    <div><div class="stat-val">100%</div><div class="stat-lbl">Financement Intégral</div></div>
+  </div>
+</div>
 
-    <div class="q-row">
-      <div class="q-num">2</div>
-      <div class="q-body">
-        <span class="q-label">Raison sociale</span>
-        <input type="text" id="entreprise" placeholder="Société Frigorifique du Nord">
-      </div>
-    </div>
+<div class="form-wrap">
 
-    <div class="q-row">
-      <div class="q-num">3</div>
-      <div class="q-body">
-        <span class="q-label">Adresse du siège</span>
-        <input type="text" id="ent_adresse" placeholder="12 rue du Commerce" style="margin-bottom:8px;">
-        <div class="q-cols">
-          <div><div class="q-col-label">Code postal</div><input type="text" id="ent_cp" placeholder="75011" maxlength="5"></div>
-          <div><div class="q-col-label">Ville</div><input type="text" id="ent_ville" placeholder="Paris"></div>
-        </div>
-      </div>
-    </div>
+  <div class="card-title">
+    <h1>FICHE DE QUALIFICATION</h1>
+    <div class="step">ÉTAPE 1 : TECHNIQUE</div>
+    <div class="required-note">* Indique une question obligatoire</div>
+  </div>
 
-    <div class="q-row">
-      <div class="q-num">4</div>
-      <div class="q-body">
-        <span class="q-label">Secteur d'activité</span>
-        <select id="secteur">
-          <option value="">— Choisir —</option>
-          <option>Grande distribution / Supermarché</option>
-          <option>Industrie agroalimentaire</option>
-          <option>Restauration / CHR</option>
-          <option>Pharmacie / Médical</option>
-          <option>Logistique / Entrepôt</option>
-          <option>Boucherie / Charcuterie / Traiteur</option>
-          <option>Usine de production</option>
-          <option>Autre</option>
-        </select>
-      </div>
+  <!-- Q1 Secteur -->
+  <div class="q">
+    <div class="q-title">SECTEUR D'ACTIVITÉ : <span class="req">*</span></div>
+    <div class="q-hint">(SUPERMARCHÉ, ENTREPÔT, ECT.)</div>
+    <input type="text" id="secteur" placeholder="Votre réponse">
+  </div>
+
+  <!-- Q2 Puissance -->
+  <div class="q">
+    <div class="q-title">PUISSANCE DES GROUPES FROIDS EN KW : <span class="req">*</span></div>
+    <div class="q-hint">(OU M² DE CHAMBRES FROIDE)</div>
+    <input type="number" id="puissance" min="0" placeholder="90">
+  </div>
+
+  <!-- Q3 Nombre groupes -->
+  <div class="q">
+    <div class="q-title">NOMBRES DE GROUPES :</div>
+    <div class="q-hint">Facultatif</div>
+    <input type="number" id="nbGroupes" min="1" placeholder="">
+  </div>
+
+  <!-- Q4 Heures fonctionnement -->
+  <div class="q">
+    <div class="q-title">HEURES DE FONCTIONNEMENT :</div>
+    <div class="q-hint">Facultatif</div>
+    <select id="fonctionnement">
+      <option value="">Sélectionner</option>
+      <option>24H/24H</option>
+      <option>10H / JOUR</option>
+      <option>AUTRE</option>
+    </select>
+  </div>
+
+  <!-- Q5 Besoins chaleur -->
+  <div class="q">
+    <div class="q-title">BESOIN DE CHALEUR SUR SITE : <span class="req">*</span></div>
+    <div class="check-list" style="margin-top:12px;">
+      <label class="check-item"><input type="checkbox" id="b_chauf"><span>CHAUFFAGE</span></label>
+      <label class="check-item"><input type="checkbox" id="b_ecs"><span>EAU CHAUDE SANITAIRE</span></label>
+      <label class="check-item"><input type="checkbox" id="b_process"><span>PROCÉDÉ DE FABRICATION</span></label>
+      <label class="check-item"><input type="checkbox" id="b_aucun"><span>AUCUN</span></label>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SECTION 2 — CONTACT / GESTIONNAIRE
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">👤</div><div class="q-section-title">Gestionnaire du dossier</div></div>
+  <!-- Section coordonnées -->
+  <div class="section-sep">
+    <h2>COORDONNÉES :</h2>
+  </div>
 
-    <div class="q-row">
-      <div class="q-num">5</div>
-      <div class="q-body">
-        <span class="q-label">Civilité</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="civilite" id="civ_m" value="M." checked><label for="civ_m">M.</label></div>
-          <div class="pill"><input type="radio" name="civilite" id="civ_mme" value="Mme"><label for="civ_mme">Mme</label></div>
-        </div>
-      </div>
+  <!-- Q6 Raison sociale -->
+  <div class="q">
+    <div class="q-title">RAISON SOCIALE : <span class="req">*</span></div>
+    <input type="text" id="entreprise" placeholder="Votre réponse">
+  </div>
+
+  <!-- Q7 SIRET -->
+  <div class="q">
+    <div class="q-title">SIRET :</div>
+    <div class="siret-row">
+      <input type="text" id="siret" placeholder="14 chiffres" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
+      <button class="btn-siret" id="btnSiret" onclick="lookupSiret()" disabled>Auto-remplir</button>
     </div>
+    <div class="siret-status" id="siretStatus"></div>
+  </div>
 
-    <div class="q-row">
-      <div class="q-num">6</div>
-      <div class="q-body">
-        <span class="q-label">Nom / Prénom</span>
-        <div class="q-cols">
-          <div><div class="q-col-label">Nom</div><input type="text" id="nom" placeholder="Dupont"></div>
-          <div><div class="q-col-label">Prénom</div><input type="text" id="prenom" placeholder="Jean"></div>
-        </div>
-      </div>
-    </div>
+  <!-- Q8 Adresse -->
+  <div class="q">
+    <div class="q-title">ADRESSE DU SITE : <span class="req">*</span></div>
+    <input type="text" id="adresse" placeholder="Votre réponse">
+  </div>
 
-    <div class="q-row">
-      <div class="q-num">7</div>
-      <div class="q-body">
-        <span class="q-label">Fonction / Poste</span>
-        <input type="text" id="poste" placeholder="Responsable technique, Gérant…">
-      </div>
-    </div>
+  <!-- Q9 Responsable -->
+  <div class="q">
+    <div class="q-title">Nom du responsable technique : <span class="req">*</span></div>
+    <input type="text" id="nom" placeholder="Votre réponse">
+  </div>
 
-    <div class="q-row">
-      <div class="q-num">8</div>
-      <div class="q-body">
-        <span class="q-label">Coordonnées</span>
-        <div class="q-cols">
-          <div><div class="q-col-label">Téléphone</div><input type="tel" id="tel" placeholder="06 00 00 00 00"></div>
-          <div><div class="q-col-label">Email</div><input type="email" id="email" placeholder="jean@société.fr"></div>
-        </div>
-      </div>
+  <!-- Q10 Téléphone -->
+  <div class="q">
+    <div class="q-title">TÉLÉPHONE <span class="req">*</span></div>
+    <input type="tel" id="tel" placeholder="Votre réponse">
+  </div>
+
+  <!-- Q11 Email -->
+  <div class="q">
+    <div class="q-title">EMAIL :</div>
+    <input type="email" id="email" placeholder="Votre réponse">
+  </div>
+
+  <!-- Q12 De la part de -->
+  <div class="q">
+    <div class="q-title">DE LA PART DE M/MME :</div>
+    <div class="q-hint">(PERSONNE QUI A FAIT LA MISE EN RELATION)</div>
+    <input type="text" id="apporteur" placeholder="Votre réponse">
+  </div>
+
+  <!-- Q13 Photos -->
+  <div class="q">
+    <div class="q-title">PHOTOS PLAQUE SIGNALÉTIQUE :</div>
+    <div class="q-hint">(SI REÇU)</div>
+    <div class="check-list" style="margin-top:8px;">
+      <label class="check-item"><input type="radio" name="photos" id="ph_oui" value="Oui"><span>OUI — REÇU</span></label>
+      <label class="check-item"><input type="radio" name="photos" id="ph_att" value="En attente"><span>EN ATTENTE</span></label>
+      <label class="check-item"><input type="radio" name="photos" id="ph_non" value="Non" checked><span>NON</span></label>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SECTION 3 — SITE D'INSTALLATION
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">📍</div><div class="q-section-title">Site d'installation</div></div>
-
-    <div class="q-row">
-      <div class="q-num">9</div>
-      <div class="q-body">
-        <span class="q-label">Adresse du site</span>
-        <span class="q-hint">Laisser vide si identique au siège</span>
-        <input type="text" id="adresse" placeholder="12 rue du Commerce" style="margin-bottom:8px;">
-        <div class="q-cols">
-          <div><div class="q-col-label">Code postal</div><input type="text" id="cp" placeholder="75011" maxlength="5"></div>
-          <div><div class="q-col-label">Ville</div><input type="text" id="ville" placeholder="Paris"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">10</div>
-      <div class="q-body">
-        <span class="q-label">Type de bâtiment</span>
-        <select id="typeBat">
-          <option value="">— Choisir —</option>
-          <option>Entrepôt frigorifique</option>
-          <option>Supermarché / Hypermarché</option>
-          <option>Chambre froide laboratoire</option>
-          <option>Usine / Site industriel</option>
-          <option>Restaurant / Cuisine professionnelle</option>
-          <option>Autre</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">11</div>
-      <div class="q-body">
-        <span class="q-label">Propriétaire des locaux ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="proprio" id="pr_oui" value="Propriétaire" checked><label for="pr_oui">Propriétaire</label></div>
-          <div class="pill"><input type="radio" name="proprio" id="pr_loc" value="Locataire"><label for="pr_loc">Locataire</label></div>
-        </div>
-      </div>
+  <!-- Q14 Date visite -->
+  <div class="q">
+    <div class="q-title">DATE VISITE TECHNIQUE DISPO / PLANIFIÉE :</div>
+    <div class="q-hint">SI CONNU</div>
+    <div class="date-time">
+      <div><div class="dt-label">Date</div><input type="text" id="visiteDateStr" placeholder="JJ/MM/AAAA"></div>
+      <div><div class="dt-label">Heure</div><input type="text" id="visiteHeure" placeholder="HH:MM"></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SECTION 4 — GROUPES DE FROID
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">❄️</div><div class="q-section-title">Groupes de production de froid</div></div>
-
-    <div class="q-row">
-      <div class="q-num">12</div>
-      <div class="q-body">
-        <span class="q-label">Nombre de groupes de froid</span>
-        <input type="number" id="nbGroupes" min="1" max="50" placeholder="Ex : 2" style="max-width:140px;">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">13</div>
-      <div class="q-body">
-        <span class="q-label">Puissance frigorifique totale (kW)</span>
-        <span class="q-hint">Critère principal : seuil minimum 40 kW pour BAT-TH-139</span>
-        <input type="number" id="puissanceFrigo" min="1" max="5000" step="0.5" placeholder="Ex : 150" style="max-width:180px;">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">14</div>
-      <div class="q-body">
-        <span class="q-label">Marque des groupes</span>
-        <input type="text" id="marque" placeholder="Carrier, Bitzer, Copeland, Dorin…">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">15</div>
-      <div class="q-body">
-        <span class="q-label">Modèle (si connu)</span>
-        <input type="text" id="modele" placeholder="Ex : 30RB-080">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">16</div>
-      <div class="q-body">
-        <span class="q-label">Fluide frigorigène</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="fluide" id="fl_404" value="R404A" checked><label for="fl_404">R404A</label></div>
-          <div class="pill"><input type="radio" name="fluide" id="fl_134" value="R134a"><label for="fl_134">R134a</label></div>
-          <div class="pill"><input type="radio" name="fluide" id="fl_744" value="R744/CO2"><label for="fl_744">R744/CO₂</label></div>
-          <div class="pill"><input type="radio" name="fluide" id="fl_448" value="R448A/R449A"><label for="fl_448">R448A/R449A</label></div>
-          <div class="pill"><input type="radio" name="fluide" id="fl_aut" value="Autre"><label for="fl_aut">Autre</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">17</div>
-      <div class="q-body">
-        <span class="q-label">Charge en fluide frigorigène (kg)</span>
-        <input type="number" id="chargeFluide" min="0" step="0.1" placeholder="Ex : 45" style="max-width:180px;">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">18</div>
-      <div class="q-body">
-        <span class="q-label">Usage principal</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="usage" id="us_ref" value="Réfrigération" checked><label for="us_ref">Réfrigération</label></div>
-          <div class="pill"><input type="radio" name="usage" id="us_sur" value="Surgelé"><label for="us_sur">Surgelé</label></div>
-          <div class="pill"><input type="radio" name="usage" id="us_pro" value="Process"><label for="us_pro">Process</label></div>
-          <div class="pill"><input type="radio" name="usage" id="us_cli" value="Climatisation"><label for="us_cli">Climatisation</label></div>
-          <div class="pill"><input type="radio" name="usage" id="us_mix" value="Mixte"><label for="us_mix">Mixte</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">19</div>
-      <div class="q-body">
-        <span class="q-label">Type de froid produit</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="typeFroid" id="tf_pos" value="Positif (> 0 °C)"><label for="tf_pos">Positif (&gt; 0 °C)</label></div>
-          <div class="pill"><input type="radio" name="typeFroid" id="tf_neg" value="Négatif (< 0 °C)"><label for="tf_neg">Négatif (&lt; 0 °C)</label></div>
-          <div class="pill"><input type="radio" name="typeFroid" id="tf_mix" value="Mixte" checked><label for="tf_mix">Mixte</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">20</div>
-      <div class="q-body">
-        <span class="q-label">Type de compresseur</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="compresseur" id="cp_pis" value="À pistons"><label for="cp_pis">À pistons</label></div>
-          <div class="pill"><input type="radio" name="compresseur" id="cp_vis" value="À vis"><label for="cp_vis">À vis</label></div>
-          <div class="pill"><input type="radio" name="compresseur" id="cp_scr" value="Scroll"><label for="cp_scr">Scroll</label></div>
-          <div class="pill"><input type="radio" name="compresseur" id="cp_inc" value="Inconnu" checked><label for="cp_inc">Inconnu</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">21</div>
-      <div class="q-body">
-        <span class="q-label">Type de condenseur</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="condenseur" id="cd_air" value="À air" checked><label for="cd_air">À air</label></div>
-          <div class="pill"><input type="radio" name="condenseur" id="cd_eau" value="À eau"><label for="cd_eau">À eau</label></div>
-          <div class="pill"><input type="radio" name="condenseur" id="cd_eva" value="Évaporatif"><label for="cd_eva">Évaporatif</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">22</div>
-      <div class="q-body">
-        <span class="q-label">Ancienneté de l'installation</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="anciennete" id="an_5" value="Moins de 5 ans"><label for="an_5">– 5 ans</label></div>
-          <div class="pill"><input type="radio" name="anciennete" id="an_10" value="5 à 10 ans" checked><label for="an_10">5–10 ans</label></div>
-          <div class="pill"><input type="radio" name="anciennete" id="an_p10" value="Plus de 10 ans"><label for="an_p10">+10 ans</label></div>
-        </div>
-      </div>
-    </div>
+  <!-- Q15 Commentaires -->
+  <div class="q">
+    <div class="q-title">COMMENTAIRES :</div>
+    <textarea id="notes" placeholder="Votre réponse"></textarea>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SECTION 5 — CHAMBRES FROIDES
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">🏭</div><div class="q-section-title">Chambres froides</div></div>
-
-    <div class="q-row">
-      <div class="q-num">23</div>
-      <div class="q-body">
-        <span class="q-label">Y a-t-il des chambres froides sur le site ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="hasCF" id="cf_oui" value="Oui" checked onchange="toggleSub('cfDetail',this.value,'Oui')"><label for="cf_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="hasCF" id="cf_non" value="Non" onchange="toggleSub('cfDetail',this.value,'Oui')"><label for="cf_non">Non</label></div>
-        </div>
-        <div class="q-sub show" id="cfDetail">
-          <div class="q-cols" style="margin-bottom:10px;">
-            <div><div class="q-col-label">Nombre de chambres froides</div><input type="number" id="nbCF" min="0" placeholder="Ex : 3"></div>
-            <div><div class="q-col-label">Surface totale (m²)</div><input type="number" id="surfCF" min="0" placeholder="Ex : 200"></div>
-          </div>
-          <div style="margin-bottom:10px;"><div class="q-col-label">Volume total (m³)</div><input type="number" id="volCF" min="0" placeholder="Ex : 600" style="max-width:180px;"></div>
-          <div style="margin-bottom:8px;"><div class="q-col-label" style="margin-bottom:6px;">T° positive (chambres +)</div>
-            <div class="pill-group">
-              <div class="pill"><input type="radio" name="tPos" id="tp_04" value="0 à +4 °C" checked><label for="tp_04">0 à +4 °C</label></div>
-              <div class="pill"><input type="radio" name="tPos" id="tp_48" value="+4 à +8 °C"><label for="tp_48">+4 à +8 °C</label></div>
-              <div class="pill"><input type="radio" name="tPos" id="tp_auc" value="Aucune"><label for="tp_auc">Aucune</label></div>
-            </div>
-          </div>
-          <div><div class="q-col-label" style="margin-bottom:6px;">T° négative (chambres −)</div>
-            <div class="pill-group">
-              <div class="pill"><input type="radio" name="tNeg" id="tn_18" value="-18 °C" checked><label for="tn_18">−18 °C</label></div>
-              <div class="pill"><input type="radio" name="tNeg" id="tn_25" value="-25 °C"><label for="tn_25">−25 °C</label></div>
-              <div class="pill"><input type="radio" name="tNeg" id="tn_auc" value="Aucune"><label for="tn_auc">Aucune</label></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       SECTION 6 — BESOINS THERMIQUES
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">🔥</div><div class="q-section-title">Besoins thermiques</div></div>
-
-    <div class="q-row">
-      <div class="q-num">24</div>
-      <div class="q-body">
-        <span class="q-label">Besoin en eau chaude sanitaire (ECS) ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="ecs" id="ecs_oui" value="Oui" onchange="toggleSub('sub_ecs',this.value,'Oui')"><label for="ecs_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="ecs" id="ecs_non" value="Non" checked onchange="toggleSub('sub_ecs',this.value,'Oui')"><label for="ecs_non">Non</label></div>
-        </div>
-        <div class="q-sub" id="sub_ecs">
-          <div class="q-cols">
-            <div><div class="q-col-label">T° souhaitée (°C)</div><input type="number" id="ecs_temp" min="40" max="90" placeholder="60" value="60"></div>
-            <div><div class="q-col-label">Volume journalier (L/j)</div><input type="number" id="ecs_vol" min="0" placeholder="500"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">25</div>
-      <div class="q-body">
-        <span class="q-label">Besoin en chauffage des locaux ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="chauf" id="ch_oui" value="Oui" onchange="toggleSub('sub_chauf',this.value,'Oui')"><label for="ch_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="chauf" id="ch_non" value="Non" checked onchange="toggleSub('sub_chauf',this.value,'Oui')"><label for="ch_non">Non</label></div>
-        </div>
-        <div class="q-sub" id="sub_chauf">
-          <div class="q-cols">
-            <div><div class="q-col-label">Surface à chauffer (m²)</div><input type="number" id="ch_surf" min="0" placeholder="800"></div>
-            <div><div class="q-col-label">T° de consigne (°C)</div><input type="number" id="ch_temp" min="14" max="30" placeholder="18" value="18"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">26</div>
-      <div class="q-body">
-        <span class="q-label">Besoin de chaleur pour process industriel ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="process" id="proc_oui" value="Oui" onchange="toggleSub('sub_process',this.value,'Oui')"><label for="proc_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="process" id="proc_non" value="Non" checked onchange="toggleSub('sub_process',this.value,'Oui')"><label for="proc_non">Non</label></div>
-        </div>
-        <div class="q-sub" id="sub_process">
-          <div class="q-cols" style="margin-bottom:8px;">
-            <div><div class="q-col-label">T° besoin process (°C)</div><input type="number" id="proc_temp" min="30" max="200" placeholder="80"></div>
-            <div><div class="q-col-label">Débit estimé (m³/h)</div><input type="number" id="proc_debit" min="0" placeholder="5"></div>
-          </div>
-          <div><div class="q-col-label">Description du process</div><input type="text" id="proc_desc" placeholder="Lavage, pasteurisation, séchage…"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">27</div>
-      <div class="q-body">
-        <span class="q-label">Besoin de préchauffage d'air de ventilation ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="airchaud" id="ac_oui" value="Oui"><label for="ac_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="airchaud" id="ac_non" value="Non" checked><label for="ac_non">Non</label></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       SECTION 7 — FONCTIONNEMENT
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">⏱</div><div class="q-section-title">Fonctionnement</div></div>
-
-    <div class="q-row">
-      <div class="q-num">28</div>
-      <div class="q-body">
-        <span class="q-label">Fonctionnement quotidien</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="fonct" id="fn_h24" value="H24 (24h/j)" checked><label for="fn_h24">H24 (24h/j)</label></div>
-          <div class="pill"><input type="radio" name="fonct" id="fn_h18" value="18h/j"><label for="fn_h18">18h/j</label></div>
-          <div class="pill"><input type="radio" name="fonct" id="fn_h12" value="12h/j"><label for="fn_h12">12h/j</label></div>
-          <div class="pill"><input type="radio" name="fonct" id="fn_aut" value="Autre" onchange="toggleSub('sub_fonct',this.value,'Autre')"><label for="fn_aut">Autre</label></div>
-        </div>
-        <div class="q-sub" id="sub_fonct">
-          <div class="q-col-label">Préciser (heures/jour)</div>
-          <input type="number" id="hJourCustom" min="1" max="24" placeholder="Ex : 16" style="max-width:120px;margin-top:4px;">
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">29</div>
-      <div class="q-body">
-        <span class="q-label">Jours de fonctionnement par an</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="jours" id="jr_365" value="365 j/an"><label for="jr_365">365 j/an</label></div>
-          <div class="pill"><input type="radio" name="jours" id="jr_340" value="340 j/an" checked><label for="jr_340">340 j/an</label></div>
-          <div class="pill"><input type="radio" name="jours" id="jr_250" value="250 j/an"><label for="jr_250">250 j/an</label></div>
-          <div class="pill"><input type="radio" name="jours" id="jr_aut" value="Autre" onchange="toggleSub('sub_jours',this.value,'Autre')"><label for="jr_aut">Autre</label></div>
-        </div>
-        <div class="q-sub" id="sub_jours">
-          <div class="q-col-label">Préciser (jours/an)</div>
-          <input type="number" id="jAnCustom" min="50" max="365" placeholder="Ex : 300" style="max-width:120px;margin-top:4px;">
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">30</div>
-      <div class="q-body">
-        <span class="q-label">Consommation électrique annuelle (kWh/an) — si connue</span>
-        <input type="number" id="consoElec" min="0" placeholder="Ex : 180 000" style="max-width:220px;">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">31</div>
-      <div class="q-body">
-        <span class="q-label">Système de régulation / GTB existant ?</span>
-        <div class="pill-group">
-          <div class="pill"><input type="radio" name="regul" id="rg_oui" value="Oui"><label for="rg_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="regul" id="rg_non" value="Non" checked><label for="rg_non">Non</label></div>
-          <div class="pill"><input type="radio" name="regul" id="rg_part" value="Partiel"><label for="rg_part">Partiel</label></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       SECTION 8 — SUIVI
-  ══════════════════════════════════════ -->
-  <div class="q-card">
-    <div class="q-section"><div class="q-section-icon">📋</div><div class="q-section-title">Suivi du dossier</div></div>
-
-    <div class="q-row">
-      <div class="q-num">32</div>
-      <div class="q-body">
-        <span class="q-label">Photos des plaques signalétiques reçues ?</span>
-        <div class="pill-group">
-          <div class="pill ok"><input type="radio" name="photoPlaques" id="pp_oui" value="Oui"><label for="pp_oui">Oui</label></div>
-          <div class="pill"><input type="radio" name="photoPlaques" id="pp_non" value="Non" checked><label for="pp_non">Non</label></div>
-          <div class="pill"><input type="radio" name="photoPlaques" id="pp_att" value="En attente"><label for="pp_att">En attente</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">33</div>
-      <div class="q-body">
-        <span class="q-label">Visite technique planifiée</span>
-        <input type="text" id="visiteTech" placeholder="JJ/MM/AAAA — ou laisser vide" style="max-width:240px;">
-      </div>
-    </div>
-
-    <div class="q-row">
-      <div class="q-num">34</div>
-      <div class="q-body">
-        <span class="q-label">Commentaires / observations</span>
-        <textarea id="notes" rows="3" placeholder="Contraintes techniques, demandes particulières…"></textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── BOUTON SUBMIT ── -->
   <div class="submit-wrap">
-    <button class="btn-submit" onclick="submitForm()">✓ Générer la fiche d'éligibilité</button>
+    <button class="btn-submit" onclick="submitForm()">Envoyer</button>
   </div>
 
-  <!-- ══════════════════════════════════════
-       RÉSULTAT — FICHE PROSPECT
-  ══════════════════════════════════════ -->
+  <!-- RÉSULTAT -->
   <div id="resultat">
-    <div id="eligPoints" class="elig-points"></div>
-    <div id="eligBanner" class="elig-banner"></div>
-
-    <div class="fiche">
-      <div class="fiche-hd">
-        <div class="fiche-hd-title">Fiche Prospect — BAT-TH-139</div>
-        <div class="fiche-hd-date" id="ficheDate"></div>
-      </div>
-      <div id="ficheBody"></div>
-    </div>
-
-    <div class="print-btn">
-      <button class="btn-print" onclick="window.print()">🖨️ Imprimer / Exporter PDF</button>
+    <div class="result-card">
+      <div id="resBanner" class="result-banner"></div>
+      <div id="resPts" class="result-pts"></div>
+      <div class="fiche-title">Récapitulatif</div>
+      <div id="resFiche"></div>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimer / PDF</button>
     </div>
   </div>
 
-</div><!-- /wrap -->
+</div>
 
 <script>
-/* ── helpers ── */
 function g(id){return (document.getElementById(id)||{value:''}).value||'';}
-function rb(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
 
 /* ── SIRET ── */
 function onSiretInput(){
@@ -651,224 +268,96 @@ function onSiretInput(){
   document.getElementById('siretStatus').textContent='';
   document.getElementById('btnSiret').disabled=raw.length!==14;
 }
-function nafToSecteur(naf){
-  if(!naf)return '';
-  var code=naf.replace(/[^0-9.]/g,'').slice(0,5);
-  var pre2=code.slice(0,2);
-  var pre4=code.slice(0,4);
-  if(pre4==='47.1'||pre4==='47.2'&&['47.21','47.24','47.25','47.26','47.29'].indexOf(pre4)<0)return 'Grande distribution / Supermarché';
-  if(pre4==='47.22'||pre4==='47.23'||pre4==='10.11'||pre4==='10.12'||pre4==='10.13')return 'Boucherie / Charcuterie / Traiteur';
-  if(pre2==='10'||pre2==='11')return 'Industrie agroalimentaire';
-  if(pre2==='56'||pre4==='55.10'||pre4==='55.20')return 'Restauration / CHR';
-  if(pre4==='47.73'||pre4==='86.90'||pre2==='86'||pre2==='87'||pre2==='88')return 'Pharmacie / Médical';
-  if(pre2==='52'||pre4==='49.41'||pre4==='49.42')return 'Logistique / Entrepôt';
-  if(pre2==='20'||pre2==='21'||pre2==='22'||pre2==='23'||pre2==='24'||pre2==='25'||pre2==='26'||pre2==='27'||pre2==='28'||pre2==='29'||pre2==='30')return 'Usine de production';
-  return '';
-}
-function nafToTypeBat(naf){
-  if(!naf)return '';
-  var code=naf.replace(/[^0-9.]/g,'').slice(0,5);
-  var pre2=code.slice(0,2);
-  var pre4=code.slice(0,4);
-  if(pre4==='47.11'||pre4==='47.12')return 'Supermarché / Hypermarché';
-  if(pre2==='56')return 'Restaurant / Cuisine professionnelle';
-  if(pre2==='52')return 'Entrepôt frigorifique';
-  if(pre2==='10'||pre2==='11'||pre2==='20'||pre2==='21'||pre2==='22'||pre2==='23'||pre2==='24'||pre2==='25'||pre2==='28')return 'Usine / Site industriel';
-  return '';
-}
-function setSelect(id,val){
-  if(!val)return;
-  var sel=document.getElementById(id);
-  for(var i=0;i<sel.options.length;i++){
-    if(sel.options[i].text===val){sel.selectedIndex=i;return;}
-  }
-}
 function lookupSiret(){
   var raw=document.getElementById('siret').value.replace(/\s/g,'');
-  if(raw.length!==14){setStatus('Le SIRET doit comporter 14 chiffres.','err');return;}
-  setStatus('Recherche en cours…','loading');
+  if(raw.length!==14){setSt('SIRET = 14 chiffres.','err');return;}
+  setSt('Recherche…','loading');
   document.getElementById('btnSiret').disabled=true;
   fetch('https://recherche-entreprises.api.gouv.fr/search?q='+raw+'&per_page=1')
     .then(function(r){return r.json();})
     .then(function(d){
       var r=d.results&&d.results[0];
-      if(!r){setStatus('SIRET introuvable.','err');document.getElementById('btnSiret').disabled=false;return;}
+      if(!r){setSt('SIRET introuvable.','err');document.getElementById('btnSiret').disabled=false;return;}
       var s=r.siege||{};
-      var naf=s.activite_principale||r.activite_principale||'';
-      var adresse=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||s.adresse||'';
+      var nom=r.nom_complet||r.nom_raison_sociale||'';
+      var adr=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||'';
       var cp=s.code_postal||'';
       var ville=s.libelle_commune||'';
-
-      /* Entreprise */
-      document.getElementById('entreprise').value=r.nom_complet||r.nom_raison_sociale||'';
-      document.getElementById('ent_adresse').value=adresse;
-      document.getElementById('ent_cp').value=cp;
-      document.getElementById('ent_ville').value=ville;
-
-      /* Secteur & type bâtiment via NAF */
-      setSelect('secteur', nafToSecteur(naf));
-      setSelect('typeBat', nafToTypeBat(naf));
-
-      /* Site = siège par défaut si vide */
-      if(!document.getElementById('adresse').value) document.getElementById('adresse').value=adresse;
-      if(!document.getElementById('cp').value) document.getElementById('cp').value=cp;
-      if(!document.getElementById('ville').value) document.getElementById('ville').value=ville;
-
-      var libNaf=r.libelle_activite_principale||naf;
-      setStatus('✓ '+(r.nom_complet||r.nom_raison_sociale||'')+(libNaf?' — '+libNaf:''),'ok');
+      if(!document.getElementById('entreprise').value) document.getElementById('entreprise').value=nom;
+      if(!document.getElementById('adresse').value && adr) document.getElementById('adresse').value=adr+(cp?' — '+cp:'')+(ville?' '+ville:'');
+      var libNaf=r.libelle_activite_principale||'';
+      if(!document.getElementById('secteur').value && libNaf) document.getElementById('secteur').value=libNaf;
+      setSt('✓ '+nom,'ok');
       document.getElementById('btnSiret').disabled=false;
     })
-    .catch(function(){setStatus('Erreur — remplissez manuellement.','err');document.getElementById('btnSiret').disabled=false;});
+    .catch(function(){setSt('Erreur — remplissez manuellement.','err');document.getElementById('btnSiret').disabled=false;});
 }
-function setStatus(msg,type){var el=document.getElementById('siretStatus');el.textContent=msg;el.className='siret-status '+type;}
-
-/* ── sub-reveal ── */
-function toggleSub(id,val,trigger){
-  document.getElementById(id).classList.toggle('show',val===trigger);
-}
-
-/* ── get hours/year ── */
-function getHj(){
-  var f=rb('fonct');
-  if(f==='H24 (24h/j)')return 24;
-  if(f==='18h/j')return 18;
-  if(f==='12h/j')return 12;
-  return parseInt(g('hJourCustom'))||18;
-}
-function getJan(){
-  var j=rb('jours');
-  if(j==='365 j/an')return 365;
-  if(j==='340 j/an')return 340;
-  if(j==='250 j/an')return 250;
-  return parseInt(g('jAnCustom'))||340;
-}
+function setSt(msg,type){var el=document.getElementById('siretStatus');el.textContent=msg;el.className='siret-status '+type;}
 
 /* ── SUBMIT ── */
 function submitForm(){
-  var pf=parseFloat(g('puissanceFrigo'))||0;
-  var ecs=rb('ecs')==='Oui',chauf=rb('chauf')==='Oui',process=rb('process')==='Oui',air=rb('airchaud')==='Oui';
-  var hasNeed=ecs||chauf||process||air;
-  var hj=getHj(), jan=getJan(), hAn=hj*jan;
-  var pts='', allOk=true;
+  var pf=parseFloat(g('puissance'))||0;
+  var chauf=document.getElementById('b_chauf').checked;
+  var ecs=document.getElementById('b_ecs').checked;
+  var process=document.getElementById('b_process').checked;
+  var aucun=document.getElementById('b_aucun').checked;
+  var hasNeed=chauf||ecs||process;
+  var pts='',allOk=true;
 
   if(pf>=40){
-    pts+=pt('ok','❄️','Puissance : <strong>'+pf+' kW</strong> — critère seuil 40 kW validé.');
+    pts+=pt('ok','❄️','Puissance : <strong>'+pf+' kW</strong> — seuil 40 kW validé.');
   } else if(pf>0){
-    pts+=pt('warn','⚠️','Puissance : <strong>'+pf+' kW</strong> — inférieure au seuil de 40 kW. Vérification technique nécessaire.');allOk=false;
+    pts+=pt('warn','⚠️','Puissance : <strong>'+pf+' kW</strong> — inférieure au seuil de 40 kW.');allOk=false;
   } else {
-    pts+=pt('warn','⚠️','Puissance non renseignée — critère principal à préciser.');allOk=false;
+    pts+=pt('warn','⚠️','Puissance non renseignée.');allOk=false;
   }
   if(hasNeed){
-    var bl=[];if(ecs)bl.push('ECS');if(chauf)bl.push('Chauffage');if(process)bl.push('Process');if(air)bl.push('Préchauffe air');
+    var bl=[];if(chauf)bl.push('Chauffage');if(ecs)bl.push('ECS');if(process)bl.push('Process');
     pts+=pt('ok','🔥','Besoin thermique identifié : <strong>'+bl.join(', ')+'</strong>.');
+  } else if(aucun){
+    pts+=pt('ko','❌','Aucun besoin thermique — opération non éligible.');allOk=false;
   } else {
-    pts+=pt('ko','❌','Aucun besoin thermique déclaré — opération non éligible sans valorisation de la chaleur.');allOk=false;
-  }
-  if(hAn>=2000){
-    pts+=pt('ok','🕐','Fonctionnement : <strong>'+hj+'h/j × '+jan+' j/an = '+hAn+' h/an</strong> — satisfaisant.');
-  } else {
-    pts+=pt('warn','⚠️','Fonctionnement estimé à <strong>'+hAn+' h/an</strong> — peut réduire la valeur CEE.');allOk=false;
+    pts+=pt('warn','⚠️','Besoin de chaleur non renseigné.');allOk=false;
   }
 
-  document.getElementById('eligPoints').innerHTML=pts;
-  var b=document.getElementById('eligBanner');
-  b.className='elig-banner '+(allOk?'ok':'warn');
-  b.innerHTML=(allOk?'✅ Dossier a priori éligible à BAT-TH-139':'⚠️ Éligibilité partielle — points à vérifier');
+  var ban=document.getElementById('resBanner');
+  ban.className='result-banner '+(allOk?'ok':'warn');
+  ban.textContent=allOk?'✅ Dossier a priori éligible à BAT-TH-139':'⚠️ Points à vérifier — dossier à étudier';
+  document.getElementById('resPts').innerHTML=pts;
 
-  /* date */
-  var now=new Date();
-  document.getElementById('ficheDate').textContent=String(now.getDate()).padStart(2,'0')+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear();
+  var photos=document.querySelector('input[name="photos"]:checked');
+  var photosVal=photos?photos.value:'—';
 
-  /* fiche body */
-  var besoins=[];if(ecs)besoins.push('ECS');if(chauf)besoins.push('Chauffage');if(process)besoins.push('Process');if(air)besoins.push('Préchauffe air');
-  var gestionnaire=((rb('civilite')||'')+' '+(g('prenom')||'')+' '+(g('nom')||'')).trim()||'—';
-
-  var body='';
-  body+=fs('Entreprise',[
-    ['Raison sociale',g('entreprise')||'—'],
-    ['SIRET',g('siret')||'—'],
-    ['Adresse',g('ent_adresse')||'—'],
-    ['CP / Ville',(g('ent_cp')||'—')+' '+(g('ent_ville')||'')],
-    ['Activité',g('secteur')||'—'],
-    ['Email',g('email')||'—']
-  ]);
-  body+=fs('Gestionnaire du dossier',[
-    ['Nom / Prénom',gestionnaire],
-    ['Fonction',g('poste')||'—'],
-    ['Téléphone',g('tel')||'—']
-  ]);
-  body+=fs('Site d\'installation',[
-    ['Adresse',g('adresse')||(g('ent_adresse')||'idem siège')],
-    ['CP / Ville',(g('cp')||g('ent_cp')||'—')+' '+(g('ville')||g('ent_ville')||'')],
-    ['Type bâtiment',g('typeBat')||'—'],
-    ['Propriétaire',rb('proprio')||'—']
-  ]);
-  body+=fs('Installation frigorifique',[
-    ['Nombre de groupes de froid',g('nbGroupes')||'—'],
-    ['Marque',g('marque')||'—'],
-    ['Modèle',g('modele')||'—'],
-    ['Puissance (kW)',pf?pf+' kW':'—'],
-    ['Fluide frigorigène',rb('fluide')||'—'],
-    ['Charge en fluide (kg)',g('chargeFluide')||'—'],
-    ['Usage principal',rb('usage')||'—'],
-    ['Type de froid',rb('typeFroid')||'—'],
-    ['Type de compresseur',rb('compresseur')||'—'],
-    ['Type de condenseur',rb('condenseur')||'—'],
-    ['Ancienneté',rb('anciennete')||'—']
-  ]);
-  if(rb('hasCF')==='Oui'){
-    body+=fs('Chambres froides',[
-      ['Nombre',g('nbCF')||'—'],
-      ['Surface totale',g('surfCF')?(g('surfCF')+' m²'):'—'],
-      ['Volume total',g('volCF')?(g('volCF')+' m³'):'—'],
-      ['T° positive',rb('tPos')||'—'],
-      ['T° négative',rb('tNeg')||'—']
-    ]);
-  }
-  body+=fs('Besoins thermiques',[
-    ['Besoin ECS',ecs?'Oui ('+g('ecs_temp')+'°C, '+g('ecs_vol')+' L/j)':'Non'],
-    ['Besoin chauffage',chauf?'Oui ('+g('ch_surf')+' m², '+g('ch_temp')+'°C)':'Non'],
-    ['Chaleur process',process?'Oui ('+g('proc_temp')+'°C — '+g('proc_desc')+')':'Non'],
-    ['Préchauffage air',air?'Oui':'Non'],
-    ['Valorisation possible',besoins.length?besoins.join(', '):'Aucune déclarée']
-  ]);
-  body+=fs('Fonctionnement',[
-    ['Heures / jour',hj+'h/j'],
-    ['Jours / an',jan+' j/an'],
-    ['Total annuel',hAn+' h/an'],
-    ['Conso. électrique',g('consoElec')?(g('consoElec')+' kWh/an'):'—'],
-    ['Régulation / GTB',rb('regul')||'—']
-  ]);
-  body+=fs('Suivi',[
-    ['Photos plaques signalétiques',rb('photoPlaques')||'—'],
-    ['Visite technique planifiée',g('visiteTech')||'—'],
-    ['Commentaires',g('notes')||'—']
-  ]);
-
-  document.getElementById('ficheBody').innerHTML=body;
+  var rows=[
+    ['Secteur d\'activité',g('secteur')],
+    ['Puissance groupes froids',pf?pf+' kW':'—'],
+    ['Nombre de groupes',g('nbGroupes')],
+    ['Fonctionnement',g('fonctionnement')],
+    ['Besoin de chaleur',(chauf?'Chauffage ':'')+(ecs?'ECS ':'')+(process?'Process ':'')+(aucun?'Aucun':'')||'—'],
+    ['',''],
+    ['Raison sociale',g('entreprise')],
+    ['SIRET',g('siret')],
+    ['Adresse du site',g('adresse')],
+    ['Responsable technique',g('nom')],
+    ['Téléphone',g('tel')],
+    ['Email',g('email')],
+    ['Apporteur / Mise en relation',g('apporteur')],
+    ['Photos plaque signalétique',photosVal],
+    ['Visite technique',(g('visiteDateStr')||'—')+(g('visiteHeure')?' à '+g('visiteHeure'):'')],
+    ['Commentaires',g('notes')]
+  ];
+  var html='';
+  rows.forEach(function(r){
+    if(r[0]==='')return;
+    html+='<div class="fiche-row"><div class="fiche-key">'+r[0]+'</div><div class="fiche-val">'+(r[1]||'—')+'</div></div>';
+  });
+  document.getElementById('resFiche').innerHTML=html;
   document.getElementById('resultat').style.display='block';
   setTimeout(function(){document.getElementById('resultat').scrollIntoView({behavior:'smooth'});},100);
 }
-
 function pt(type,icon,txt){
-  return '<div class="elig-pt '+type+'"><div class="elig-pt-icon">'+icon+'</div><div>'+txt+'</div></div>';
+  return '<div class="result-pt '+type+'"><span>'+icon+'</span><div>'+txt+'</div></div>';
 }
-function fs(title,rows){
-  var h='<div class="fiche-sec-hd">'+title+'</div>';
-  rows.forEach(function(r){h+='<div class="fiche-row"><div class="fiche-key">'+r[0]+'</div><div class="fiche-val">'+(r[1]||'—')+'</div></div>';});
-  return h;
-}
-
-/* reveal "Oui" sub on load */
-document.querySelectorAll('input[name="hasCF"]').forEach(function(el){
-  el.addEventListener('change',function(){toggleSub('cfDetail',this.value,'Oui');});
-});
-document.querySelectorAll('input[name="fonct"]').forEach(function(el){
-  el.addEventListener('change',function(){toggleSub('sub_fonct',this.value,'Autre');});
-});
-document.querySelectorAll('input[name="jours"]').forEach(function(el){
-  el.addEventListener('change',function(){toggleSub('sub_jours',this.value,'Autre');});
-});
 </script>
 </body>
 </html>
