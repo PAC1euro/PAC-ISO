@@ -3,174 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Eligibilité BAT-TH-139 — Récupération de chaleur sur groupe froid</title>
+<title>Questionnaire BAT-TH-139 — Récupération de chaleur sur groupe froid</title>
 <style>
 :root{
-  --navy:#162847;--navy2:#1E3A5E;--cold:#1E7BC4;--cold-lt:#D6EAF8;
+  --navy:#162847;--cold:#1E7BC4;--cold-lt:#D6EAF8;
   --warm:#D4720A;--warm-lt:#FDEBD0;--bg:#F2F6FB;--surf:#FFFFFF;
   --border:#D1DCE8;--txt:#1A2332;--txt2:#5A6B7E;
   --ok:#1A7A4A;--ok-lt:#D4EDDA;--warn:#92620A;--warn-lt:#FFF3CD;
-  --err:#C0392B;--err-lt:#FDECEA;--radius:10px;--shadow:0 2px 12px rgba(22,40,71,.10);
+  --err:#C0392B;--err-lt:#FDECEA;--radius:8px;--shadow:0 2px 12px rgba(22,40,71,.10);
 }
 @media(prefers-color-scheme:dark){
   :root{--bg:#0E1928;--surf:#162235;--border:#2A3D57;--txt:#E4EAF4;--txt2:#8FA4BC;
-    --cold-lt:#1A3650;--warm-lt:#3A2008;--ok-lt:#0D3020;--warn-lt:#2E1F06;--err-lt:#2E0B08;--shadow:0 2px 16px rgba(0,0,0,.35);}
+    --cold-lt:#1A3650;--warm-lt:#3A2008;--ok-lt:#0D3020;--warn-lt:#2E1F06;--err-lt:#2E0B08;}
 }
-:root[data-theme="dark"]{--bg:#0E1928;--surf:#162235;--border:#2A3D57;--txt:#E4EAF4;--txt2:#8FA4BC;--cold-lt:#1A3650;--warm-lt:#3A2008;--ok-lt:#0D3020;--warn-lt:#2E1F06;--err-lt:#2E0B08;--shadow:0 2px 16px rgba(0,0,0,.35);}
+:root[data-theme="dark"]{--bg:#0E1928;--surf:#162235;--border:#2A3D57;--txt:#E4EAF4;--txt2:#8FA4BC;--cold-lt:#1A3650;--warm-lt:#3A2008;--ok-lt:#0D3020;--warn-lt:#2E1F06;--err-lt:#2E0B08;}
 :root[data-theme="light"]{--bg:#F2F6FB;--surf:#FFFFFF;--border:#D1DCE8;--txt:#1A2332;--txt2:#5A6B7E;--cold-lt:#D6EAF8;--warm-lt:#FDEBD0;}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.55;}
 
-.hdr{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;gap:16px;height:60px;position:sticky;top:0;z-index:100;}
-.hdr-logo{font-family:'Trebuchet MS',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+.hdr{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;gap:12px;}
+.hdr-logo{font-family:'Trebuchet MS',sans-serif;font-size:17px;font-weight:700;}
 .hdr-logo span{color:#4FAFD4;}
-.hdr-sub{font-size:12px;color:#8FA4BC;letter-spacing:.4px;text-transform:uppercase;}
+.hdr-sub{font-size:11px;color:#8FA4BC;letter-spacing:.3px;text-transform:uppercase;}
+.hdr-sep{color:rgba(255,255,255,.2);font-size:18px;}
 
-.app{display:flex;min-height:calc(100vh - 60px);}
-.sidebar{width:240px;flex-shrink:0;background:var(--navy2);padding:28px 20px;display:flex;flex-direction:column;gap:4px;}
-.main{flex:1;padding:32px 28px;max-width:720px;}
+.wrap{max-width:700px;margin:0 auto;padding:32px 20px 60px;}
 
-.step-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .15s;}
-.step-item:hover{background:rgba(255,255,255,.07);}
-.step-item.active{background:rgba(78,175,212,.15);}
-.step-dot{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);flex-shrink:0;transition:all .2s;}
-.step-item.done .step-dot{background:var(--ok);border-color:var(--ok);color:#fff;}
-.step-item.active .step-dot{border-color:#4FAFD4;color:#4FAFD4;}
-.step-label{font-size:12.5px;color:rgba(255,255,255,.5);font-weight:500;line-height:1.3;}
-.step-item.active .step-label{color:#D6EAF8;}
-.step-item.done .step-label{color:rgba(255,255,255,.65);}
+/* ── Questionnaire card ── */
+.q-card{background:var(--surf);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px;}
 
-.mob-prog{display:none;background:var(--navy);padding:10px 16px;position:sticky;top:60px;z-index:99;}
-.prog-bar{height:4px;background:rgba(255,255,255,.15);border-radius:2px;}
-.prog-fill{height:4px;background:linear-gradient(90deg,#1E7BC4,#4FAFD4);border-radius:2px;transition:width .3s;}
-.prog-label{font-size:11px;color:rgba(255,255,255,.6);margin-top:5px;}
+.q-section{border-top:3px solid var(--cold);background:var(--cold-lt);padding:12px 22px;display:flex;align-items:center;gap:10px;}
+.q-section-icon{font-size:18px;}
+.q-section-title{font-family:'Trebuchet MS',sans-serif;font-size:14px;font-weight:700;color:var(--navy);letter-spacing:.2px;}
+:root[data-theme="dark"] .q-section-title,:root:not([data-theme]) .q-section-title{color:var(--cold);}
+@media(prefers-color-scheme:dark){.q-section-title{color:var(--cold);}}
 
-.step-pane{display:none;}
-.step-pane.active{display:block;}
-.step-title{font-family:'Trebuchet MS',sans-serif;font-size:22px;font-weight:700;color:var(--txt);margin-bottom:4px;text-wrap:balance;}
-.step-desc{font-size:13.5px;color:var(--txt2);margin-bottom:24px;}
-.divider-cold{height:3px;background:linear-gradient(90deg,var(--cold),#4FAFD4);border-radius:2px;margin-bottom:24px;width:48px;}
-.divider-warm{height:3px;background:linear-gradient(90deg,var(--warm),#F0A000);border-radius:2px;margin-bottom:24px;width:48px;}
+.q-row{display:flex;align-items:baseline;border-top:1px solid var(--border);padding:14px 22px;gap:16px;}
+.q-row:first-of-type{border-top:none;}
+.q-num{font-size:11px;font-weight:700;color:var(--cold);min-width:24px;padding-top:2px;flex-shrink:0;}
+.q-body{flex:1;}
+.q-label{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:8px;display:block;}
+.q-hint{font-size:11px;color:var(--txt2);margin-bottom:8px;font-style:italic;}
 
-.field{margin-bottom:18px;}
-.field-row{display:grid;gap:14px;grid-template-columns:1fr 1fr;}
-label{display:block;font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
-input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea{
-  width:100%;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--radius);
-  padding:10px 12px;font-size:14px;color:var(--txt);font-family:inherit;transition:border-color .15s,box-shadow .15s;
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{
+  width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:9px 12px;font-size:14px;color:var(--txt);font-family:inherit;transition:border-color .15s,box-shadow .15s;
 }
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cold);box-shadow:0 0 0 3px rgba(30,123,196,.15);}
-input[type=number]{font-family:'Courier New',monospace;font-size:15px;font-variant-numeric:tabular-nums;}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A6B7E' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+textarea{resize:vertical;}
 
-.choice-group{display:flex;flex-wrap:wrap;gap:8px;}
-.choice-item input[type=radio],.choice-item input[type=checkbox]{display:none;}
-.choice-item label{padding:7px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap;margin:0;}
-.choice-item input[type=radio]:checked+label,.choice-item input[type=checkbox]:checked+label{background:var(--cold);border-color:var(--cold);color:#fff;}
-.choice-item.warm input:checked+label{background:var(--warm);border-color:var(--warm);color:#fff;}
+/* Cols inside a row */
+.q-cols{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
+@media(max-width:520px){.q-cols{grid-template-columns:1fr;}}
+.q-col-label{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
 
-.slider-wrap{display:flex;align-items:center;gap:12px;}
-input[type=range]{flex:1;accent-color:var(--cold);}
-.slider-val{font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:var(--cold);min-width:60px;text-align:right;}
+/* Radio / checkbox pill group */
+.pill-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+.pill input{display:none;}
+.pill label{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
+.pill input:checked+label{background:var(--cold);border-color:var(--cold);color:#fff;}
+.pill.warm input:checked+label{background:var(--warm);border-color:var(--warm);color:#fff;}
+.pill.ok input:checked+label{background:var(--ok);border-color:var(--ok);color:#fff;}
 
-.sub-section{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:12px;display:none;}
-.sub-section.show{display:block;}
-.sub-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:12px;}
-
-.info-box{background:var(--cold-lt);border:1.5px solid rgba(30,123,196,.25);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--txt);margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;}
-.info-box.warm{background:var(--warm-lt);border-color:rgba(212,114,10,.25);}
-.info-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
-
-/* SIRET row */
-.siret-row{display:flex;gap:8px;align-items:flex-end;}
-.siret-row input{flex:1;}
-.btn-siret{padding:10px 16px;border-radius:var(--radius);background:var(--cold);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s;}
+/* SIRET */
+.siret-wrap{display:flex;gap:8px;}
+.siret-wrap input{flex:1;}
+.btn-siret{padding:9px 16px;border-radius:var(--radius);background:var(--cold);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s;}
 .btn-siret:hover{background:#1668A8;}
 .btn-siret:disabled{background:var(--border);cursor:not-allowed;}
-.siret-status{font-size:12px;margin-top:6px;min-height:18px;}
+.siret-status{font-size:12px;margin-top:5px;min-height:16px;}
 .siret-status.ok{color:var(--ok);}
 .siret-status.err{color:var(--err);}
 .siret-status.loading{color:var(--txt2);}
 
-/* Separator */
-.sep{border:none;border-top:2px solid var(--border);margin:24px 0;}
-.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--cold);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+/* Sub-reveal */
+.q-sub{display:none;margin-top:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
+.q-sub.show{display:block;}
 
-.btn-row{display:flex;gap:10px;margin-top:28px;}
-.btn{padding:11px 24px;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
-.btn-prev{background:var(--bg);border:1.5px solid var(--border);color:var(--txt2);}
-.btn-prev:hover{border-color:var(--cold);color:var(--cold);}
-.btn-next{background:var(--cold);color:#fff;box-shadow:0 2px 8px rgba(30,123,196,.35);}
-.btn-next:hover{background:#1668A8;}
-.btn-submit{background:var(--warm);color:#fff;box-shadow:0 2px 8px rgba(212,114,10,.35);}
+/* Submit */
+.submit-wrap{text-align:center;margin-top:28px;}
+.btn-submit{padding:13px 36px;background:var(--warm);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(212,114,10,.35);transition:background .15s;}
 .btn-submit:hover{background:#B85E08;}
 
-.elig-card{border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);}
-.elig-ok{background:var(--ok-lt);border:2px solid var(--ok);}
-.elig-warn{background:var(--warn-lt);border:2px solid var(--warn);}
-.elig-ko{background:var(--err-lt);border:2px solid var(--err);}
-.elig-header{display:flex;align-items:center;gap:10px;font-family:'Trebuchet MS',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;}
-.elig-header.ok{color:var(--ok);}
-.elig-header.warn{color:var(--warn);}
-.elig-header.ko{color:var(--err);}
-.elig-detail{font-size:13px;color:var(--txt);line-height:1.6;}
-.summary-grid{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:20px;}
-.sum-block{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);}
-.sum-block-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:8px;}
-.sum-row{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:3px 0;border-bottom:1px solid var(--border);}
-.sum-row:last-child{border-bottom:none;}
-.sum-key{color:var(--txt2);}
-.sum-val{font-weight:600;color:var(--txt);text-align:right;}
+/* ── Fiche Prospect (résultat) ── */
+#resultat{display:none;margin-top:32px;}
+.elig-banner{border-radius:var(--radius);padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px;box-shadow:var(--shadow);}
+.elig-banner.ok{background:var(--ok-lt);color:var(--ok);border:2px solid var(--ok);}
+.elig-banner.warn{background:var(--warn-lt);color:var(--warn);border:2px solid var(--warn);}
+.elig-points{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.elig-pt{border-radius:var(--radius);padding:11px 16px;font-size:13px;display:flex;gap:10px;align-items:flex-start;}
+.elig-pt.ok{background:var(--ok-lt);border-left:4px solid var(--ok);}
+.elig-pt.warn{background:var(--warn-lt);border-left:4px solid var(--warn);}
+.elig-pt.ko{background:var(--err-lt);border-left:4px solid var(--err);}
+.elig-pt-icon{font-size:15px;flex-shrink:0;}
 
-@media(max-width:720px){
-  .sidebar{display:none;}
-  .mob-prog{display:block;}
-  .main{padding:20px 16px;}
-  .field-row{grid-template-columns:1fr;}
-  .summary-grid{grid-template-columns:1fr;}
+.fiche{background:var(--surf);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.fiche-hd{background:var(--navy);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+.fiche-hd-title{font-family:'Trebuchet MS',sans-serif;font-size:14px;font-weight:700;}
+.fiche-hd-date{font-size:11px;color:#8FA4BC;}
+.fiche-sec-hd{background:var(--cold-lt);border-top:1.5px solid var(--border);padding:6px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--cold);}
+.fiche-row{display:flex;border-top:1px solid var(--border);font-size:13px;}
+.fiche-key{width:52%;padding:8px 20px;color:var(--txt2);background:var(--bg);}
+.fiche-val{width:48%;padding:8px 20px;font-weight:600;color:var(--txt);border-left:1px solid var(--border);}
+
+.print-btn{margin-top:16px;text-align:center;}
+.btn-print{padding:10px 28px;background:var(--cold);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s;}
+.btn-print:hover{background:#1668A8;}
+
+@media(max-width:600px){.wrap{padding:16px 12px 40px;}.q-row{padding:12px 14px;}.fiche-key,.fiche-val{padding:7px 12px;}}
+@media print{
+  .hdr,.submit-wrap,.print-btn{display:none!important;}
+  #resultat{display:block!important;}
+  .q-card,.fiche{box-shadow:none;border:1px solid #ccc;}
+  body{background:#fff;}
 }
 </style>
 </head>
 <body>
 
 <header class="hdr">
-  <div>
-    <div class="hdr-logo">PAC<span>·</span>ISO</div>
-    <div class="hdr-sub">Questionnaire BAT-TH-139</div>
-  </div>
+  <div class="hdr-logo">PAC<span>·</span>ISO</div>
+  <span class="hdr-sep">|</span>
+  <div class="hdr-sub">Questionnaire BAT-TH-139</div>
 </header>
 
-<div class="mob-prog">
-  <div class="prog-bar"><div class="prog-fill" id="mobFill" style="width:16.6%"></div></div>
-  <div class="prog-label" id="mobLabel">Étape 1 / 6 — Site & Activité</div>
-</div>
+<div class="wrap">
 
-<div class="app">
-  <nav class="sidebar" id="sidebar">
-    <div class="step-item active" data-step="1" onclick="goStep(1)"><div class="step-dot">1</div><div class="step-label">Site &amp; Activité</div></div>
-    <div class="step-item" data-step="2" onclick="goStep(2)"><div class="step-dot">2</div><div class="step-label">Groupes froids</div></div>
-    <div class="step-item" data-step="3" onclick="goStep(3)"><div class="step-dot">3</div><div class="step-label">Chambres froides</div></div>
-    <div class="step-item" data-step="4" onclick="goStep(4)"><div class="step-dot">4</div><div class="step-label">Besoins thermiques</div></div>
-    <div class="step-item" data-step="5" onclick="goStep(5)"><div class="step-dot">5</div><div class="step-label">Paramètres</div></div>
-    <div class="step-item" data-step="6" onclick="goStep(6)"><div class="step-dot">6</div><div class="step-label">Contact &amp; Entreprise</div></div>
-  </nav>
+  <!-- ══════════════════════════════════════
+       SECTION 1 — ENTREPRISE
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">🏢</div><div class="q-section-title">Entreprise</div></div>
 
-  <main class="main">
-
-    <!-- ── ÉTAPE 1 : SITE ── -->
-    <div class="step-pane active" id="pane1">
-      <div class="divider-cold"></div>
-      <div class="step-title">Site &amp; Activité</div>
-      <div class="step-desc">Localisation du site et secteur d'activité concerné par l'installation.</div>
-      <div class="field"><label>Adresse du site</label><input type="text" id="adresse" placeholder="12 rue du Commerce"></div>
-      <div class="field-row">
-        <div class="field"><label>Code postal</label><input type="text" id="cp" placeholder="75011" maxlength="5"></div>
-        <div class="field"><label>Ville</label><input type="text" id="ville" placeholder="Paris"></div>
+    <div class="q-row">
+      <div class="q-num">1</div>
+      <div class="q-body">
+        <span class="q-label">SIRET</span>
+        <div class="siret-wrap">
+          <input type="text" id="siret" placeholder="123 456 789 00012" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
+          <button class="btn-siret" id="btnSiret" onclick="lookupSiret()" disabled>Rechercher</button>
+        </div>
+        <div class="siret-status" id="siretStatus"></div>
       </div>
-      <div class="field">
-        <label>Secteur d'activité</label>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">2</div>
+      <div class="q-body">
+        <span class="q-label">Raison sociale</span>
+        <input type="text" id="entreprise" placeholder="Société Frigorifique du Nord">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">3</div>
+      <div class="q-body">
+        <span class="q-label">Adresse du siège</span>
+        <input type="text" id="ent_adresse" placeholder="12 rue du Commerce" style="margin-bottom:8px;">
+        <div class="q-cols">
+          <div><div class="q-col-label">Code postal</div><input type="text" id="ent_cp" placeholder="75011" maxlength="5"></div>
+          <div><div class="q-col-label">Ville</div><input type="text" id="ent_ville" placeholder="Paris"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">4</div>
+      <div class="q-body">
+        <span class="q-label">Secteur d'activité</span>
         <select id="secteur">
           <option value="">— Choisir —</option>
           <option>Grande distribution / Supermarché</option>
@@ -183,8 +185,80 @@ input[type=range]{flex:1;accent-color:var(--cold);}
           <option>Autre</option>
         </select>
       </div>
-      <div class="field">
-        <label>Type de bâtiment</label>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 2 — CONTACT / GESTIONNAIRE
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">👤</div><div class="q-section-title">Gestionnaire du dossier</div></div>
+
+    <div class="q-row">
+      <div class="q-num">5</div>
+      <div class="q-body">
+        <span class="q-label">Civilité</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="civilite" id="civ_m" value="M." checked><label for="civ_m">M.</label></div>
+          <div class="pill"><input type="radio" name="civilite" id="civ_mme" value="Mme"><label for="civ_mme">Mme</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">6</div>
+      <div class="q-body">
+        <span class="q-label">Nom / Prénom</span>
+        <div class="q-cols">
+          <div><div class="q-col-label">Nom</div><input type="text" id="nom" placeholder="Dupont"></div>
+          <div><div class="q-col-label">Prénom</div><input type="text" id="prenom" placeholder="Jean"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">7</div>
+      <div class="q-body">
+        <span class="q-label">Fonction / Poste</span>
+        <input type="text" id="poste" placeholder="Responsable technique, Gérant…">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">8</div>
+      <div class="q-body">
+        <span class="q-label">Coordonnées</span>
+        <div class="q-cols">
+          <div><div class="q-col-label">Téléphone</div><input type="tel" id="tel" placeholder="06 00 00 00 00"></div>
+          <div><div class="q-col-label">Email</div><input type="email" id="email" placeholder="jean@société.fr"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 3 — SITE D'INSTALLATION
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">📍</div><div class="q-section-title">Site d'installation</div></div>
+
+    <div class="q-row">
+      <div class="q-num">9</div>
+      <div class="q-body">
+        <span class="q-label">Adresse du site</span>
+        <span class="q-hint">Laisser vide si identique au siège</span>
+        <input type="text" id="adresse" placeholder="12 rue du Commerce" style="margin-bottom:8px;">
+        <div class="q-cols">
+          <div><div class="q-col-label">Code postal</div><input type="text" id="cp" placeholder="75011" maxlength="5"></div>
+          <div><div class="q-col-label">Ville</div><input type="text" id="ville" placeholder="Paris"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">10</div>
+      <div class="q-body">
+        <span class="q-label">Type de bâtiment</span>
         <select id="typeBat">
           <option value="">— Choisir —</option>
           <option>Entrepôt frigorifique</option>
@@ -195,299 +269,383 @@ input[type=range]{flex:1;accent-color:var(--cold);}
           <option>Autre</option>
         </select>
       </div>
-      <div class="field">
-        <label>Propriétaire des locaux ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="proprio" id="pr_oui" value="Propriétaire" checked><label for="pr_oui">Propriétaire</label></div>
-          <div class="choice-item"><input type="radio" name="proprio" id="pr_loc" value="Locataire"><label for="pr_loc">Locataire</label></div>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-next" onclick="next(1)">Suivant →</button></div>
     </div>
 
-    <!-- ── ÉTAPE 2 : GROUPES FROIDS ── -->
-    <div class="step-pane" id="pane2">
-      <div class="divider-cold"></div>
-      <div class="step-title">Groupes de production de froid</div>
-      <div class="step-desc">Caractéristiques de l'installation frigorifique existante.</div>
-      <div class="info-box"><div class="info-icon">❄️</div><div>La puissance frigorifique totale est le critère dimensionnant principal pour le calcul du volume CEE BAT-TH-139.</div></div>
-      <div class="field-row">
-        <div class="field"><label>Nombre de groupes froids</label><input type="number" id="nbGroupes" min="1" max="50" placeholder="Ex : 2"></div>
-        <div class="field"><label>Puissance frigorifique totale (kW)</label><input type="number" id="puissanceFrigo" min="1" max="5000" step="0.5" placeholder="Ex : 150"></div>
-      </div>
-      <div class="field">
-        <label>Type de froid</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="typeFroid" id="tf_pos" value="Positif (> 0 °C)"><label for="tf_pos">Positif (&gt; 0 °C)</label></div>
-          <div class="choice-item"><input type="radio" name="typeFroid" id="tf_neg" value="Négatif (< 0 °C)"><label for="tf_neg">Négatif (&lt; 0 °C)</label></div>
-          <div class="choice-item"><input type="radio" name="typeFroid" id="tf_mix" value="Mixte" checked><label for="tf_mix">Mixte</label></div>
+    <div class="q-row">
+      <div class="q-num">11</div>
+      <div class="q-body">
+        <span class="q-label">Propriétaire des locaux ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="proprio" id="pr_oui" value="Propriétaire" checked><label for="pr_oui">Propriétaire</label></div>
+          <div class="pill"><input type="radio" name="proprio" id="pr_loc" value="Locataire"><label for="pr_loc">Locataire</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Fluide frigorigène</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="fluide" id="fl_404" value="R404A" checked><label for="fl_404">R404A</label></div>
-          <div class="choice-item"><input type="radio" name="fluide" id="fl_134" value="R134a"><label for="fl_134">R134a</label></div>
-          <div class="choice-item"><input type="radio" name="fluide" id="fl_744" value="R744/CO2"><label for="fl_744">R744/CO₂</label></div>
-          <div class="choice-item"><input type="radio" name="fluide" id="fl_448" value="R448A/R449A"><label for="fl_448">R448A/R449A</label></div>
-          <div class="choice-item"><input type="radio" name="fluide" id="fl_aut" value="Autre"><label for="fl_aut">Autre</label></div>
-        </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 4 — GROUPES DE FROID
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">❄️</div><div class="q-section-title">Groupes de production de froid</div></div>
+
+    <div class="q-row">
+      <div class="q-num">12</div>
+      <div class="q-body">
+        <span class="q-label">Nombre de groupes de froid</span>
+        <input type="number" id="nbGroupes" min="1" max="50" placeholder="Ex : 2" style="max-width:140px;">
       </div>
-      <div class="field">
-        <label>Type de compresseur</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="compresseur" id="cp_pis" value="À pistons"><label for="cp_pis">À pistons</label></div>
-          <div class="choice-item"><input type="radio" name="compresseur" id="cp_vis" value="À vis"><label for="cp_vis">À vis</label></div>
-          <div class="choice-item"><input type="radio" name="compresseur" id="cp_scr" value="Scroll"><label for="cp_scr">Scroll</label></div>
-          <div class="choice-item"><input type="radio" name="compresseur" id="cp_inc" value="Inconnu" checked><label for="cp_inc">Inconnu</label></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Type de condenseur</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="condenseur" id="cd_air" value="À air" checked><label for="cd_air">À air</label></div>
-          <div class="choice-item"><input type="radio" name="condenseur" id="cd_eau" value="À eau"><label for="cd_eau">À eau</label></div>
-          <div class="choice-item"><input type="radio" name="condenseur" id="cd_eva" value="Évaporatif"><label for="cd_eva">Évaporatif</label></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Ancienneté de l'installation</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="anciennete" id="an_5" value="Moins de 5 ans"><label for="an_5">– 5 ans</label></div>
-          <div class="choice-item"><input type="radio" name="anciennete" id="an_10" value="5 à 10 ans" checked><label for="an_10">5–10 ans</label></div>
-          <div class="choice-item"><input type="radio" name="anciennete" id="an_p10" value="Plus de 10 ans"><label for="an_p10">+10 ans</label></div>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-prev" onclick="prev(2)">← Retour</button><button class="btn btn-next" onclick="next(2)">Suivant →</button></div>
     </div>
 
-    <!-- ── ÉTAPE 3 : CHAMBRES FROIDES ── -->
-    <div class="step-pane" id="pane3">
-      <div class="divider-cold"></div>
-      <div class="step-title">Chambres froides</div>
-      <div class="step-desc">Inventaire et caractéristiques des volumes réfrigérés.</div>
-      <div class="field">
-        <label>Y a-t-il des chambres froides sur le site ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="hasCF" id="cf_oui" value="Oui" checked onchange="toggleCF()"><label for="cf_oui">Oui</label></div>
-          <div class="choice-item"><input type="radio" name="hasCF" id="cf_non" value="Non" onchange="toggleCF()"><label for="cf_non">Non</label></div>
+    <div class="q-row">
+      <div class="q-num">13</div>
+      <div class="q-body">
+        <span class="q-label">Puissance frigorifique totale (kW)</span>
+        <span class="q-hint">Critère principal : seuil minimum 40 kW pour BAT-TH-139</span>
+        <input type="number" id="puissanceFrigo" min="1" max="5000" step="0.5" placeholder="Ex : 150" style="max-width:180px;">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">14</div>
+      <div class="q-body">
+        <span class="q-label">Marque des groupes</span>
+        <input type="text" id="marque" placeholder="Carrier, Bitzer, Copeland, Dorin…">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">15</div>
+      <div class="q-body">
+        <span class="q-label">Modèle (si connu)</span>
+        <input type="text" id="modele" placeholder="Ex : 30RB-080">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">16</div>
+      <div class="q-body">
+        <span class="q-label">Fluide frigorigène</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="fluide" id="fl_404" value="R404A" checked><label for="fl_404">R404A</label></div>
+          <div class="pill"><input type="radio" name="fluide" id="fl_134" value="R134a"><label for="fl_134">R134a</label></div>
+          <div class="pill"><input type="radio" name="fluide" id="fl_744" value="R744/CO2"><label for="fl_744">R744/CO₂</label></div>
+          <div class="pill"><input type="radio" name="fluide" id="fl_448" value="R448A/R449A"><label for="fl_448">R448A/R449A</label></div>
+          <div class="pill"><input type="radio" name="fluide" id="fl_aut" value="Autre"><label for="fl_aut">Autre</label></div>
         </div>
       </div>
-      <div id="cfSection">
-        <div class="field-row">
-          <div class="field"><label>Nombre de chambres froides</label><input type="number" id="nbCF" min="0" max="100" placeholder="Ex : 3"></div>
-          <div class="field"><label>Surface totale réfrigérée (m²)</label><input type="number" id="surfCF" min="0" placeholder="Ex : 200"></div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">17</div>
+      <div class="q-body">
+        <span class="q-label">Charge en fluide frigorigène (kg)</span>
+        <input type="number" id="chargeFluide" min="0" step="0.1" placeholder="Ex : 45" style="max-width:180px;">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">18</div>
+      <div class="q-body">
+        <span class="q-label">Usage principal</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="usage" id="us_ref" value="Réfrigération" checked><label for="us_ref">Réfrigération</label></div>
+          <div class="pill"><input type="radio" name="usage" id="us_sur" value="Surgelé"><label for="us_sur">Surgelé</label></div>
+          <div class="pill"><input type="radio" name="usage" id="us_pro" value="Process"><label for="us_pro">Process</label></div>
+          <div class="pill"><input type="radio" name="usage" id="us_cli" value="Climatisation"><label for="us_cli">Climatisation</label></div>
+          <div class="pill"><input type="radio" name="usage" id="us_mix" value="Mixte"><label for="us_mix">Mixte</label></div>
         </div>
-        <div class="field"><label>Volume total réfrigéré (m³)</label><input type="number" id="volCF" min="0" placeholder="Ex : 600"></div>
-        <div class="field">
-          <label>T° consigne positive (chambres +)</label>
-          <div class="choice-group">
-            <div class="choice-item"><input type="radio" name="tPos" id="tp_04" value="0 à +4 °C" checked><label for="tp_04">0 à +4 °C</label></div>
-            <div class="choice-item"><input type="radio" name="tPos" id="tp_48" value="+4 à +8 °C"><label for="tp_48">+4 à +8 °C</label></div>
-            <div class="choice-item"><input type="radio" name="tPos" id="tp_auc" value="Aucune"><label for="tp_auc">Aucune</label></div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">19</div>
+      <div class="q-body">
+        <span class="q-label">Type de froid produit</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="typeFroid" id="tf_pos" value="Positif (> 0 °C)"><label for="tf_pos">Positif (&gt; 0 °C)</label></div>
+          <div class="pill"><input type="radio" name="typeFroid" id="tf_neg" value="Négatif (< 0 °C)"><label for="tf_neg">Négatif (&lt; 0 °C)</label></div>
+          <div class="pill"><input type="radio" name="typeFroid" id="tf_mix" value="Mixte" checked><label for="tf_mix">Mixte</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">20</div>
+      <div class="q-body">
+        <span class="q-label">Type de compresseur</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="compresseur" id="cp_pis" value="À pistons"><label for="cp_pis">À pistons</label></div>
+          <div class="pill"><input type="radio" name="compresseur" id="cp_vis" value="À vis"><label for="cp_vis">À vis</label></div>
+          <div class="pill"><input type="radio" name="compresseur" id="cp_scr" value="Scroll"><label for="cp_scr">Scroll</label></div>
+          <div class="pill"><input type="radio" name="compresseur" id="cp_inc" value="Inconnu" checked><label for="cp_inc">Inconnu</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">21</div>
+      <div class="q-body">
+        <span class="q-label">Type de condenseur</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="condenseur" id="cd_air" value="À air" checked><label for="cd_air">À air</label></div>
+          <div class="pill"><input type="radio" name="condenseur" id="cd_eau" value="À eau"><label for="cd_eau">À eau</label></div>
+          <div class="pill"><input type="radio" name="condenseur" id="cd_eva" value="Évaporatif"><label for="cd_eva">Évaporatif</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">22</div>
+      <div class="q-body">
+        <span class="q-label">Ancienneté de l'installation</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="anciennete" id="an_5" value="Moins de 5 ans"><label for="an_5">– 5 ans</label></div>
+          <div class="pill"><input type="radio" name="anciennete" id="an_10" value="5 à 10 ans" checked><label for="an_10">5–10 ans</label></div>
+          <div class="pill"><input type="radio" name="anciennete" id="an_p10" value="Plus de 10 ans"><label for="an_p10">+10 ans</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 5 — CHAMBRES FROIDES
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">🏭</div><div class="q-section-title">Chambres froides</div></div>
+
+    <div class="q-row">
+      <div class="q-num">23</div>
+      <div class="q-body">
+        <span class="q-label">Y a-t-il des chambres froides sur le site ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="hasCF" id="cf_oui" value="Oui" checked onchange="toggleSub('cfDetail',this.value,'Oui')"><label for="cf_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="hasCF" id="cf_non" value="Non" onchange="toggleSub('cfDetail',this.value,'Oui')"><label for="cf_non">Non</label></div>
+        </div>
+        <div class="q-sub show" id="cfDetail">
+          <div class="q-cols" style="margin-bottom:10px;">
+            <div><div class="q-col-label">Nombre de chambres froides</div><input type="number" id="nbCF" min="0" placeholder="Ex : 3"></div>
+            <div><div class="q-col-label">Surface totale (m²)</div><input type="number" id="surfCF" min="0" placeholder="Ex : 200"></div>
+          </div>
+          <div style="margin-bottom:10px;"><div class="q-col-label">Volume total (m³)</div><input type="number" id="volCF" min="0" placeholder="Ex : 600" style="max-width:180px;"></div>
+          <div style="margin-bottom:8px;"><div class="q-col-label" style="margin-bottom:6px;">T° positive (chambres +)</div>
+            <div class="pill-group">
+              <div class="pill"><input type="radio" name="tPos" id="tp_04" value="0 à +4 °C" checked><label for="tp_04">0 à +4 °C</label></div>
+              <div class="pill"><input type="radio" name="tPos" id="tp_48" value="+4 à +8 °C"><label for="tp_48">+4 à +8 °C</label></div>
+              <div class="pill"><input type="radio" name="tPos" id="tp_auc" value="Aucune"><label for="tp_auc">Aucune</label></div>
+            </div>
+          </div>
+          <div><div class="q-col-label" style="margin-bottom:6px;">T° négative (chambres −)</div>
+            <div class="pill-group">
+              <div class="pill"><input type="radio" name="tNeg" id="tn_18" value="-18 °C" checked><label for="tn_18">−18 °C</label></div>
+              <div class="pill"><input type="radio" name="tNeg" id="tn_25" value="-25 °C"><label for="tn_25">−25 °C</label></div>
+              <div class="pill"><input type="radio" name="tNeg" id="tn_auc" value="Aucune"><label for="tn_auc">Aucune</label></div>
+            </div>
           </div>
         </div>
-        <div class="field">
-          <label>T° consigne négative (chambres −)</label>
-          <div class="choice-group">
-            <div class="choice-item"><input type="radio" name="tNeg" id="tn_18" value="-18 °C" checked><label for="tn_18">−18 °C</label></div>
-            <div class="choice-item"><input type="radio" name="tNeg" id="tn_25" value="-25 °C"><label for="tn_25">−25 °C</label></div>
-            <div class="choice-item"><input type="radio" name="tNeg" id="tn_auc" value="Aucune"><label for="tn_auc">Aucune</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 6 — BESOINS THERMIQUES
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">🔥</div><div class="q-section-title">Besoins thermiques</div></div>
+
+    <div class="q-row">
+      <div class="q-num">24</div>
+      <div class="q-body">
+        <span class="q-label">Besoin en eau chaude sanitaire (ECS) ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="ecs" id="ecs_oui" value="Oui" onchange="toggleSub('sub_ecs',this.value,'Oui')"><label for="ecs_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="ecs" id="ecs_non" value="Non" checked onchange="toggleSub('sub_ecs',this.value,'Oui')"><label for="ecs_non">Non</label></div>
+        </div>
+        <div class="q-sub" id="sub_ecs">
+          <div class="q-cols">
+            <div><div class="q-col-label">T° souhaitée (°C)</div><input type="number" id="ecs_temp" min="40" max="90" placeholder="60" value="60"></div>
+            <div><div class="q-col-label">Volume journalier (L/j)</div><input type="number" id="ecs_vol" min="0" placeholder="500"></div>
           </div>
         </div>
       </div>
-      <div class="btn-row"><button class="btn btn-prev" onclick="prev(3)">← Retour</button><button class="btn btn-next" onclick="next(3)">Suivant →</button></div>
     </div>
 
-    <!-- ── ÉTAPE 4 : BESOINS THERMIQUES ── -->
-    <div class="step-pane" id="pane4">
-      <div class="divider-warm"></div>
-      <div class="step-title">Besoins thermiques</div>
-      <div class="step-desc">La récupération de chaleur des groupes froids vient couvrir ces besoins.</div>
-      <div class="info-box warm"><div class="info-icon">🔥</div><div>BAT-TH-139 prime la <strong>récupération de chaleur fatale</strong> du condenseur, normalement dissipée dans l'air. Identifiez ici vos besoins.</div></div>
-
-      <div class="field">
-        <label>Besoin en eau chaude sanitaire (ECS) ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="ecs" id="ecs_oui" value="Oui" onchange="toggleSub('ecs')"><label for="ecs_oui">Oui</label></div>
-          <div class="choice-item"><input type="radio" name="ecs" id="ecs_non" value="Non" checked onchange="toggleSub('ecs')"><label for="ecs_non">Non</label></div>
+    <div class="q-row">
+      <div class="q-num">25</div>
+      <div class="q-body">
+        <span class="q-label">Besoin en chauffage des locaux ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="chauf" id="ch_oui" value="Oui" onchange="toggleSub('sub_chauf',this.value,'Oui')"><label for="ch_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="chauf" id="ch_non" value="Non" checked onchange="toggleSub('sub_chauf',this.value,'Oui')"><label for="ch_non">Non</label></div>
         </div>
-      </div>
-      <div class="sub-section" id="sub_ecs">
-        <div class="sub-title">Détail eau chaude sanitaire</div>
-        <div class="field-row">
-          <div class="field"><label>T° souhaitée (°C)</label><input type="number" id="ecs_temp" min="40" max="90" placeholder="60" value="60"></div>
-          <div class="field"><label>Volume journalier (L/jour)</label><input type="number" id="ecs_vol" min="0" placeholder="500"></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Besoin de chauffage des locaux ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="chauf" id="ch_oui" value="Oui" onchange="toggleSub('chauf')"><label for="ch_oui">Oui</label></div>
-          <div class="choice-item"><input type="radio" name="chauf" id="ch_non" value="Non" checked onchange="toggleSub('chauf')"><label for="ch_non">Non</label></div>
-        </div>
-      </div>
-      <div class="sub-section" id="sub_chauf">
-        <div class="sub-title">Détail chauffage locaux</div>
-        <div class="field-row">
-          <div class="field"><label>Surface à chauffer (m²)</label><input type="number" id="ch_surf" min="0" placeholder="800"></div>
-          <div class="field"><label>T° de consigne (°C)</label><input type="number" id="ch_temp" min="14" max="30" placeholder="18" value="18"></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Besoin de chaleur pour process industriel ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="process" id="proc_oui" value="Oui" onchange="toggleSub('process')"><label for="proc_oui">Oui</label></div>
-          <div class="choice-item"><input type="radio" name="process" id="proc_non" value="Non" checked onchange="toggleSub('process')"><label for="proc_non">Non</label></div>
-        </div>
-      </div>
-      <div class="sub-section" id="sub_process">
-        <div class="sub-title">Détail process industriel</div>
-        <div class="field-row">
-          <div class="field"><label>T° besoin process (°C)</label><input type="number" id="proc_temp" min="30" max="200" placeholder="80"></div>
-          <div class="field"><label>Débit estimé (m³/h)</label><input type="number" id="proc_debit" min="0" placeholder="5"></div>
-        </div>
-        <div class="field"><label>Description du process</label><input type="text" id="proc_desc" placeholder="Lavage industriel, pasteurisation, séchage…"></div>
-      </div>
-
-      <div class="field">
-        <label>Besoin de préchauffage d'air de ventilation ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="airchaud" id="ac_oui" value="Oui"><label for="ac_oui">Oui</label></div>
-          <div class="choice-item"><input type="radio" name="airchaud" id="ac_non" value="Non" checked><label for="ac_non">Non</label></div>
-        </div>
-      </div>
-
-      <div class="btn-row"><button class="btn btn-prev" onclick="prev(4)">← Retour</button><button class="btn btn-next" onclick="next(4)">Suivant →</button></div>
-    </div>
-
-    <!-- ── ÉTAPE 5 : PARAMÈTRES ── -->
-    <div class="step-pane" id="pane5">
-      <div class="divider-cold"></div>
-      <div class="step-title">Paramètres opérationnels</div>
-      <div class="step-desc">Fonctionnement de l'installation au quotidien.</div>
-      <div class="field">
-        <label>Heures de fonctionnement par jour</label>
-        <div class="slider-wrap">
-          <input type="range" id="hJour" min="1" max="24" value="18" oninput="document.getElementById('hJourVal').textContent=this.value+'h/j'">
-          <span class="slider-val" id="hJourVal">18h/j</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>Jours de fonctionnement par an</label>
-        <div class="slider-wrap">
-          <input type="range" id="jAn" min="100" max="365" value="340" oninput="document.getElementById('jAnVal').textContent=this.value+' j/an'">
-          <span class="slider-val" id="jAnVal">340 j/an</span>
-        </div>
-      </div>
-      <div class="field"><label>Consommation électrique annuelle (kWh/an) — si connue</label><input type="number" id="consoElec" min="0" placeholder="Ex : 180 000"></div>
-      <div class="field">
-        <label>Système de régulation / GTB existant ?</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="regul" id="rg_oui" value="Oui"><label for="rg_oui">Oui</label></div>
-          <div class="choice-item"><input type="radio" name="regul" id="rg_non" value="Non" checked><label for="rg_non">Non</label></div>
-          <div class="choice-item"><input type="radio" name="regul" id="rg_part" value="Partiel"><label for="rg_part">Partiel</label></div>
-        </div>
-      </div>
-      <div class="field"><label>Notes / observations</label><textarea id="notes" rows="3" placeholder="Contraintes techniques, demandes particulières…" style="resize:vertical;"></textarea></div>
-      <div class="btn-row"><button class="btn btn-prev" onclick="prev(5)">← Retour</button><button class="btn btn-next" onclick="next(5)">Suivant →</button></div>
-    </div>
-
-    <!-- ── ÉTAPE 6 : CONTACT & ENTREPRISE ── -->
-    <div class="step-pane" id="pane6">
-      <div class="divider-cold"></div>
-      <div class="step-title">Contact &amp; Entreprise</div>
-      <div class="step-desc">Informations de la société et de la personne en charge du dossier. Aucun champ obligatoire.</div>
-
-      <!-- SIRET auto-fill -->
-      <div class="section-label">Entreprise</div>
-      <div class="field">
-        <label>SIRET</label>
-        <div class="siret-row">
-          <input type="text" id="siret" placeholder="123 456 789 00012" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
-          <button class="btn-siret" id="btnSiret" onclick="lookupSiret()">Rechercher</button>
-        </div>
-        <div class="siret-status" id="siretStatus"></div>
-      </div>
-      <div class="field"><label>Raison sociale / Entreprise</label><input type="text" id="entreprise" placeholder="Société Frigorifique du Nord"></div>
-      <div class="field"><label>Adresse entreprise</label><input type="text" id="ent_adresse" placeholder="12 rue du Commerce"></div>
-      <div class="field-row">
-        <div class="field"><label>Code postal</label><input type="text" id="ent_cp" placeholder="75011" maxlength="5"></div>
-        <div class="field"><label>Ville</label><input type="text" id="ent_ville" placeholder="Paris"></div>
-      </div>
-
-      <hr class="sep">
-
-      <!-- Gestionnaire du dossier -->
-      <div class="section-label">Gestionnaire du dossier</div>
-      <div class="info-box"><div class="info-icon">👤</div><div>Personne au sein de la société qui gère ce projet CEE.</div></div>
-      <div class="field">
-        <label>Civilité</label>
-        <div class="choice-group">
-          <div class="choice-item"><input type="radio" name="civilite" id="civ_m" value="M." checked><label for="civ_m">M.</label></div>
-          <div class="choice-item"><input type="radio" name="civilite" id="civ_mme" value="Mme"><label for="civ_mme">Mme</label></div>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Jean"></div>
-        <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Dupont"></div>
-      </div>
-      <div class="field"><label>Fonction / Poste</label><input type="text" id="poste" placeholder="Responsable technique, Gérant, Directeur…"></div>
-      <div class="field-row">
-        <div class="field"><label>Téléphone</label><input type="tel" id="tel" placeholder="06 00 00 00 00"></div>
-        <div class="field"><label>Email</label><input type="email" id="email" placeholder="jean@entreprise.fr"></div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-prev" onclick="prev(6)">← Retour</button>
-        <button class="btn btn-submit" onclick="submitForm()">✓ Voir mon bilan d'éligibilité</button>
-      </div>
-
-      <!-- RÉSUMÉ -->
-      <div id="resultat" style="display:none;margin-top:32px;">
-        <hr style="border:none;border-top:2px solid var(--border);margin-bottom:24px;">
-        <div style="font-family:'Trebuchet MS',sans-serif;font-size:19px;font-weight:700;margin-bottom:16px;">Bilan d'éligibilité BAT-TH-139</div>
-        <div id="eligCards"></div>
-        <div class="summary-grid" id="summaryGrid"></div>
-        <div style="margin-top:20px;text-align:center;">
-          <button class="btn btn-next" onclick="window.print()">🖨️ Imprimer / Exporter PDF</button>
+        <div class="q-sub" id="sub_chauf">
+          <div class="q-cols">
+            <div><div class="q-col-label">Surface à chauffer (m²)</div><input type="number" id="ch_surf" min="0" placeholder="800"></div>
+            <div><div class="q-col-label">T° de consigne (°C)</div><input type="number" id="ch_temp" min="14" max="30" placeholder="18" value="18"></div>
+          </div>
         </div>
       </div>
     </div>
 
-  </main>
-</div>
+    <div class="q-row">
+      <div class="q-num">26</div>
+      <div class="q-body">
+        <span class="q-label">Besoin de chaleur pour process industriel ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="process" id="proc_oui" value="Oui" onchange="toggleSub('sub_process',this.value,'Oui')"><label for="proc_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="process" id="proc_non" value="Non" checked onchange="toggleSub('sub_process',this.value,'Oui')"><label for="proc_non">Non</label></div>
+        </div>
+        <div class="q-sub" id="sub_process">
+          <div class="q-cols" style="margin-bottom:8px;">
+            <div><div class="q-col-label">T° besoin process (°C)</div><input type="number" id="proc_temp" min="30" max="200" placeholder="80"></div>
+            <div><div class="q-col-label">Débit estimé (m³/h)</div><input type="number" id="proc_debit" min="0" placeholder="5"></div>
+          </div>
+          <div><div class="q-col-label">Description du process</div><input type="text" id="proc_desc" placeholder="Lavage, pasteurisation, séchage…"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">27</div>
+      <div class="q-body">
+        <span class="q-label">Besoin de préchauffage d'air de ventilation ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="airchaud" id="ac_oui" value="Oui"><label for="ac_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="airchaud" id="ac_non" value="Non" checked><label for="ac_non">Non</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 7 — FONCTIONNEMENT
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">⏱</div><div class="q-section-title">Fonctionnement</div></div>
+
+    <div class="q-row">
+      <div class="q-num">28</div>
+      <div class="q-body">
+        <span class="q-label">Fonctionnement quotidien</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="fonct" id="fn_h24" value="H24 (24h/j)" checked><label for="fn_h24">H24 (24h/j)</label></div>
+          <div class="pill"><input type="radio" name="fonct" id="fn_h18" value="18h/j"><label for="fn_h18">18h/j</label></div>
+          <div class="pill"><input type="radio" name="fonct" id="fn_h12" value="12h/j"><label for="fn_h12">12h/j</label></div>
+          <div class="pill"><input type="radio" name="fonct" id="fn_aut" value="Autre" onchange="toggleSub('sub_fonct',this.value,'Autre')"><label for="fn_aut">Autre</label></div>
+        </div>
+        <div class="q-sub" id="sub_fonct">
+          <div class="q-col-label">Préciser (heures/jour)</div>
+          <input type="number" id="hJourCustom" min="1" max="24" placeholder="Ex : 16" style="max-width:120px;margin-top:4px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">29</div>
+      <div class="q-body">
+        <span class="q-label">Jours de fonctionnement par an</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="jours" id="jr_365" value="365 j/an"><label for="jr_365">365 j/an</label></div>
+          <div class="pill"><input type="radio" name="jours" id="jr_340" value="340 j/an" checked><label for="jr_340">340 j/an</label></div>
+          <div class="pill"><input type="radio" name="jours" id="jr_250" value="250 j/an"><label for="jr_250">250 j/an</label></div>
+          <div class="pill"><input type="radio" name="jours" id="jr_aut" value="Autre" onchange="toggleSub('sub_jours',this.value,'Autre')"><label for="jr_aut">Autre</label></div>
+        </div>
+        <div class="q-sub" id="sub_jours">
+          <div class="q-col-label">Préciser (jours/an)</div>
+          <input type="number" id="jAnCustom" min="50" max="365" placeholder="Ex : 300" style="max-width:120px;margin-top:4px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">30</div>
+      <div class="q-body">
+        <span class="q-label">Consommation électrique annuelle (kWh/an) — si connue</span>
+        <input type="number" id="consoElec" min="0" placeholder="Ex : 180 000" style="max-width:220px;">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">31</div>
+      <div class="q-body">
+        <span class="q-label">Système de régulation / GTB existant ?</span>
+        <div class="pill-group">
+          <div class="pill"><input type="radio" name="regul" id="rg_oui" value="Oui"><label for="rg_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="regul" id="rg_non" value="Non" checked><label for="rg_non">Non</label></div>
+          <div class="pill"><input type="radio" name="regul" id="rg_part" value="Partiel"><label for="rg_part">Partiel</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 8 — SUIVI
+  ══════════════════════════════════════ -->
+  <div class="q-card">
+    <div class="q-section"><div class="q-section-icon">📋</div><div class="q-section-title">Suivi du dossier</div></div>
+
+    <div class="q-row">
+      <div class="q-num">32</div>
+      <div class="q-body">
+        <span class="q-label">Photos des plaques signalétiques reçues ?</span>
+        <div class="pill-group">
+          <div class="pill ok"><input type="radio" name="photoPlaques" id="pp_oui" value="Oui"><label for="pp_oui">Oui</label></div>
+          <div class="pill"><input type="radio" name="photoPlaques" id="pp_non" value="Non" checked><label for="pp_non">Non</label></div>
+          <div class="pill"><input type="radio" name="photoPlaques" id="pp_att" value="En attente"><label for="pp_att">En attente</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">33</div>
+      <div class="q-body">
+        <span class="q-label">Visite technique planifiée</span>
+        <input type="text" id="visiteTech" placeholder="JJ/MM/AAAA — ou laisser vide" style="max-width:240px;">
+      </div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-num">34</div>
+      <div class="q-body">
+        <span class="q-label">Commentaires / observations</span>
+        <textarea id="notes" rows="3" placeholder="Contraintes techniques, demandes particulières…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOUTON SUBMIT ── -->
+  <div class="submit-wrap">
+    <button class="btn-submit" onclick="submitForm()">✓ Générer la fiche d'éligibilité</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       RÉSULTAT — FICHE PROSPECT
+  ══════════════════════════════════════ -->
+  <div id="resultat">
+    <div id="eligPoints" class="elig-points"></div>
+    <div id="eligBanner" class="elig-banner"></div>
+
+    <div class="fiche">
+      <div class="fiche-hd">
+        <div class="fiche-hd-title">Fiche Prospect — BAT-TH-139</div>
+        <div class="fiche-hd-date" id="ficheDate"></div>
+      </div>
+      <div id="ficheBody"></div>
+    </div>
+
+    <div class="print-btn">
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimer / Exporter PDF</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
 
 <script>
-var cur=1;
-var LABELS=['Site & Activité','Groupes froids','Chambres froides','Besoins thermiques','Paramètres','Contact & Entreprise'];
+/* ── helpers ── */
+function g(id){return (document.getElementById(id)||{value:''}).value||'';}
+function rb(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
 
-function goStep(n){if(n<cur)switchTo(n);}
-function next(n){switchTo(n+1);}
-function prev(n){switchTo(n-1);}
-function switchTo(n){
-  document.getElementById('pane'+cur).classList.remove('active');
-  document.querySelectorAll('[data-step="'+cur+'"]').forEach(function(el){el.classList.remove('active');if(cur<n)el.classList.add('done');});
-  cur=n;
-  document.getElementById('pane'+n).classList.add('active');
-  document.querySelectorAll('[data-step="'+n+'"]').forEach(function(el){el.classList.add('active');el.classList.remove('done');});
-  document.getElementById('mobFill').style.width=Math.round((n/6)*100)+'%';
-  document.getElementById('mobLabel').textContent='Étape '+n+' / 6 — '+LABELS[n-1];
-  window.scrollTo(0,0);
-}
-
-function toggleCF(){
-  var val=document.querySelector('input[name="hasCF"]:checked').value;
-  document.getElementById('cfSection').style.display=val==='Oui'?'':'none';
-}
-function toggleSub(name){
-  var val=document.querySelector('input[name="'+name+'"]:checked').value;
-  document.getElementById('sub_'+name).classList.toggle('show',val==='Oui');
-}
-
-/* ── SIRET LOOKUP ── */
+/* ── SIRET ── */
 function onSiretInput(){
   var raw=document.getElementById('siret').value.replace(/\s/g,'');
   document.getElementById('siretStatus').textContent='';
@@ -502,97 +660,166 @@ function lookupSiret(){
     .then(function(r){return r.json();})
     .then(function(d){
       var r=d.results&&d.results[0];
-      if(!r){setStatus('SIRET introuvable dans la base SIRENE.','err');document.getElementById('btnSiret').disabled=false;return;}
+      if(!r){setStatus('SIRET introuvable.','err');document.getElementById('btnSiret').disabled=false;return;}
       var s=r.siege||{};
       document.getElementById('entreprise').value=r.nom_complet||r.nom_raison_sociale||'';
-      document.getElementById('ent_adresse').value=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||s.adresse||'';
+      document.getElementById('ent_adresse').value=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||'';
       document.getElementById('ent_cp').value=s.code_postal||'';
       document.getElementById('ent_ville').value=s.libelle_commune||'';
-      setStatus('✓ Entreprise trouvée : '+(r.nom_complet||r.nom_raison_sociale||''),'ok');
+      setStatus('✓ '+(r.nom_complet||r.nom_raison_sociale||''),'ok');
       document.getElementById('btnSiret').disabled=false;
     })
-    .catch(function(){
-      setStatus('Erreur de connexion. Remplissez manuellement.','err');
-      document.getElementById('btnSiret').disabled=false;
-    });
+    .catch(function(){setStatus('Erreur — remplissez manuellement.','err');document.getElementById('btnSiret').disabled=false;});
 }
-function setStatus(msg,type){
-  var el=document.getElementById('siretStatus');
-  el.textContent=msg;el.className='siret-status '+type;
+function setStatus(msg,type){var el=document.getElementById('siretStatus');el.textContent=msg;el.className='siret-status '+type;}
+
+/* ── sub-reveal ── */
+function toggleSub(id,val,trigger){
+  document.getElementById(id).classList.toggle('show',val===trigger);
 }
 
-/* ── HELPERS ── */
-function g(id){return (document.getElementById(id)||{value:''}).value||'';}
-function rb(name){var el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+/* ── get hours/year ── */
+function getHj(){
+  var f=rb('fonct');
+  if(f==='H24 (24h/j)')return 24;
+  if(f==='18h/j')return 18;
+  if(f==='12h/j')return 12;
+  return parseInt(g('hJourCustom'))||18;
+}
+function getJan(){
+  var j=rb('jours');
+  if(j==='365 j/an')return 365;
+  if(j==='340 j/an')return 340;
+  if(j==='250 j/an')return 250;
+  return parseInt(g('jAnCustom'))||340;
+}
 
 /* ── SUBMIT ── */
 function submitForm(){
   var pf=parseFloat(g('puissanceFrigo'))||0;
   var ecs=rb('ecs')==='Oui',chauf=rb('chauf')==='Oui',process=rb('process')==='Oui',air=rb('airchaud')==='Oui';
   var hasNeed=ecs||chauf||process||air;
-  var hj=parseInt(g('hJour'))||18;
-  var jan=parseInt(g('jAn'))||340;
-  var hAn=hj*jan;
-  var cards='';
-  var allOk=true;
+  var hj=getHj(), jan=getJan(), hAn=hj*jan;
+  var pts='', allOk=true;
 
   if(pf>=40){
-    cards+=mkCard('ok','❄️ Puissance frigorifique','Puissance déclarée : <strong>'+pf+' kW</strong> — supérieure au seuil de 40 kW. Critère validé.');
+    pts+=pt('ok','❄️','Puissance : <strong>'+pf+' kW</strong> — critère seuil 40 kW validé.');
   } else if(pf>0){
-    cards+=mkCard('warn','⚠️ Puissance frigorifique','Puissance déclarée : <strong>'+pf+' kW</strong> — inférieure à 40 kW. Un audit technique pourra confirmer l\'éligibilité selon la configuration réelle.');allOk=false;
+    pts+=pt('warn','⚠️','Puissance : <strong>'+pf+' kW</strong> — inférieure au seuil de 40 kW. Vérification technique nécessaire.');allOk=false;
   } else {
-    cards+=mkCard('warn','⚠️ Puissance frigorifique non renseignée','La puissance frigorifique n\'a pas été saisie — elle est nécessaire pour valider l\'éligibilité.');allOk=false;
+    pts+=pt('warn','⚠️','Puissance non renseignée — critère principal à préciser.');allOk=false;
   }
-
   if(hasNeed){
-    var besoins=[];
-    if(ecs)besoins.push('ECS ('+g('ecs_temp')+'°C)');
-    if(chauf)besoins.push('Chauffage locaux');
-    if(process)besoins.push('Chaleur process ('+g('proc_temp')+'°C)');
-    if(air)besoins.push('Préchauffage air');
-    cards+=mkCard('ok','🔥 Besoin thermique identifié','Valorisation possible : <strong>'+besoins.join(', ')+'</strong>. La chaleur récupérée sur le condenseur couvrira ces besoins.');
+    var bl=[];if(ecs)bl.push('ECS');if(chauf)bl.push('Chauffage');if(process)bl.push('Process');if(air)bl.push('Préchauffe air');
+    pts+=pt('ok','🔥','Besoin thermique identifié : <strong>'+bl.join(', ')+'</strong>.');
   } else {
-    cards+=mkCard('ko','❌ Aucun besoin thermique déclaré','BAT-TH-139 exige une valorisation de la chaleur récupérée. Sans besoin thermique, l\'opération n\'est pas éligible.');allOk=false;
+    pts+=pt('ko','❌','Aucun besoin thermique déclaré — opération non éligible sans valorisation de la chaleur.');allOk=false;
   }
-
   if(hAn>=2000){
-    cards+=mkCard('ok','🕐 Fonctionnement','<strong>'+hj+'h/j × '+jan+' j/an = '+hAn+' h/an</strong> — fonctionnement suffisant pour une bonne valorisation CEE.');
+    pts+=pt('ok','🕐','Fonctionnement : <strong>'+hj+'h/j × '+jan+' j/an = '+hAn+' h/an</strong> — satisfaisant.');
   } else {
-    cards+=mkCard('warn','⚠️ Fonctionnement limité','<strong>'+hAn+' h/an</strong> estimées — un fonctionnement réduit diminuera les économies et la valeur CEE.');allOk=false;
+    pts+=pt('warn','⚠️','Fonctionnement estimé à <strong>'+hAn+' h/an</strong> — peut réduire la valeur CEE.');allOk=false;
   }
 
-  var verdict=allOk
-    ?'<div class="elig-card elig-ok" style="margin-bottom:20px;"><div class="elig-header ok">✅ Dossier a priori éligible à BAT-TH-139</div><div class="elig-detail">L\'installation réunit les conditions requises. Un audit technique et les pièces justificatives seront nécessaires avant engagement.</div></div>'
-    :'<div class="elig-card elig-warn" style="margin-bottom:20px;"><div class="elig-header warn">⚠️ Eligibilité partielle — points à vérifier</div><div class="elig-detail">Certains critères nécessitent vérification. Consultez notre équipe technique pour étudier votre dossier complet.</div></div>';
+  document.getElementById('eligPoints').innerHTML=pts;
+  var b=document.getElementById('eligBanner');
+  b.className='elig-banner '+(allOk?'ok':'warn');
+  b.innerHTML=(allOk?'✅ Dossier a priori éligible à BAT-TH-139':'⚠️ Éligibilité partielle — points à vérifier');
 
-  document.getElementById('eligCards').innerHTML=verdict+cards;
+  /* date */
+  var now=new Date();
+  document.getElementById('ficheDate').textContent=String(now.getDate()).padStart(2,'0')+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear();
 
-  var grid='';
-  grid+=sb('📍 Site',[['Adresse',g('adresse')||'—'],['CP / Ville',(g('cp')||'—')+' '+(g('ville')||'')],['Secteur',g('secteur')||'—'],['Propriétaire',rb('proprio')||'—']]);
-  grid+=sb('❄️ Installation',[['Puissance',pf?pf+' kW':'—'],['Nb groupes',g('nbGroupes')||'—'],['Type froid',rb('typeFroid')||'—'],['Fluide',rb('fluide')||'—'],['Condenseur',rb('condenseur')||'—'],['Ancienneté',rb('anciennete')||'—']]);
-  grid+=sb('🏭 Chambres froides',[['Présence',rb('hasCF')||'—'],['Nombre',g('nbCF')||'—'],['Surface',g('surfCF')?(g('surfCF')+' m²'):'—'],['Volume',g('volCF')?(g('volCF')+' m³'):'—']]);
-  grid+=sb('🔥 Besoins thermiques',[['ECS',ecs?'Oui ('+g('ecs_temp')+'°C)':'Non'],['Chauffage',chauf?'Oui ('+g('ch_surf')+' m²)':'Non'],['Process',process?'Oui ('+g('proc_temp')+'°C)':'Non'],['Préchauffage air',air?'Oui':'Non']]);
-  grid+=sb('⏱ Fonctionnement',[['H/jour',hj+'h/j'],['Jours/an',jan+' j/an'],['Total',hAn+' h/an'],['Régulation',rb('regul')||'—']]);
-  grid+=sb('👤 Gestionnaire dossier',[['Nom',((rb('civilite')||'')+' '+(g('prenom')||'—')+' '+(g('nom')||'')).trim()],['Poste',g('poste')||'—'],['Tél.',g('tel')||'—'],['Email',g('email')||'—']]);
-  grid+=sb('🏢 Entreprise',[['Société',g('entreprise')||'—'],['SIRET',g('siret')||'—'],['Adresse',g('ent_adresse')||'—'],['CP / Ville',(g('ent_cp')||'—')+' '+(g('ent_ville')||'')]]);
-  if(g('notes'))grid+='<div class="sum-block" style="grid-column:1/-1"><div class="sum-block-title">📝 Notes</div><div style="font-size:13px;color:var(--txt)">'+g('notes')+'</div></div>';
+  /* fiche body */
+  var besoins=[];if(ecs)besoins.push('ECS');if(chauf)besoins.push('Chauffage');if(process)besoins.push('Process');if(air)besoins.push('Préchauffe air');
+  var gestionnaire=((rb('civilite')||'')+' '+(g('prenom')||'')+' '+(g('nom')||'')).trim()||'—';
 
-  document.getElementById('summaryGrid').innerHTML=grid;
+  var body='';
+  body+=fs('Entreprise',[
+    ['Raison sociale',g('entreprise')||'—'],
+    ['SIRET',g('siret')||'—'],
+    ['Adresse',g('ent_adresse')||'—'],
+    ['CP / Ville',(g('ent_cp')||'—')+' '+(g('ent_ville')||'')],
+    ['Activité',g('secteur')||'—'],
+    ['Email',g('email')||'—']
+  ]);
+  body+=fs('Gestionnaire du dossier',[
+    ['Nom / Prénom',gestionnaire],
+    ['Fonction',g('poste')||'—'],
+    ['Téléphone',g('tel')||'—']
+  ]);
+  body+=fs('Site d\'installation',[
+    ['Adresse',g('adresse')||(g('ent_adresse')||'idem siège')],
+    ['CP / Ville',(g('cp')||g('ent_cp')||'—')+' '+(g('ville')||g('ent_ville')||'')],
+    ['Type bâtiment',g('typeBat')||'—'],
+    ['Propriétaire',rb('proprio')||'—']
+  ]);
+  body+=fs('Installation frigorifique',[
+    ['Nombre de groupes de froid',g('nbGroupes')||'—'],
+    ['Marque',g('marque')||'—'],
+    ['Modèle',g('modele')||'—'],
+    ['Puissance (kW)',pf?pf+' kW':'—'],
+    ['Fluide frigorigène',rb('fluide')||'—'],
+    ['Charge en fluide (kg)',g('chargeFluide')||'—'],
+    ['Usage principal',rb('usage')||'—'],
+    ['Type de froid',rb('typeFroid')||'—'],
+    ['Type de compresseur',rb('compresseur')||'—'],
+    ['Type de condenseur',rb('condenseur')||'—'],
+    ['Ancienneté',rb('anciennete')||'—']
+  ]);
+  if(rb('hasCF')==='Oui'){
+    body+=fs('Chambres froides',[
+      ['Nombre',g('nbCF')||'—'],
+      ['Surface totale',g('surfCF')?(g('surfCF')+' m²'):'—'],
+      ['Volume total',g('volCF')?(g('volCF')+' m³'):'—'],
+      ['T° positive',rb('tPos')||'—'],
+      ['T° négative',rb('tNeg')||'—']
+    ]);
+  }
+  body+=fs('Besoins thermiques',[
+    ['Besoin ECS',ecs?'Oui ('+g('ecs_temp')+'°C, '+g('ecs_vol')+' L/j)':'Non'],
+    ['Besoin chauffage',chauf?'Oui ('+g('ch_surf')+' m², '+g('ch_temp')+'°C)':'Non'],
+    ['Chaleur process',process?'Oui ('+g('proc_temp')+'°C — '+g('proc_desc')+')':'Non'],
+    ['Préchauffage air',air?'Oui':'Non'],
+    ['Valorisation possible',besoins.length?besoins.join(', '):'Aucune déclarée']
+  ]);
+  body+=fs('Fonctionnement',[
+    ['Heures / jour',hj+'h/j'],
+    ['Jours / an',jan+' j/an'],
+    ['Total annuel',hAn+' h/an'],
+    ['Conso. électrique',g('consoElec')?(g('consoElec')+' kWh/an'):'—'],
+    ['Régulation / GTB',rb('regul')||'—']
+  ]);
+  body+=fs('Suivi',[
+    ['Photos plaques signalétiques',rb('photoPlaques')||'—'],
+    ['Visite technique planifiée',g('visiteTech')||'—'],
+    ['Commentaires',g('notes')||'—']
+  ]);
+
+  document.getElementById('ficheBody').innerHTML=body;
   document.getElementById('resultat').style.display='block';
   setTimeout(function(){document.getElementById('resultat').scrollIntoView({behavior:'smooth'});},100);
 }
 
-function mkCard(t,title,detail){
-  var c=t==='ok'?'elig-ok':t==='warn'?'elig-warn':'elig-ko';
-  return '<div class="elig-card '+c+'"><div class="elig-header '+t+'">'+title+'</div><div class="elig-detail">'+detail+'</div></div>';
+function pt(type,icon,txt){
+  return '<div class="elig-pt '+type+'"><div class="elig-pt-icon">'+icon+'</div><div>'+txt+'</div></div>';
 }
-function sb(title,rows){
-  var h='<div class="sum-block"><div class="sum-block-title">'+title+'</div>';
-  rows.forEach(function(r){h+='<div class="sum-row"><span class="sum-key">'+r[0]+'</span><span class="sum-val">'+r[1]+'</span></div>';});
-  return h+'</div>';
+function fs(title,rows){
+  var h='<div class="fiche-sec-hd">'+title+'</div>';
+  rows.forEach(function(r){h+='<div class="fiche-row"><div class="fiche-key">'+r[0]+'</div><div class="fiche-val">'+(r[1]||'—')+'</div></div>';});
+  return h;
 }
 
-document.getElementById('btnSiret').disabled=true;
+/* reveal "Oui" sub on load */
+document.querySelectorAll('input[name="hasCF"]').forEach(function(el){
+  el.addEventListener('change',function(){toggleSub('cfDetail',this.value,'Oui');});
+});
+document.querySelectorAll('input[name="fonct"]').forEach(function(el){
+  el.addEventListener('change',function(){toggleSub('sub_fonct',this.value,'Autre');});
+});
+document.querySelectorAll('input[name="jours"]').forEach(function(el){
+  el.addEventListener('change',function(){toggleSub('sub_jours',this.value,'Autre');});
+});
 </script>
 </body>
 </html>
