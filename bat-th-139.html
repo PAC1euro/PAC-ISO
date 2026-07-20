@@ -107,15 +107,32 @@ input[type=range]{flex:1;accent-color:var(--cold);}
 .btn-submit{background:var(--warm);color:#fff;box-shadow:0 2px 8px rgba(212,114,10,.35);}
 .btn-submit:hover{background:#B85E08;}
 
-.elig-card{border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow);}
+.elig-card{border-radius:var(--radius);padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow);}
 .elig-ok{background:var(--ok-lt);border:2px solid var(--ok);}
 .elig-warn{background:var(--warn-lt);border:2px solid var(--warn);}
 .elig-ko{background:var(--err-lt);border:2px solid var(--err);}
-.elig-header{display:flex;align-items:center;gap:10px;font-family:'Trebuchet MS',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px;}
+.elig-header{display:flex;align-items:center;gap:10px;font-family:'Trebuchet MS',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;}
 .elig-header.ok{color:var(--ok);}
 .elig-header.warn{color:var(--warn);}
 .elig-header.ko{color:var(--err);}
 .elig-detail{font-size:13px;color:var(--txt);line-height:1.6;}
+
+/* Fiche Prospect */
+.fiche{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-top:20px;}
+.fiche-head{background:var(--navy);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+.fiche-head-title{font-family:'Trebuchet MS',sans-serif;font-size:15px;font-weight:700;letter-spacing:.3px;}
+.fiche-head-sub{font-size:11px;color:#8FA4BC;}
+.fiche-section{padding:0 0 0 0;}
+.fiche-section-hd{background:var(--cold-lt);border-top:1.5px solid var(--border);padding:7px 20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--cold);}
+.fiche-row{display:flex;border-top:1px solid var(--border);font-size:13px;}
+.fiche-row:first-of-type{border-top:none;}
+.fiche-key{width:52%;padding:9px 20px;color:var(--txt2);background:var(--bg);}
+.fiche-val{width:48%;padding:9px 20px;font-weight:600;color:var(--txt);border-left:1px solid var(--border);}
+.fiche-verdict{padding:14px 20px;display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;}
+.fiche-verdict.ok{background:var(--ok-lt);color:var(--ok);}
+.fiche-verdict.warn{background:var(--warn-lt);color:var(--warn);}
+.fiche-verdict.ko{background:var(--err-lt);color:var(--err);}
+
 .summary-grid{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:20px;}
 .sum-block{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);}
 .sum-block-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt2);margin-bottom:8px;}
@@ -123,6 +140,13 @@ input[type=range]{flex:1;accent-color:var(--cold);}
 .sum-row:last-child{border-bottom:none;}
 .sum-key{color:var(--txt2);}
 .sum-val{font-weight:600;color:var(--txt);text-align:right;}
+
+@media print{
+  .hdr,.mob-prog,.sidebar,.btn-row,.btn-siret{display:none!important;}
+  .step-pane{display:block!important;}
+  .fiche{box-shadow:none;border:1px solid #ccc;}
+  body{background:#fff;}
+}
 
 @media(max-width:720px){
   .sidebar{display:none;}
@@ -252,6 +276,21 @@ input[type=range]{flex:1;accent-color:var(--cold);}
       <div class="field-row">
         <div class="field"><label>Nombre de groupes froids</label><input type="number" id="nbGroupes" min="1" max="50" placeholder="Ex : 2"></div>
         <div class="field"><label>Puissance frigorifique totale (kW)</label><input type="number" id="puissanceFrigo" min="1" max="5000" step="0.5" placeholder="Ex : 150"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Marque des groupes</label><input type="text" id="marque" placeholder="Carrier, Bitzer, Copeland…"></div>
+        <div class="field"><label>Modèle (si connu)</label><input type="text" id="modele" placeholder="Ex : 30RB-080"></div>
+      </div>
+      <div class="field"><label>Charge en fluide frigorigène (kg)</label><input type="number" id="chargeFluide" min="0" step="0.1" placeholder="Ex : 45"></div>
+      <div class="field">
+        <label>Usage principal</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="usage" id="us_ref" value="Réfrigération" checked><label for="us_ref">Réfrigération</label></div>
+          <div class="choice-item"><input type="radio" name="usage" id="us_sur" value="Surgelé"><label for="us_sur">Surgelé</label></div>
+          <div class="choice-item"><input type="radio" name="usage" id="us_pro" value="Process"><label for="us_pro">Process</label></div>
+          <div class="choice-item"><input type="radio" name="usage" id="us_cli" value="Climatisation"><label for="us_cli">Climatisation</label></div>
+          <div class="choice-item"><input type="radio" name="usage" id="us_mix" value="Mixte"><label for="us_mix">Mixte</label></div>
+        </div>
       </div>
       <div class="field">
         <label>Type de froid</label>
@@ -429,18 +468,27 @@ input[type=range]{flex:1;accent-color:var(--cold);}
           <div class="choice-item"><input type="radio" name="regul" id="rg_part" value="Partiel"><label for="rg_part">Partiel</label></div>
         </div>
       </div>
+      <div class="field">
+        <label>Photos des plaques signalétiques reçues ?</label>
+        <div class="choice-group">
+          <div class="choice-item"><input type="radio" name="photoPlaques" id="pp_oui" value="Oui"><label for="pp_oui">Oui</label></div>
+          <div class="choice-item"><input type="radio" name="photoPlaques" id="pp_non" value="Non" checked><label for="pp_non">Non</label></div>
+          <div class="choice-item"><input type="radio" name="photoPlaques" id="pp_att" value="En attente"><label for="pp_att">En attente</label></div>
+        </div>
+      </div>
+      <div class="field"><label>Visite technique planifiée (date)</label><input type="text" id="visiteTech" placeholder="JJ/MM/AAAA ou —"></div>
       <div class="field"><label>Notes / observations</label><textarea id="notes" rows="3" placeholder="Contraintes techniques, demandes particulières…" style="resize:vertical;"></textarea></div>
       <div class="btn-row">
         <button class="btn btn-prev" onclick="prev(5)">← Retour</button>
         <button class="btn btn-submit" onclick="submitForm()">✓ Voir mon bilan d'éligibilité</button>
       </div>
 
-      <!-- RÉSUMÉ -->
+      <!-- RÉSUMÉ / FICHE PROSPECT -->
       <div id="resultat" style="display:none;margin-top:32px;">
         <hr style="border:none;border-top:2px solid var(--border);margin-bottom:24px;">
-        <div style="font-family:'Trebuchet MS',sans-serif;font-size:19px;font-weight:700;margin-bottom:16px;">Bilan d'éligibilité BAT-TH-139</div>
-        <div id="eligCards"></div>
-        <div class="summary-grid" id="summaryGrid"></div>
+        <div style="font-family:'Trebuchet MS',sans-serif;font-size:19px;font-weight:700;margin-bottom:6px;">Bilan d'éligibilité BAT-TH-139</div>
+        <div id="eligCards" style="margin-bottom:4px;"></div>
+        <div id="ficheProspect"></div>
         <div style="margin-top:20px;text-align:center;">
           <button class="btn btn-next" onclick="window.print()">🖨️ Imprimer / Exporter PDF</button>
         </div>
@@ -551,23 +599,88 @@ function submitForm(){
     cards+=mkCard('warn','⚠️ Fonctionnement limité','<strong>'+hAn+' h/an</strong> estimées — un fonctionnement réduit diminuera les économies et la valeur CEE.');allOk=false;
   }
 
-  var verdict=allOk
-    ?'<div class="elig-card elig-ok" style="margin-bottom:20px;"><div class="elig-header ok">✅ Dossier a priori éligible à BAT-TH-139</div><div class="elig-detail">L\'installation réunit les conditions requises. Un audit technique et les pièces justificatives seront nécessaires avant engagement.</div></div>'
-    :'<div class="elig-card elig-warn" style="margin-bottom:20px;"><div class="elig-header warn">⚠️ Eligibilité partielle — points à vérifier</div><div class="elig-detail">Certains critères nécessitent vérification. Consultez notre équipe technique pour étudier votre dossier complet.</div></div>';
+  var verdictCls=allOk?'ok':'warn';
+  var verdictTxt=allOk?'✅ Dossier a priori éligible à BAT-TH-139':'⚠️ Éligibilité partielle — points à vérifier';
+  document.getElementById('eligCards').innerHTML=cards;
 
-  document.getElementById('eligCards').innerHTML=verdict+cards;
+  /* ── FICHE PROSPECT ── */
+  var today=new Date();
+  var dateStr=String(today.getDate()).padStart(2,'0')+'/'+String(today.getMonth()+1).padStart(2,'0')+'/'+today.getFullYear();
+  var societe=g('entreprise')||'—';
+  var gestionnaire=((rb('civilite')||'')+' '+(g('prenom')||'')+' '+(g('nom')||'')).trim()||'—';
+  var besoinsArr=[];
+  if(ecs)besoinsArr.push('ECS');
+  if(chauf)besoinsArr.push('Chauffage');
+  if(process)besoinsArr.push('Process');
+  if(air)besoinsArr.push('Préchauffage air');
 
-  var grid='';
-  grid+=sb('📍 Site',[['Adresse',g('adresse')||'—'],['CP / Ville',(g('cp')||'—')+' '+(g('ville')||'')],['Secteur',g('secteur')||'—'],['Propriétaire',rb('proprio')||'—']]);
-  grid+=sb('❄️ Installation',[['Puissance',pf?pf+' kW':'—'],['Nb groupes',g('nbGroupes')||'—'],['Type froid',rb('typeFroid')||'—'],['Fluide',rb('fluide')||'—'],['Condenseur',rb('condenseur')||'—'],['Ancienneté',rb('anciennete')||'—']]);
-  grid+=sb('🏭 Chambres froides',[['Présence',rb('hasCF')||'—'],['Nombre',g('nbCF')||'—'],['Surface',g('surfCF')?(g('surfCF')+' m²'):'—'],['Volume',g('volCF')?(g('volCF')+' m³'):'—']]);
-  grid+=sb('🔥 Besoins thermiques',[['ECS',ecs?'Oui ('+g('ecs_temp')+'°C)':'Non'],['Chauffage',chauf?'Oui ('+g('ch_surf')+' m²)':'Non'],['Process',process?'Oui ('+g('proc_temp')+'°C)':'Non'],['Préchauffage air',air?'Oui':'Non']]);
-  grid+=sb('⏱ Fonctionnement',[['H/jour',hj+'h/j'],['Jours/an',jan+' j/an'],['Total',hAn+' h/an'],['Régulation',rb('regul')||'—']]);
-  grid+=sb('👤 Gestionnaire dossier',[['Nom',((rb('civilite')||'')+' '+(g('prenom')||'—')+' '+(g('nom')||'')).trim()],['Poste',g('poste')||'—'],['Tél.',g('tel')||'—'],['Email',g('email')||'—']]);
-  grid+=sb('🏢 Entreprise',[['Société',g('entreprise')||'—'],['SIRET',g('siret')||'—'],['Adresse',g('ent_adresse')||'—'],['CP / Ville',(g('ent_cp')||'—')+' '+(g('ent_ville')||'')]]);
-  if(g('notes'))grid+='<div class="sum-block" style="grid-column:1/-1"><div class="sum-block-title">📝 Notes</div><div style="font-size:13px;color:var(--txt)">'+g('notes')+'</div></div>';
+  var fiche='<div class="fiche">';
+  fiche+='<div class="fiche-head"><div><div class="fiche-head-title">Fiche Prospect — BAT-TH-139</div><div class="fiche-head-sub">Récupération de chaleur sur groupe de production de froid</div></div><div class="fiche-head-sub">'+dateStr+'</div></div>';
+  fiche+='<div class="fiche-verdict '+verdictCls+'"><span style="font-size:18px;">'+( allOk?'✅':'⚠️')+'</span>'+verdictTxt+'</div>';
 
-  document.getElementById('summaryGrid').innerHTML=grid;
+  fiche+=fSection('Entreprise',[
+    ['Raison sociale',societe],
+    ['SIRET',g('siret')||'—'],
+    ['Adresse',g('ent_adresse')||'—'],
+    ['CP / Ville',(g('ent_cp')||'—')+' '+(g('ent_ville')||'')],
+    ['Email',g('email')||'—']
+  ]);
+  fiche+=fSection('Gestionnaire du dossier',[
+    ['Nom / Prénom',gestionnaire],
+    ['Fonction',g('poste')||'—'],
+    ['Téléphone',g('tel')||'—']
+  ]);
+  fiche+=fSection('Site d\'installation',[
+    ['Adresse',g('adresse')||'(idem entreprise)'],
+    ['CP / Ville',(g('cp')||'—')+' '+(g('ville')||'')],
+    ['Activité',g('secteur')||'—'],
+    ['Type bâtiment',g('typeBat')||'—'],
+    ['Propriétaire',rb('proprio')||'—']
+  ]);
+  fiche+=fSection('Installation frigorifique',[
+    ['Nombre de groupes de froid',g('nbGroupes')||'—'],
+    ['Marque',g('marque')||'—'],
+    ['Modèle',g('modele')||'—'],
+    ['Puissance (kW)',pf?pf+' kW':'—'],
+    ['Fluide frigorigène',rb('fluide')||'—'],
+    ['Charge en fluide (kg)',g('chargeFluide')||'—'],
+    ['Type de compresseur',rb('compresseur')||'—'],
+    ['Type de condenseur',rb('condenseur')||'—'],
+    ['Usage principal',rb('usage')||'—'],
+    ['Type de froid',rb('typeFroid')||'—'],
+    ['Ancienneté',rb('anciennete')||'—']
+  ]);
+  if(rb('hasCF')==='Oui'){
+    fiche+=fSection('Chambres froides',[
+      ['Nombre',g('nbCF')||'—'],
+      ['Surface totale',g('surfCF')?(g('surfCF')+' m²'):'—'],
+      ['Volume total',g('volCF')?(g('volCF')+' m³'):'—'],
+      ['T° positive',rb('tPos')||'—'],
+      ['T° négative',rb('tNeg')||'—']
+    ]);
+  }
+  fiche+=fSection('Besoins thermiques',[
+    ['Besoin en eau chaude sanitaire',ecs?'Oui ('+g('ecs_temp')+'°C, '+g('ecs_vol')+' L/j)':'Non'],
+    ['Besoin en chauffage',chauf?'Oui ('+g('ch_surf')+' m², '+g('ch_temp')+'°C)':'Non'],
+    ['Chaleur process',process?'Oui ('+g('proc_temp')+'°C)':'Non'],
+    ['Préchauffage air ventilation',air?'Oui':'Non'],
+    ['Valorisation possible',besoinsArr.length?besoinsArr.join(', '):'Aucune déclarée']
+  ]);
+  fiche+=fSection('Fonctionnement',[
+    ['Heures / jour',hj+'h/j'],
+    ['Jours / an',jan+' j/an'],
+    ['Total annuel',hAn+' h/an'],
+    ['Conso. électrique',g('consoElec')?(g('consoElec')+' kWh/an'):'—'],
+    ['Régulation / GTB',rb('regul')||'—']
+  ]);
+  fiche+=fSection('Suivi',[
+    ['Photos plaques signalétiques reçues',rb('photoPlaques')||'—'],
+    ['Visite technique planifiée',g('visiteTech')||'—'],
+    ['Commentaires',g('notes')||'—']
+  ]);
+
+  fiche+='</div>';
+  document.getElementById('ficheProspect').innerHTML=fiche;
   document.getElementById('resultat').style.display='block';
   setTimeout(function(){document.getElementById('resultat').scrollIntoView({behavior:'smooth'});},100);
 }
@@ -576,9 +689,9 @@ function mkCard(t,title,detail){
   var c=t==='ok'?'elig-ok':t==='warn'?'elig-warn':'elig-ko';
   return '<div class="elig-card '+c+'"><div class="elig-header '+t+'">'+title+'</div><div class="elig-detail">'+detail+'</div></div>';
 }
-function sb(title,rows){
-  var h='<div class="sum-block"><div class="sum-block-title">'+title+'</div>';
-  rows.forEach(function(r){h+='<div class="sum-row"><span class="sum-key">'+r[0]+'</span><span class="sum-val">'+r[1]+'</span></div>';});
+function fSection(title,rows){
+  var h='<div class="fiche-section"><div class="fiche-section-hd">'+title+'</div>';
+  rows.forEach(function(r){h+='<div class="fiche-row"><div class="fiche-key">'+r[0]+'</div><div class="fiche-val">'+r[1]+'</div></div>';});
   return h+'</div>';
 }
 
