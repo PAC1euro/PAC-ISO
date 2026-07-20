@@ -177,10 +177,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- Q7 SIRET -->
   <div class="q">
     <div class="q-title">SIRET :</div>
-    <div class="siret-row">
-      <input type="text" id="siret" placeholder="14 chiffres" maxlength="17" oninput="onSiretInput()" onkeydown="if(event.key==='Enter')lookupSiret()">
-      <button class="btn-siret" id="btnSiret" onclick="lookupSiret()" disabled>Auto-remplir</button>
-    </div>
+    <input type="text" id="siret" placeholder="14 chiffres — les champs se remplissent automatiquement" maxlength="17" oninput="onSiretInput()" style="margin-bottom:6px;">
     <div class="siret-status" id="siretStatus"></div>
   </div>
 
@@ -263,34 +260,38 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 function g(id){return (document.getElementById(id)||{value:''}).value||'';}
 
 /* ── SIRET ── */
+var siretTimer=null;
 function onSiretInput(){
   var raw=document.getElementById('siret').value.replace(/\s/g,'');
-  document.getElementById('siretStatus').textContent='';
-  document.getElementById('btnSiret').disabled=raw.length!==14;
+  if(raw.length<14){setSt('','');return;}
+  if(raw.length===14){
+    setSt('Recherche en cours…','loading');
+    clearTimeout(siretTimer);
+    siretTimer=setTimeout(function(){lookupSiret(raw);},400);
+  }
 }
-function lookupSiret(){
-  var raw=document.getElementById('siret').value.replace(/\s/g,'');
-  if(raw.length!==14){setSt('SIRET = 14 chiffres.','err');return;}
-  setSt('Recherche…','loading');
-  document.getElementById('btnSiret').disabled=true;
+function lookupSiret(raw){
+  if(!raw) raw=document.getElementById('siret').value.replace(/\s/g,'');
+  if(raw.length!==14){setSt('Le SIRET doit comporter 14 chiffres.','err');return;}
+  setSt('Recherche en cours…','loading');
   fetch('https://recherche-entreprises.api.gouv.fr/search?q='+raw+'&per_page=1')
     .then(function(r){return r.json();})
     .then(function(d){
       var r=d.results&&d.results[0];
-      if(!r){setSt('SIRET introuvable.','err');document.getElementById('btnSiret').disabled=false;return;}
+      if(!r){setSt('SIRET introuvable dans la base SIRENE.','err');return;}
       var s=r.siege||{};
       var nom=r.nom_complet||r.nom_raison_sociale||'';
-      var adr=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||'';
+      var adr=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||s.adresse||'';
       var cp=s.code_postal||'';
       var ville=s.libelle_commune||'';
-      if(!document.getElementById('entreprise').value) document.getElementById('entreprise').value=nom;
-      if(!document.getElementById('adresse').value && adr) document.getElementById('adresse').value=adr+(cp?' — '+cp:'')+(ville?' '+ville:'');
       var libNaf=r.libelle_activite_principale||'';
-      if(!document.getElementById('secteur').value && libNaf) document.getElementById('secteur').value=libNaf;
-      setSt('✓ '+nom,'ok');
-      document.getElementById('btnSiret').disabled=false;
+      /* Toujours écraser avec les données SIRENE */
+      document.getElementById('entreprise').value=nom;
+      document.getElementById('adresse').value=[adr,cp,ville].filter(Boolean).join(' ');
+      if(libNaf) document.getElementById('secteur').value=libNaf;
+      setSt('✓ '+nom+(libNaf?' — '+libNaf:''),'ok');
     })
-    .catch(function(){setSt('Erreur — remplissez manuellement.','err');document.getElementById('btnSiret').disabled=false;});
+    .catch(function(){setSt('Erreur réseau — remplissez manuellement.','err');});
 }
 function setSt(msg,type){var el=document.getElementById('siretStatus');el.textContent=msg;el.className='siret-status '+type;}
 
