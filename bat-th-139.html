@@ -651,6 +651,38 @@ function onSiretInput(){
   document.getElementById('siretStatus').textContent='';
   document.getElementById('btnSiret').disabled=raw.length!==14;
 }
+function nafToSecteur(naf){
+  if(!naf)return '';
+  var code=naf.replace(/[^0-9.]/g,'').slice(0,5);
+  var pre2=code.slice(0,2);
+  var pre4=code.slice(0,4);
+  if(pre4==='47.1'||pre4==='47.2'&&['47.21','47.24','47.25','47.26','47.29'].indexOf(pre4)<0)return 'Grande distribution / Supermarché';
+  if(pre4==='47.22'||pre4==='47.23'||pre4==='10.11'||pre4==='10.12'||pre4==='10.13')return 'Boucherie / Charcuterie / Traiteur';
+  if(pre2==='10'||pre2==='11')return 'Industrie agroalimentaire';
+  if(pre2==='56'||pre4==='55.10'||pre4==='55.20')return 'Restauration / CHR';
+  if(pre4==='47.73'||pre4==='86.90'||pre2==='86'||pre2==='87'||pre2==='88')return 'Pharmacie / Médical';
+  if(pre2==='52'||pre4==='49.41'||pre4==='49.42')return 'Logistique / Entrepôt';
+  if(pre2==='20'||pre2==='21'||pre2==='22'||pre2==='23'||pre2==='24'||pre2==='25'||pre2==='26'||pre2==='27'||pre2==='28'||pre2==='29'||pre2==='30')return 'Usine de production';
+  return '';
+}
+function nafToTypeBat(naf){
+  if(!naf)return '';
+  var code=naf.replace(/[^0-9.]/g,'').slice(0,5);
+  var pre2=code.slice(0,2);
+  var pre4=code.slice(0,4);
+  if(pre4==='47.11'||pre4==='47.12')return 'Supermarché / Hypermarché';
+  if(pre2==='56')return 'Restaurant / Cuisine professionnelle';
+  if(pre2==='52')return 'Entrepôt frigorifique';
+  if(pre2==='10'||pre2==='11'||pre2==='20'||pre2==='21'||pre2==='22'||pre2==='23'||pre2==='24'||pre2==='25'||pre2==='28')return 'Usine / Site industriel';
+  return '';
+}
+function setSelect(id,val){
+  if(!val)return;
+  var sel=document.getElementById(id);
+  for(var i=0;i<sel.options.length;i++){
+    if(sel.options[i].text===val){sel.selectedIndex=i;return;}
+  }
+}
 function lookupSiret(){
   var raw=document.getElementById('siret').value.replace(/\s/g,'');
   if(raw.length!==14){setStatus('Le SIRET doit comporter 14 chiffres.','err');return;}
@@ -662,11 +694,28 @@ function lookupSiret(){
       var r=d.results&&d.results[0];
       if(!r){setStatus('SIRET introuvable.','err');document.getElementById('btnSiret').disabled=false;return;}
       var s=r.siege||{};
+      var naf=s.activite_principale||r.activite_principale||'';
+      var adresse=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||s.adresse||'';
+      var cp=s.code_postal||'';
+      var ville=s.libelle_commune||'';
+
+      /* Entreprise */
       document.getElementById('entreprise').value=r.nom_complet||r.nom_raison_sociale||'';
-      document.getElementById('ent_adresse').value=[s.numero_voie,s.type_voie,s.libelle_voie].filter(Boolean).join(' ')||'';
-      document.getElementById('ent_cp').value=s.code_postal||'';
-      document.getElementById('ent_ville').value=s.libelle_commune||'';
-      setStatus('✓ '+(r.nom_complet||r.nom_raison_sociale||''),'ok');
+      document.getElementById('ent_adresse').value=adresse;
+      document.getElementById('ent_cp').value=cp;
+      document.getElementById('ent_ville').value=ville;
+
+      /* Secteur & type bâtiment via NAF */
+      setSelect('secteur', nafToSecteur(naf));
+      setSelect('typeBat', nafToTypeBat(naf));
+
+      /* Site = siège par défaut si vide */
+      if(!document.getElementById('adresse').value) document.getElementById('adresse').value=adresse;
+      if(!document.getElementById('cp').value) document.getElementById('cp').value=cp;
+      if(!document.getElementById('ville').value) document.getElementById('ville').value=ville;
+
+      var libNaf=r.libelle_activite_principale||naf;
+      setStatus('✓ '+(r.nom_complet||r.nom_raison_sociale||'')+(libNaf?' — '+libNaf:''),'ok');
       document.getElementById('btnSiret').disabled=false;
     })
     .catch(function(){setStatus('Erreur — remplissez manuellement.','err');document.getElementById('btnSiret').disabled=false;});
