@@ -507,7 +507,9 @@ function renderList(){
   var stEl=document.querySelector('input[name="searchType"]:checked');
   var st=stEl?stEl.value:'all';
   var filtered=allRows.filter(function(r){
-    if(!r._ext&&!(r[C.tel]||'').trim()&&!(r[C.email]||'').trim())return false;
+    var telRaw=(r[C.tel]||'').replace(/[\s\-\.]/g,'');
+    var isPhone=telRaw.length>=9&&/^\d+$/.test(telRaw);
+    if(!r._ext&&!isPhone)return false;
     var match=true;
     if(q){
       if(st==='dept'){var cp=(r[C.cp]||'').replace(/\s/g,'');match=cp.indexOf(q)===0||cp.slice(0,q.length)===q;}
