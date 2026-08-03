@@ -77,7 +77,7 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .cfg-sep{border:none;border-top:1px solid #e2e8f0;margin:16px 0;}
 .cfg-add-title{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;}
 .loading{text-align:center;padding:50px 20px;color:#64748b;font-size:14px;}
-.cmt-panel{margin-top:8px;padding:10px 12px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af;border-left:3px solid #3b82f6;display:none;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.cmt-panel{margin-top:8px;padding:10px 12px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af;border-left:3px solid #3b82f6;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
 .toast.show{opacity:1;}
 .dt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;}
@@ -539,7 +539,6 @@ function renderList(){
       html+='<button class="s-btn pas" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
       html+='<button class="s-btn ko" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'K.O\',this.closest(\'.card\'))">K.O</button>';
       html+='<button class="s-btn faux" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'FAUX NUM\',this.closest(\'.card\'))">Faux num</button>';
-      if(comment){html+='<button class="s-btn" style="background:#eff6ff;color:#1e40af;border-color:#bfdbfe;" onclick="var p=this.closest(\'.card\').querySelector(\'.cmt-panel\');p.style.display=p.style.display===\'none\'?\'block\':\'none\';">💬</button>';}
       if(r._ext){html+='<button class="s-btn vide" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;" onclick="if(confirm(\'Supprimer ce rappel ?\'))deleteExternalLead(\''+e(r._extId||'')+'\')">🗑️</button>';}
       else{html+='<button class="s-btn vide" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'\',this.closest(\'.card\'))">✕</button>';}
       html+='</div>';
