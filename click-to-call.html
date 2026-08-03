@@ -184,7 +184,26 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 <script>
 var allRows=[];
 var currentFilter='';
-var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8,comment:9};
+var BASE_C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8,comment:9};
+var C=Object.assign({},BASE_C);
+
+function autoDetectColumns(rows){
+  var phoneRe=/^(06|07|08|09|0[1-5])\d{8}$/;
+  var counts={};
+  var sample=rows.slice(0,Math.min(60,rows.length));
+  sample.forEach(function(r){
+    for(var i=0;i<r.length;i++){
+      var v=(r[i]||'').replace(/[\s\-\.]/g,'');
+      if(phoneRe.test(v)){counts[i]=(counts[i]||0)+1;}
+    }
+  });
+  var best=-1,bestCount=0;
+  Object.keys(counts).forEach(function(k){var n=parseInt(counts[k]);if(n>bestCount){bestCount=n;best=parseInt(k);}});
+  if(best<0||bestCount<2)return;
+  var offset=best-BASE_C.tel;
+  if(offset===0)return;
+  Object.keys(BASE_C).forEach(function(k){C[k]=Math.max(0,BASE_C[k]+offset);});
+}
 var DEFAULT_ID='2PACX-1vTWDzOo3ln5TMQ2Zeq_VZVUapaw0AWMY6glM57RZMiz9FB-RN0ESCVrg0vkGLGwDOry7N_wXaRjX426';
 var DEFAULT_GID='2006396579';
 var DEFAULT_GAS_URL='https://script.google.com/macros/s/AKfycbyNS6dym1yOF4Kj7okNwqnc-l9fdQ6qFqiNyF1UbKO97QbwlDWRlx0irqwD8lyYhXPI/exec';
@@ -293,7 +312,7 @@ function loadSheet(id,gid){
   var url='https://docs.google.com/spreadsheets/d/e/'+id+'/pub?output=csv'+(gid?'&gid='+gid+'&single=true':'')+'&bust='+bust;
   fetch(url,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('Erreur '+r.status+' — vérifiez que le sheet est publié');return r.text();})
-    .then(function(csv){allRows=parseCSV(csv);mergeExternalLeads();applyLocalStatuts();renderList();if(GAS_URL)fetchGasStatuts();})
+    .then(function(csv){C=Object.assign({},BASE_C);allRows=parseCSV(csv);autoDetectColumns(allRows);mergeExternalLeads();applyLocalStatuts();renderList();if(GAS_URL)fetchGasStatuts();})
     .catch(function(e){document.getElementById('listContainer').innerHTML='<div class="empty">❌ '+e.message+'</div>';});
 }
 
