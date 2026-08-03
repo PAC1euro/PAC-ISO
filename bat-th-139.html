@@ -144,12 +144,13 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <div class="q">
     <div class="q-title">HEURES DE FONCTIONNEMENT :</div>
     <div class="q-hint">Facultatif</div>
-    <select id="fonctionnement">
+    <select id="fonctionnement" onchange="document.getElementById('fonctAutre').style.display=this.value==='AUTRE'?'block':'none';">
       <option value="">Sélectionner</option>
       <option>24H/24H</option>
       <option>10H / JOUR</option>
       <option>AUTRE</option>
     </select>
+    <input type="text" id="fonctAutre" placeholder="Précisez les heures de fonctionnement" style="display:none;margin-top:12px;">
   </div>
 
   <!-- Q5 Besoins chaleur -->
@@ -333,7 +334,7 @@ function submitForm(){
     ['Secteur d\'activité',g('secteur')],
     ['Puissance groupes froids',pf?pf+' kW':'—'],
     ['Nombre de groupes',g('nbGroupes')],
-    ['Fonctionnement',g('fonctionnement')],
+    ['Fonctionnement',g('fonctionnement')==='AUTRE'?g('fonctAutre')||'Autre':g('fonctionnement')],
     ['Besoin de chaleur',(chauf?'Chauffage ':'')+(ecs?'ECS ':'')+(process?'Process ':'')+(aucun?'Aucun':'')||'—'],
     ['',''],
     ['Raison sociale',g('entreprise')],

@@ -67,7 +67,17 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 .cfg-hint{font-size:11px;color:#94a3b8;margin-top:3px;}
 .cfg-save{width:100%;margin-top:16px;padding:13px;background:#1e293b;color:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:bold;}
 .cfg-cancel{width:100%;margin-top:8px;padding:10px;background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;}
+.sheet-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.sheet-item{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;}
+.sheet-item.active{border-color:#3b82f6;background:#eff6ff;}
+.sheet-item-name{flex:1;font-size:13px;font-weight:700;color:#0f172a;}
+.sheet-item-sub{font-size:11px;color:#94a3b8;}
+.sheet-load-btn{padding:5px 12px;background:#1e293b;color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;font-weight:700;white-space:nowrap;}
+.sheet-del-btn{padding:5px 8px;background:#fee2e2;color:#991b1b;border:none;border-radius:7px;font-size:12px;cursor:pointer;}
+.cfg-sep{border:none;border-top:1px solid #e2e8f0;margin:16px 0;}
+.cfg-add-title{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;}
 .loading{text-align:center;padding:50px 20px;color:#64748b;font-size:14px;}
+.cmt-panel{margin-top:8px;padding:10px 12px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1e40af;border-left:3px solid #3b82f6;display:none;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
 .toast.show{opacity:1;}
 .dt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;}
@@ -143,26 +153,38 @@ body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a;}
 
 <div class="cfg-modal" id="cfgModal">
   <div class="cfg-box">
-    <h2>⚙️ Google Sheet</h2>
-    <div class="cfg-sub">Le sheet doit être publié : Fichier → Partager → Publier sur le web → CSV</div>
+    <h2>⚙️ Mes Google Sheets</h2>
+    <div class="cfg-sub">Fichier → Partager → Publier sur le web → CSV</div>
+
+    <div class="sheet-list" id="sheetList"></div>
+
+    <hr class="cfg-sep">
+    <div class="cfg-add-title">➕ Ajouter un sheet</div>
+
+    <div class="cfg-lbl">Nom (ex : Leads Normandie)</div>
+    <input class="cfg-input" id="cfgName" placeholder="Mon sheet"/>
+
     <div class="cfg-lbl">ID publié du Google Sheet</div>
     <input class="cfg-input" id="cfgSheetId" placeholder="2PACX-1v…"/>
     <div class="cfg-hint">URL publiée : …/d/e/<strong>ID</strong>/pub?…</div>
+
     <div class="cfg-lbl">GID de l'onglet</div>
     <input class="cfg-input" id="cfgGid" placeholder="0"/>
     <div class="cfg-hint">Dans l'URL après #gid= (0 = premier onglet)</div>
-    <div class="cfg-lbl">URL Google Apps Script (pour mise à jour statut)</div>
+
+    <div class="cfg-lbl">URL Google Apps Script (statut)</div>
     <input class="cfg-input" id="cfgGasUrl" placeholder="https://script.google.com/macros/s/…/exec"/>
-    <div class="cfg-hint">Optionnel — permet de modifier le statut directement dans le sheet</div>
-    <button class="cfg-save" onclick="saveCfg()">📥 Charger</button>
-    <button class="cfg-cancel" onclick="closeCfg()">Annuler</button>
+    <div class="cfg-hint">Optionnel</div>
+
+    <button class="cfg-save" onclick="addSheet()">📥 Ajouter et charger</button>
+    <button class="cfg-cancel" onclick="closeCfg()">Fermer</button>
   </div>
 </div>
 
 <script>
 var allRows=[];
 var currentFilter='';
-var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8};
+var C={nom:0,prenom:1,email:2,tel:3,cp:4,typeHab:5,typeOcc:6,mode:7,statut:8,comment:9};
 var DEFAULT_ID='2PACX-1vTWDzOo3ln5TMQ2Zeq_VZVUapaw0AWMY6glM57RZMiz9FB-RN0ESCVrg0vkGLGwDOry7N_wXaRjX426';
 var DEFAULT_GID='2006396579';
 var DEFAULT_GAS_URL='https://script.google.com/macros/s/AKfycbyNS6dym1yOF4Kj7okNwqnc-l9fdQ6qFqiNyF1UbKO97QbwlDWRlx0irqwD8lyYhXPI/exec';
@@ -200,16 +222,69 @@ var _pendingTel='';
 var _pendingCard=null;
 
 function getCfg(){try{return JSON.parse(localStorage.getItem('ctc_cfg')||'null');}catch(e){return null;}}
-function openCfg(){var c=getCfg();document.getElementById('cfgSheetId').value=(c&&c.id)||DEFAULT_ID;document.getElementById('cfgGid').value=(c&&c.gid)||DEFAULT_GID;document.getElementById('cfgGasUrl').value=(c&&c.gas)||DEFAULT_GAS_URL;document.getElementById('cfgModal').classList.add('show');}
+function getSheets(){try{return JSON.parse(localStorage.getItem('ctc_sheets')||'[]');}catch(e){return[];}}
+function saveSheets(arr){localStorage.setItem('ctc_sheets',JSON.stringify(arr));}
+function openCfg(){
+  document.getElementById('cfgName').value='';
+  document.getElementById('cfgSheetId').value='';
+  document.getElementById('cfgGid').value='0';
+  document.getElementById('cfgGasUrl').value='';
+  renderSheetList();
+  document.getElementById('cfgModal').classList.add('show');
+}
 function closeCfg(){document.getElementById('cfgModal').classList.remove('show');}
-function saveCfg(){
+function renderSheetList(){
+  var sheets=getSheets();
+  var c=getCfg();
+  var activeId=(c&&c.id)||DEFAULT_ID;
+  var activeGid=String((c&&c.gid!==undefined?c.gid:DEFAULT_GID));
+  var html='';
+  if(!sheets.length){html='<div style="font-size:13px;color:#94a3b8;text-align:center;padding:12px 0;">Aucun sheet sauvegardé — ajoutez-en un ci-dessous</div>';}
+  else{
+    sheets.forEach(function(s,i){
+      var isActive=(s.id===activeId&&String(s.gid)===activeGid);
+      html+='<div class="sheet-item'+(isActive?' active':'')+'">';
+      html+='<div style="flex:1"><div class="sheet-item-name">'+e(s.name||('Sheet '+(i+1)))+''+(isActive?' ✓':'')+'</div>';
+      if(s.id)html+='<div class="sheet-item-sub">…'+e(s.id.slice(-20))+'</div>';
+      html+='</div>';
+      html+='<button class="sheet-load-btn" onclick="loadSavedSheet('+i+')">Charger</button>';
+      html+='<button class="sheet-del-btn" onclick="deleteSheet('+i+')">🗑️</button>';
+      html+='</div>';
+    });
+  }
+  document.getElementById('sheetList').innerHTML=html;
+}
+function addSheet(){
+  var name=document.getElementById('cfgName').value.trim();
   var id=document.getElementById('cfgSheetId').value.trim();
-  var gid=document.getElementById('cfgGid').value.trim();
+  var gid=document.getElementById('cfgGid').value.trim()||'0';
   var gas=document.getElementById('cfgGasUrl').value.trim();
   if(!id){alert('Entrez l\'ID du sheet');return;}
-  GAS_URL=gas;
+  if(!name)name='Sheet '+(getSheets().length+1);
+  var sheets=getSheets();
+  sheets.push({name:name,id:id,gid:gid,gas:gas});
+  saveSheets(sheets);
+  GAS_URL=gas||DEFAULT_GAS_URL;
   localStorage.setItem('ctc_cfg',JSON.stringify({id:id,gid:gid,gas:gas,_v:'v37'}));
-  closeCfg();loadSheet(id,gid);
+  closeCfg();
+  loadSheet(id,gid);
+  showToast('✅ '+name+' ajouté et chargé');
+}
+function loadSavedSheet(idx){
+  var sheets=getSheets();
+  var s=sheets[idx];if(!s)return;
+  GAS_URL=s.gas||DEFAULT_GAS_URL;
+  localStorage.setItem('ctc_cfg',JSON.stringify({id:s.id,gid:s.gid,gas:s.gas||'',_v:'v37'}));
+  closeCfg();
+  loadSheet(s.id,s.gid);
+  showToast('✅ '+(s.name||'Sheet')+' chargé');
+}
+function deleteSheet(idx){
+  if(!confirm('Supprimer ce sheet de la liste ?'))return;
+  var sheets=getSheets();
+  sheets.splice(idx,1);
+  saveSheets(sheets);
+  renderSheetList();
 }
 
 function loadSheet(id,gid){
@@ -413,6 +488,7 @@ function renderList(){
   var stEl=document.querySelector('input[name="searchType"]:checked');
   var st=stEl?stEl.value:'all';
   var filtered=allRows.filter(function(r){
+    if(!r._ext&&!(r[C.tel]||'').trim()&&!(r[C.email]||'').trim())return false;
     var match=true;
     if(q){
       if(st==='dept'){var cp=(r[C.cp]||'').replace(/\s/g,'');match=cp.indexOf(q)===0||cp.slice(0,q.length)===q;}
@@ -452,6 +528,7 @@ function renderList(){
     if(tel){html+='<a class="call-btn" href="tel:'+telEsc+'"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></a>';}
     else{html+='<div class="no-phone"></div>';}
     html+='</div>';
+    var comment=(r[C.comment]||'').trim();
     if(tel){
       html+='<div class="status-row">';
       html+='<button class="s-btn cb" onclick="openRappel(this.closest(\'.card\').dataset.tel,this.closest(\'.card\'))">📅 À rappeler</button>';
@@ -462,10 +539,12 @@ function renderList(){
       html+='<button class="s-btn pas" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'PAS INTER\',this.closest(\'.card\'))">Pas inter.</button>';
       html+='<button class="s-btn ko" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'K.O\',this.closest(\'.card\'))">K.O</button>';
       html+='<button class="s-btn faux" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'FAUX NUM\',this.closest(\'.card\'))">Faux num</button>';
+      if(comment){html+='<button class="s-btn" style="background:#eff6ff;color:#1e40af;border-color:#bfdbfe;" onclick="var p=this.closest(\'.card\').querySelector(\'.cmt-panel\');p.style.display=p.style.display===\'none\'?\'block\':\'none\';">💬</button>';}
       if(r._ext){html+='<button class="s-btn vide" style="background:#fee2e2;color:#991b1b;border-color:#fecaca;" onclick="if(confirm(\'Supprimer ce rappel ?\'))deleteExternalLead(\''+e(r._extId||'')+'\')">🗑️</button>';}
       else{html+='<button class="s-btn vide" onclick="updateStatus(this.closest(\'.card\').dataset.tel,\'\',this.closest(\'.card\'))">✕</button>';}
       html+='</div>';
     }
+    if(comment){html+='<div class="cmt-panel">💬 '+e(comment)+'</div>';}
     html+='</div>';
   });
   document.getElementById('listContainer').innerHTML=html;
