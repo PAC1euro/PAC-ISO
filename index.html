@@ -236,9 +236,12 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="3" onclick="pickFoyerS2(this)"><div class="chi">👨‍👩‍👦</div><div class="chl">3</div></div>
     <div class="choice" data-val="4" onclick="pickFoyerS2(this)"><div class="chi">👨‍👩‍👧‍👦</div><div class="chl">4</div></div>
   </div>
-  <div class="choices c2" id="cFoyer2S2" style="margin-top:10px;margin-bottom:16px;">
-    <div class="choice" data-val="5" onclick="pickFoyerS2(this)"><div class="chi">🏠</div><div class="chl">5 parts</div></div>
-    <div class="choice" data-val="6" onclick="pickFoyerS2(this)"><div class="chi">🏡</div><div class="chl">6 ou +</div></div>
+  <div class="choices c3" id="cFoyer2S2" style="margin-top:10px;margin-bottom:16px;">
+    <div class="choice" data-val="5" onclick="pickFoyerS2(this)"><div class="chi">🏠</div><div class="chl">5</div></div>
+    <div class="choice" data-val="6" onclick="pickFoyerS2(this)"><div class="chi">🏡</div><div class="chl">6</div></div>
+    <div class="choice" data-val="7" onclick="pickFoyerS2(this)"><div class="chi">🏡</div><div class="chl">7</div></div>
+    <div class="choice" data-val="8" onclick="pickFoyerS2(this)"><div class="chi">🏡</div><div class="chl">8</div></div>
+    <div class="choice" data-val="9" onclick="pickFoyerS2(this)"><div class="chi">🏡</div><div class="chl">9 ou +</div></div>
   </div>
   <label class="flabel">Revenu Fiscal de Référence (RFR)</label>
   <input type="number" id="rfrS2" placeholder="Ex: 18000" oninput="syncRfrS2(this.value)"/>
@@ -329,9 +332,12 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
     <div class="choice" data-val="3" onclick="pickFoyer(this)"><div class="chi">👨‍👩‍👦</div><div class="chl">3</div></div>
     <div class="choice" data-val="4" onclick="pickFoyer(this)"><div class="chi">👨‍👩‍👧‍👦</div><div class="chl">4</div></div>
   </div>
-  <div class="choices c2" id="cFoyer2" style="margin-top:10px;margin-bottom:16px;">
-    <div class="choice" data-val="5" onclick="pickFoyer(this)"><div class="chi">🏠</div><div class="chl">5 parts</div></div>
-    <div class="choice" data-val="6" onclick="pickFoyer(this)"><div class="chi">🏡</div><div class="chl">6 ou +</div></div>
+  <div class="choices c3" id="cFoyer2" style="margin-top:10px;margin-bottom:16px;">
+    <div class="choice" data-val="5" onclick="pickFoyer(this)"><div class="chi">🏠</div><div class="chl">5</div></div>
+    <div class="choice" data-val="6" onclick="pickFoyer(this)"><div class="chi">🏡</div><div class="chl">6</div></div>
+    <div class="choice" data-val="7" onclick="pickFoyer(this)"><div class="chi">🏡</div><div class="chl">7</div></div>
+    <div class="choice" data-val="8" onclick="pickFoyer(this)"><div class="chi">🏡</div><div class="chl">8</div></div>
+    <div class="choice" data-val="9" onclick="pickFoyer(this)"><div class="chi">🏡</div><div class="chl">9 ou +</div></div>
   </div>
   <label class="flabel">Revenu Fiscal de Référence (RFR)</label>
   <input type="number" id="rfr" placeholder="Ex: 18000" oninput="previewCouleur()"/>
@@ -482,14 +488,16 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:18px 0;}
 </div></div>
 
 <script>
-(function(){var V='20260601-7';if(localStorage.getItem('_appV')!==V){localStorage.setItem('_appV',V);location.reload(true);}})();
+(function(){var V='20260601-8';if(localStorage.getItem('_appV')!==V){localStorage.setItem('_appV',V);location.reload(true);}})();
 emailjs.init('ikg4K9rtN8zThodmu');
 var FIREBASE_URL='https://pac-iso-88059-default-rtdb.europe-west1.firebasedatabase.app';
 var S={dossier:'',dept:'',zone:'',isIDF:false,parts:0,numDeclarant:'',numDeclarant2:'',rfr:0,rfr2:'',couleur:'',chauffage:'',surfPac:0,compteur:'',ecs:'',vmc:'',etatIso:'',noteEtatIso:'',emplacementChaudiere:'',hauteurPlafond:'',typeRadiateur:'',notesPac:'',gestes:[],surfIso:0,notesIso:'',nom:'',prenom:'',civilite:'',statut:'',dateNaissance:'',telephone:'',email:'',adresse:'',cp:'',ville:'',anneeConstruction:'',teleproNom:'',codeReferent:'',mprCreePar:'',mprAcces:'',mprMail:'',mprMdp:'',mprVerif:'',numMpr:'',racPac:0,racIso:0,pacOk:true,isoOk:true,surfOk:true,_editKey:'',_leadKey:''};
 var H1=['01','02','03','05','08','10','14','15','19','21','23','25','27','28','38','39','42','43','45','51','52','54','55','57','58','59','60','61','62','63','67','68','69','70','71','75','76','77','78','80','87','88','89','90','91','92','93','94','95'];
 var H3=['06','13','20','83','971','972','973','974'];
 var IDF=['75','77','78','91','92','93','94','95'];
-var PLAF={idf:{bleu:[24031,35270,42357,49455,56580,63696],jaune:[29253,42933,51594,60208,68877,77540],violet:[40851,60051,71846,84562,96817,109074]},prov:{bleu:[17363,25393,30540,35676,40835,45986],jaune:[22259,32553,39148,45735,52348,58946],violet:[31185,45842,55196,64550,73907,83264]}};
+var PLAF={idf:{bleu:[24031,35270,42357,49455,56580],jaune:[29253,42933,51594,60208,68877],violet:[40851,60051,71846,84562,96817]},prov:{bleu:[17363,25393,30540,35676,40835],jaune:[22259,32553,39148,45735,52348],violet:[31185,45842,55196,64550,73907]}};
+var INCR={idf:{bleu:7116,jaune:8663,violet:12257},prov:{bleu:5151,jaune:6598,violet:9357}};
+function plaf(r,couleur,parts){var arr=PLAF[r][couleur];if(parts<=5)return arr[Math.max(parts-1,0)];return arr[4]+INCR[r][couleur]*(parts-5);}
 var fromResult=false;var cur=1;var _resultSent=false;
 
 function detectZone(){
@@ -506,10 +514,10 @@ function detectZone(){
   if(S.rfr&&S.parts)previewCouleur();
 }
 function calcCouleur(rfr,parts,isIDF){
-  var r=isIDF?'idf':'prov',i=Math.min(parts-1,5);
-  if(rfr<=PLAF[r].bleu[i])return'Bleu';
-  if(rfr<=PLAF[r].jaune[i])return'Jaune';
-  if(rfr<=PLAF[r].violet[i])return'Violet';
+  var r=isIDF?'idf':'prov';
+  if(rfr<=plaf(r,'bleu',parts))return'Bleu';
+  if(rfr<=plaf(r,'jaune',parts))return'Jaune';
+  if(rfr<=plaf(r,'violet',parts))return'Violet';
   return'Rose';
 }
 function racC(c){return{Bleu:0,Jaune:5194,Violet:6194,Rose:9194}[c]||0;}
@@ -524,11 +532,11 @@ function previewCouleur(){
   var racTxt=rp===0?'✅ PAC éligible à 1€':'⚠️ RAC PAC estimé : '+fmt(rp)+' (couleur : '+fmt(racC(c))+' + zone : '+fmt(rz)+')';
   var isoTxt=['Bleu','Jaune'].indexOf(c)>-1?(c==='Jaune'?'⚠️ ISO éligible — RAC Jaune : +5 194€':'✅ ISO éligible à 1€'):'❌ ISO non éligible';
   g('couleurBloc').innerHTML='<div class="cbadge '+m.cls+'"><div class="cb-t">'+m.dot+' Couleur ANAH : '+c+'</div><div class="cb-d">'+m.lbl+' · '+(S.isIDF?'IDF':'Province')+'</div><div class="cb-r">'+racTxt+'<br>'+isoTxt+'</div></div>';
-  var r=S.isIDF?'idf':'prov',idx=Math.min(parts-1,5);
+  var r=S.isIDF?'idf':'prov';
   var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
-    var plaf=col==='Violet'?PLAF[r].violet[idx]:col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
+    var pl=col==='Violet'?plaf(r,'violet',parts):col==='Rose'?'>seuil':(col==='Bleu'?plaf(r,'bleu',parts):plaf(r,'jaune',parts));
     var dot={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'}[col];
-    return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
+    return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof pl==='number'?'≤ '+fmt(pl):pl)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
   }).join('');
   g('plafondTable').innerHTML='<div style="font-size:11px;color:#94a3b8;margin:8px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
 }
@@ -572,8 +580,8 @@ function buildResult(){
   else{emo='📊';title='Éligible avec reste à charge';sub='Détail ci-dessous';}
   g('rEmo').textContent=emo;g('rTitle').textContent=title;g('rSub').textContent=sub;
   var pm={Bleu:'p-bleu',Jaune:'p-jaune',Violet:'p-violet',Rose:'p-rose'},pd={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'};
-  var r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5);
-  g('cpillBox').innerHTML='<div class="cpill '+pm[c]+'">'+pd[c]+' Couleur ANAH : <strong>'+c+'</strong>'+(zone?' — Zone <strong>'+zone+'</strong>':'')+'</div><div style="font-size:11px;color:#94a3b8;">RFR : '+fmt(S.rfr)+' · Bleu ≤ '+fmt(PLAF[r].bleu[idx])+' · Jaune ≤ '+fmt(PLAF[r].jaune[idx])+'</div>';
+  var r=S.isIDF?'idf':'prov';
+  g('cpillBox').innerHTML='<div class="cpill '+pm[c]+'">'+pd[c]+' Couleur ANAH : <strong>'+c+'</strong>'+(zone?' — Zone <strong>'+zone+'</strong>':'')+'</div><div style="font-size:11px;color:#94a3b8;">RFR : '+fmt(S.rfr)+' · Bleu ≤ '+fmt(plaf(r,'bleu',S.parts))+' · Jaune ≤ '+fmt(plaf(r,'jaune',S.parts))+'</div>';
   var html='';
   if(hasPAC){
     if(!S.surfOk)html+=ri('bad','📏','Surface chauffée','❌ Voir avec Responsable technique');
@@ -608,7 +616,7 @@ function genPDF(){
   var hasPAC=S.dossier==='PAC'||S.dossier==='PAC+ISO',hasISO=S.dossier==='ISO'||S.dossier==='PAC+ISO';
   var totalRac=S.racPac+(hasISO?S.racIso:0),nonPAC=hasPAC&&(!S.pacOk||!S.surfOk);
   var racStr=nonPAC?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac);
-  var dob=S.dateNaissance||'—',date=new Date().toLocaleDateString('fr-FR'),r=S.isIDF?'idf':'prov',idx=Math.min(S.parts-1,5);
+  var dob=S.dateNaissance||'—',date=new Date().toLocaleDateString('fr-FR'),r=S.isIDF?'idf':'prov';
   var dateFile=date.replace(/\//g,'-');
   var w=window.open('','_blank');if(!w){alert('Autorisez les popups');return;}
   var h='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+S.prenom+'_'+S.nom+'_'+dateFile+'_'+S.telephone+'</title>'
@@ -638,8 +646,8 @@ function genPDF(){
 +'<div class="row"><span class="l">RFR</span><span class="v">'+fmt(S.rfr)+'</span></div>'
 +'<div class="row"><span class="l">Parts fiscales</span><span class="v">'+S.parts+' part(s)</span></div>'
 +'<div class="row"><span class="l">Région</span><span class="v">'+(S.isIDF?'IDF':'Province')+'</span></div>'
-+'<div class="row"><span class="l">Plafond Bleu</span><span class="v">'+fmt(PLAF[r].bleu[idx])+'</span></div>'
-+'<div class="row"><span class="l">Plafond Jaune</span><span class="v">'+fmt(PLAF[r].jaune[idx])+'</span></div>'
++'<div class="row"><span class="l">Plafond Bleu</span><span class="v">'+fmt(plaf(r,'bleu',S.parts))+'</span></div>'
++'<div class="row"><span class="l">Plafond Jaune</span><span class="v">'+fmt(plaf(r,'jaune',S.parts))+'</span></div>'
 +'<div class="row"><span class="l">Couleur ANAH</span><span class="v">'+S.couleur+'</span></div>'
 +'<div class="row"><span class="l">Dpt / Zone</span><span class="v">'+S.dept+' — Zone '+S.zone+'</span></div>'
 +(hasPAC?'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'+(S.etatIso?'<div class="row"><span class="l">État isolation</span><span class="v">'+S.etatIso+'</span></div>':'')+(S.emplacementChaudiere?'<div class="row"><span class="l">Emplacement chaudière</span><span class="v">'+S.emplacementChaudiere+'</span></div>':'')+(S.hauteurPlafond?'<div class="row"><span class="l">Hauteur plafond</span><span class="v">'+S.hauteurPlafond+'</span></div>':'')+(S.typeRadiateur?'<div class="row"><span class="l">Radiateurs</span><span class="v">'+S.typeRadiateur+'</span></div>':'')+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(nonPAC?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</span></div>':'')
@@ -659,7 +667,7 @@ var totalRac=S.racPac+(hasISO2?S.racIso:0),nonPAC2=hasPAC2&&(!S.pacOk||!S.surfOk
 var racStr=nonPAC2?'VOIR RESPONSABLE TECHNIQUE':totalRac===0?'1€':fmt(totalRac);
 var dob=S.dateNaissance||'—',date=new Date().toLocaleDateString('fr-FR');
 var racColor=nonPAC2?'#dc2626':totalRac===0?'#0ea472':'#1a56db';
-var r2=S.isIDF?'idf':'prov',idx2=Math.min(Math.max(S.parts-1,0),5);
+var r2=S.isIDF?'idf':'prov';
 var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;font-size:13px;color:#0f172a;">'
 +'<div style="background:#1a56db;color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;font-size:16px;font-weight:bold;">🏠 FICHE CLIENT — AIDES ÉNERGÉTIQUES PAC AIR/EAU</div>'
 +'<div style="background:#1e293b;color:#fff;padding:6px 18px;font-size:11px;border-radius:0 0 6px 6px;margin-bottom:14px;">Dossier : '+S.dossier+' · Date : '+date+' · RAC : '+racStr+' · Couleur : '+S.couleur+(S.zone?' — Zone '+S.zone:'')+'</div>'
@@ -680,7 +688,7 @@ var message='<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 a
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">RFR</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(S.rfr)+'</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Parts fiscales</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.parts+' part(s)</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Région</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+(S.isIDF?'IDF':'Province')+'</td></tr>'
-+(S.parts?'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Bleu</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(PLAF[r2].bleu[idx2])+'</td></tr>'+'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Jaune</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(PLAF[r2].jaune[idx2])+'</td></tr>':'')
++(S.parts?'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Bleu</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(plaf(r2,'bleu',S.parts))+'</td></tr>'+'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Plafond Jaune</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+fmt(plaf(r2,'jaune',S.parts))+'</td></tr>':'')
 +'<tr><td style="padding:5px 8px;color:#475569;border-bottom:1px solid #e2e8f0;">Couleur ANAH</td><td style="padding:5px 8px;font-weight:bold;text-align:right;border-bottom:1px solid #e2e8f0;">'+S.couleur+'</td></tr>'
 +'<tr><td style="padding:5px 8px;color:#475569;">Dpt / Zone</td><td style="padding:5px 8px;font-weight:bold;text-align:right;">'+S.dept+(S.zone?' — Zone '+S.zone:'')+'</td></tr>'
 +'</table>'
@@ -1158,11 +1166,11 @@ function updCouleurS2(){
   var pd={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'};
   var b=g('couleurBlocS2');
   if(b)b.innerHTML='<div class="cpill '+pm[c]+'" style="display:inline-flex;margin:0 0 8px;">'+pd[c]+' <strong>Couleur ANAH : '+c+'</strong></div>';
-  var r=S.isIDF?'idf':'prov',idx=Math.min(parts-1,5);
+  var r=S.isIDF?'idf':'prov';
   var rows=['Bleu','Jaune','Violet','Rose'].map(function(col){
-    var plaf=col==='Violet'?PLAF[r].violet[idx]:col==='Rose'?'>seuil':(col==='Bleu'?PLAF[r].bleu[idx]:PLAF[r].jaune[idx]);
+    var pl=col==='Violet'?plaf(r,'violet',parts):col==='Rose'?'>seuil':(col==='Bleu'?plaf(r,'bleu',parts):plaf(r,'jaune',parts));
     var dot={Bleu:'🔵',Jaune:'🟡',Violet:'🟣',Rose:'🔴'}[col];
-    return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof plaf==='number'?'≤ '+fmt(plaf):plaf)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
+    return'<tr'+(c===col?' class="hl"':'')+'><td>'+dot+' '+col+'</td><td>'+(typeof pl==='number'?'≤ '+fmt(pl):pl)+'</td><td>'+(c===col?fmt(rfr):'—')+'</td><td>'+(c===col?'✅ Vous':'—')+'</td></tr>';
   }).join('');
   var t=g('plafondTableS2');
   if(t)t.innerHTML='<div style="font-size:11px;color:#94a3b8;margin:4px 0 4px;font-weight:bold;">Plafonds ANAH — '+parts+' part(s)</div><table class="ptable"><tr><th>Couleur</th><th>Plafond</th><th>RFR</th><th>Statut</th></tr>'+rows+'</table>';
