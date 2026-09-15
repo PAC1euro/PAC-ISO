@@ -104,6 +104,22 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
 
 .small-note{font-size:10px;color:#94a3b8;margin-top:20px;text-align:center;}
 
+/* AIDES / BAREME */
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.mini-lbl{font-size:9px;color:#94a3b8;display:block;margin-bottom:2px;text-align:center;}
+.bareme-box{margin-top:14px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;background:#f8fafc;}
+.bareme-box summary{cursor:pointer;font-size:12px;font-weight:700;color:#166534;}
+.bareme-note{font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.5;}
+.bareme-table{width:100%;border-collapse:collapse;margin-top:6px;}
+.bareme-table th{font-size:10px;color:#94a3b8;padding:4px;}
+.bareme-table td{padding:3px;font-size:11px;}
+.bareme-table input{padding:6px 4px;font-size:11px;text-align:center;margin-bottom:0;}
+.aides-hint{font-size:11px;color:#0d9488;margin-top:8px;line-height:1.5;min-height:14px;}
+.dt-badge{margin-top:10px;background:linear-gradient(135deg,#166534,#0d9488);color:#fff;text-align:center;padding:10px;border-radius:10px;font-size:12px;font-weight:800;}
+.logo-preview{max-height:50px;max-width:160px;object-fit:contain;border-radius:6px;background:#fff;}
+.doc-company-wrap{display:flex;align-items:center;gap:14px;}
+.doc-logo{max-height:56px;max-width:150px;object-fit:contain;}
+
 /* PRINT */
 @media print{
   body{background:#fff;}
@@ -145,6 +161,12 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
       <input id="cAddr" oninput="saveCompany();render()" placeholder="12 rue des Artisans, 75000 Paris">
       <label>Email</label>
       <input id="cEmail" oninput="saveCompany();render()" placeholder="contact@pac-iso.fr">
+      <label>Logo de l'entreprise</label>
+      <input type="file" id="cLogoFile" accept="image/*" onchange="onLogoChange(event)">
+      <div id="logoPreviewWrap" style="display:none;margin-top:10px;align-items:center;gap:10px;">
+        <img id="logoPreview" class="logo-preview"/>
+        <button type="button" class="btn btn-sm btn-danger" onclick="removeLogo()">Supprimer</button>
+      </div>
     </div>
 
     <div class="panel">
@@ -219,8 +241,46 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
         </div>
         <div><label>Validité (jours)</label><input type="number" id="validDays" value="30" min="1" oninput="render()"></div>
       </div>
-      <label>Aides déduites (MaPrimeRénov', CEE...) €</label>
-      <input type="number" id="aides" min="0" step="50" value="0" oninput="render()">
+      <label>Zone climatique</label>
+      <select id="selZone" onchange="render()">
+        <option value="H1">H1 — hiver rigoureux (nord, est, altitude)</option>
+        <option value="H2" selected>H2 — climat intermédiaire</option>
+        <option value="H3">H3 — climat doux (pourtour méditerranéen)</option>
+      </select>
+      <label>Catégorie de revenus (couleur ANAH)</label>
+      <select id="selCouleur" onchange="render()">
+        <option value="">— Non renseignée —</option>
+        <option value="bleu">🔵 Bleu — très modeste</option>
+        <option value="jaune">🟡 Jaune — modeste</option>
+        <option value="violet">🟣 Violet — intermédiaire</option>
+        <option value="rose">🌸 Rose — supérieur</option>
+      </select>
+      <div class="aides-hint" id="aidesHint"></div>
+
+      <details class="bareme-box">
+        <summary>📊 Barème des primes (modifiable)</summary>
+        <div class="bareme-note">Montants indicatifs — à ajuster selon le barème MaPrimeRénov' / CEE en vigueur et votre contrat CEE avant envoi au client.</div>
+        <label style="margin-top:10px;">MaPrimeRénov' — PAC Air/Eau</label>
+        <div class="row4">
+          <div><span class="mini-lbl">🔵 Bleu</span><input type="number" id="mprBleu" oninput="onBaremeChange()"></div>
+          <div><span class="mini-lbl">🟡 Jaune</span><input type="number" id="mprJaune" oninput="onBaremeChange()"></div>
+          <div><span class="mini-lbl">🟣 Violet</span><input type="number" id="mprViolet" oninput="onBaremeChange()"></div>
+          <div><span class="mini-lbl">🌸 Rose</span><input type="number" id="mprRose" oninput="onBaremeChange()"></div>
+        </div>
+        <label style="margin-top:10px;">CEE Coup de Pouce Chauffage (par couleur × zone)</label>
+        <table class="bareme-table">
+          <thead><tr><th></th><th>H1</th><th>H2</th><th>H3</th></tr></thead>
+          <tbody>
+            <tr><td>🔵 Bleu</td><td><input type="number" id="ceeBleuH1" oninput="onBaremeChange()"></td><td><input type="number" id="ceeBleuH2" oninput="onBaremeChange()"></td><td><input type="number" id="ceeBleuH3" oninput="onBaremeChange()"></td></tr>
+            <tr><td>🟡 Jaune</td><td><input type="number" id="ceeJauneH1" oninput="onBaremeChange()"></td><td><input type="number" id="ceeJauneH2" oninput="onBaremeChange()"></td><td><input type="number" id="ceeJauneH3" oninput="onBaremeChange()"></td></tr>
+            <tr><td>🟣 Violet</td><td><input type="number" id="ceeVioletH1" oninput="onBaremeChange()"></td><td><input type="number" id="ceeVioletH2" oninput="onBaremeChange()"></td><td><input type="number" id="ceeVioletH3" oninput="onBaremeChange()"></td></tr>
+            <tr><td>🌸 Rose</td><td><input type="number" id="ceeRoseH1" oninput="onBaremeChange()"></td><td><input type="number" id="ceeRoseH2" oninput="onBaremeChange()"></td><td><input type="number" id="ceeRoseH3" oninput="onBaremeChange()"></td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <label style="margin-top:12px;">Autres aides (collectivité, éco-PTZ...) €</label>
+      <input type="number" id="autresAides" min="0" step="50" value="0" oninput="render()">
       <label>Notes / conditions</label>
       <textarea id="notes" oninput="render()" placeholder="Devis valable 30 jours. Acompte de 30% à la commande. Installation par technicien qualifié RGE.">Devis valable 30 jours. Acompte de 30% à la commande, solde à la réception des travaux. Installation réalisée par un professionnel certifié RGE, éligible aux aides de l'État.</textarea>
     </div>
@@ -236,9 +296,12 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
   <div>
     <div class="doc" id="docRoot">
       <div class="doc-head">
-        <div class="doc-company">
-          <div id="docCompanyName">Votre entreprise</div>
-          <div class="tag" id="docCompanyInfo"></div>
+        <div class="doc-company-wrap">
+          <img id="docLogo" class="doc-logo" style="display:none;"/>
+          <div class="doc-company">
+            <div id="docCompanyName">Votre entreprise</div>
+            <div class="tag" id="docCompanyInfo"></div>
+          </div>
         </div>
         <div class="doc-meta">
           <div class="devnum" id="docNum">DEV-0001</div>
@@ -269,8 +332,11 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
         <div class="dt-row"><span>Sous-total HT</span><span id="tSousTotal">0,00 €</span></div>
         <div class="dt-row"><span>TVA (<span id="tTvaRate">5,5</span>%)</span><span id="tTva">0,00 €</span></div>
         <div class="dt-row grand"><span>Total TTC</span><span id="tTotal">0,00 €</span></div>
-        <div class="dt-row aide" id="rowAide" style="display:none;"><span>Aides déduites</span><span id="tAide">0,00 €</span></div>
+        <div class="dt-row aide" id="rowMpr" style="display:none;"><span>MaPrimeRénov' (<span id="lblCouleurMpr"></span>)</span><span id="tMpr">0,00 €</span></div>
+        <div class="dt-row aide" id="rowCee" style="display:none;"><span>CEE Coup de Pouce (zone <span id="lblZoneCee"></span>)</span><span id="tCee">0,00 €</span></div>
+        <div class="dt-row aide" id="rowAutres" style="display:none;"><span>Autres aides</span><span id="tAutres">0,00 €</span></div>
         <div class="dt-row reste" id="rowReste" style="display:none;"><span>Reste à charge estimé</span><span id="tReste">0,00 €</span></div>
+        <div class="dt-badge" id="badge1euro" style="display:none;">🎉 Offre PAC à 1€ — reste à charge quasi nul !</div>
       </div>
 
       <div class="doc-notes" id="docNotes"></div>
@@ -310,6 +376,53 @@ var CATALOG = [
   {cat:'ecs',marque:'Thermor',modele:'Aeromax 5 200L',type:'ballon',puissance:'200 L',cop:'COP 3,3',extra:'Fabrication française',color:'#e2001a',prix:2100},
 ];
 var CAT_LABELS = {'air-eau':'PAC Air/Eau','air-air':'PAC Air/Air','ecs':'Chauffe-eau thermo.'};
+var COULEUR_LABELS = {bleu:'Bleu — très modeste',jaune:'Jaune — modeste',violet:'Violet — intermédiaire',rose:'Rose — supérieur'};
+
+/* ---------- BAREME DES PRIMES (modifiable, persisté) ---------- */
+var DEFAULT_BAREME = {
+  mpr:{bleu:5000,jaune:4000,violet:3000,rose:0},
+  cee:{bleu:{H1:4000,H2:3500,H3:3000},jaune:{H1:3000,H2:2500,H3:2000},violet:{H1:1200,H2:1000,H3:800},rose:{H1:0,H2:0,H3:0}}
+};
+var BAREME;
+function loadBareme(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('pacisoBareme')||'null');
+    BAREME = saved || JSON.parse(JSON.stringify(DEFAULT_BAREME));
+  }catch(e){ BAREME = JSON.parse(JSON.stringify(DEFAULT_BAREME)); }
+  document.getElementById('mprBleu').value = BAREME.mpr.bleu;
+  document.getElementById('mprJaune').value = BAREME.mpr.jaune;
+  document.getElementById('mprViolet').value = BAREME.mpr.violet;
+  document.getElementById('mprRose').value = BAREME.mpr.rose;
+  ['bleu','jaune','violet','rose'].forEach(function(c){
+    ['H1','H2','H3'].forEach(function(z){
+      document.getElementById('cee'+c.charAt(0).toUpperCase()+c.slice(1)+z).value = BAREME.cee[c][z];
+    });
+  });
+}
+function onBaremeChange(){
+  BAREME.mpr.bleu = parseFloat(document.getElementById('mprBleu').value)||0;
+  BAREME.mpr.jaune = parseFloat(document.getElementById('mprJaune').value)||0;
+  BAREME.mpr.violet = parseFloat(document.getElementById('mprViolet').value)||0;
+  BAREME.mpr.rose = parseFloat(document.getElementById('mprRose').value)||0;
+  ['bleu','jaune','violet','rose'].forEach(function(c){
+    ['H1','H2','H3'].forEach(function(z){
+      BAREME.cee[c][z] = parseFloat(document.getElementById('cee'+c.charAt(0).toUpperCase()+c.slice(1)+z).value)||0;
+    });
+  });
+  localStorage.setItem('pacisoBareme', JSON.stringify(BAREME));
+  render();
+}
+function computeAides(){
+  var couleur = document.getElementById('selCouleur').value;
+  var zone = document.getElementById('selZone').value;
+  var hasPacAirEau = state.items.some(function(l){ return !l.free && l.cat==='air-eau'; });
+  var mpr = 0, cee = 0;
+  if(couleur && hasPacAirEau){
+    mpr = BAREME.mpr[couleur] || 0;
+    cee = (BAREME.cee[couleur] && BAREME.cee[couleur][zone]) || 0;
+  }
+  return { couleur:couleur, zone:zone, hasPacAirEau:hasPacAirEau, mpr:mpr, cee:cee };
+}
 
 /* ---------- VISUELS SVG (générés, pas de dépendance externe) ---------- */
 function pacIcon(type, color, size){
@@ -362,7 +475,8 @@ function uid(){ return Date.now().toString(36)+Math.random().toString(36).substr
 function fmt(n){ return (n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
 
 /* ---------- ENTREPRISE (persistée) ---------- */
-var DEFAULT_COMPANY = { name:'Le Relais Chaleur (RSLC Groupe)', tel:'', siret:'', addr:'', email:'' };
+var DEFAULT_COMPANY = { name:'Le Relais Chaleur (RSLC Groupe)', tel:'', siret:'', addr:'', email:'', logo:'' };
+var companyLogo = '';
 function loadCompany(){
   try{
     var saved = JSON.parse(localStorage.getItem('pacisoCompany')||'null');
@@ -372,6 +486,8 @@ function loadCompany(){
     document.getElementById('cSiret').value = c.siret||'';
     document.getElementById('cAddr').value = c.addr||'';
     document.getElementById('cEmail').value = c.email||'';
+    companyLogo = c.logo||'';
+    updateLogoPreview();
   }catch(e){}
 }
 function saveCompany(){
@@ -380,9 +496,39 @@ function saveCompany(){
     tel:document.getElementById('cTel').value,
     siret:document.getElementById('cSiret').value,
     addr:document.getElementById('cAddr').value,
-    email:document.getElementById('cEmail').value
+    email:document.getElementById('cEmail').value,
+    logo:companyLogo
   };
   localStorage.setItem('pacisoCompany', JSON.stringify(c));
+}
+function onLogoChange(evt){
+  var file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    companyLogo = reader.result;
+    updateLogoPreview();
+    saveCompany();
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+function removeLogo(){
+  companyLogo = '';
+  document.getElementById('cLogoFile').value = '';
+  updateLogoPreview();
+  saveCompany();
+  render();
+}
+function updateLogoPreview(){
+  var wrap = document.getElementById('logoPreviewWrap');
+  var img = document.getElementById('logoPreview');
+  if(companyLogo){
+    img.src = companyLogo;
+    wrap.style.display = 'flex';
+  } else {
+    wrap.style.display = 'none';
+  }
 }
 
 /* ---------- SELECTS CATALOGUE ---------- */
@@ -468,6 +614,9 @@ function render(){
   var cInfoParts = [document.getElementById('cAddr').value, document.getElementById('cTel').value, document.getElementById('cEmail').value].filter(Boolean);
   document.getElementById('docCompanyName').textContent = cName;
   document.getElementById('docCompanyInfo').textContent = cInfoParts.join(' · ');
+  var docLogo = document.getElementById('docLogo');
+  if(companyLogo){ docLogo.src = companyLogo; docLogo.style.display = 'block'; }
+  else { docLogo.style.display = 'none'; }
   document.getElementById('pCompanyName').textContent = cName;
   var siret = document.getElementById('cSiret').value;
   document.getElementById('pCompanyDetail').textContent = [document.getElementById('cAddr').value, document.getElementById('cTel').value, siret?('SIRET '+siret):''].filter(Boolean).join(' — ') || '—';
@@ -510,17 +659,40 @@ function render(){
   var tvaRate = parseFloat(document.getElementById('tvaRate').value);
   var tva = sousTotal * tvaRate/100;
   var total = sousTotal + tva;
-  var aides = parseFloat(document.getElementById('aides').value) || 0;
-  var reste = total - aides;
+  var a = computeAides();
+  var autres = parseFloat(document.getElementById('autresAides').value) || 0;
+  var totalAides = Math.min(a.mpr + a.cee + autres, total);
+  var reste = Math.max(total - totalAides, 0);
+  var showReste = (a.mpr>0 || a.cee>0 || autres>0);
 
   document.getElementById('tSousTotal').textContent = fmt(sousTotal);
   document.getElementById('tTvaRate').textContent = String(tvaRate).replace('.',',');
   document.getElementById('tTva').textContent = fmt(tva);
   document.getElementById('tTotal').textContent = fmt(total);
-  document.getElementById('rowAide').style.display = aides>0 ? 'flex' : 'none';
-  document.getElementById('rowReste').style.display = aides>0 ? 'flex' : 'none';
-  document.getElementById('tAide').textContent = '- '+fmt(aides);
+
+  document.getElementById('rowMpr').style.display = a.mpr>0 ? 'flex' : 'none';
+  document.getElementById('tMpr').textContent = '- '+fmt(a.mpr);
+  document.getElementById('lblCouleurMpr').textContent = COULEUR_LABELS[a.couleur] || '';
+
+  document.getElementById('rowCee').style.display = a.cee>0 ? 'flex' : 'none';
+  document.getElementById('tCee').textContent = '- '+fmt(a.cee);
+  document.getElementById('lblZoneCee').textContent = a.zone;
+
+  document.getElementById('rowAutres').style.display = autres>0 ? 'flex' : 'none';
+  document.getElementById('tAutres').textContent = '- '+fmt(autres);
+
+  document.getElementById('rowReste').style.display = showReste ? 'flex' : 'none';
   document.getElementById('tReste').textContent = fmt(reste);
+  document.getElementById('badge1euro').style.display = (showReste && reste<=100) ? 'block' : 'none';
+
+  var hint = document.getElementById('aidesHint');
+  if(a.couleur && !a.hasPacAirEau){
+    hint.textContent = '⚠️ Les primes s\'appliquent à une PAC Air/Eau : ajoutez-en une au devis pour activer le calcul.';
+  } else if(a.couleur && a.hasPacAirEau){
+    hint.textContent = '→ Estimation : MaPrimeRénov\' '+fmt(a.mpr)+' + CEE '+fmt(a.cee)+' pour un foyer '+a.couleur+' en zone '+a.zone+'.';
+  } else {
+    hint.textContent = '';
+  }
 
   document.getElementById('docNotes').textContent = document.getElementById('notes').value;
 }
@@ -538,7 +710,8 @@ function newDevis(){
   document.getElementById('clAddr').value = '';
   document.getElementById('clTel').value = '';
   document.getElementById('clEmail').value = '';
-  document.getElementById('aides').value = 0;
+  document.getElementById('selCouleur').value = '';
+  document.getElementById('autresAides').value = 0;
   render();
 }
 
@@ -556,7 +729,9 @@ function saveDevis(){
     items: state.items,
     tvaRate: document.getElementById('tvaRate').value,
     validDays: document.getElementById('validDays').value,
-    aides: document.getElementById('aides').value,
+    zone: document.getElementById('selZone').value,
+    couleur: document.getElementById('selCouleur').value,
+    autresAides: document.getElementById('autresAides').value,
     notes: document.getElementById('notes').value,
     clAddr: document.getElementById('clAddr').value,
     clTel: document.getElementById('clTel').value,
@@ -599,7 +774,9 @@ function loadDevis(number){
   document.getElementById('clEmail').value = d.clEmail||'';
   document.getElementById('tvaRate').value = d.tvaRate||'5.5';
   document.getElementById('validDays').value = d.validDays||30;
-  document.getElementById('aides').value = d.aides||0;
+  document.getElementById('selZone').value = d.zone||'H2';
+  document.getElementById('selCouleur').value = d.couleur||'';
+  document.getElementById('autresAides').value = d.autresAides||0;
   document.getElementById('notes').value = d.notes||'';
   render();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -614,6 +791,7 @@ function deleteDevis(number){
 
 /* ---------- INIT ---------- */
 loadCompany();
+loadBareme();
 renderSavedList();
 render();
 </script>
