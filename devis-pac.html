@@ -475,7 +475,7 @@ function uid(){ return Date.now().toString(36)+Math.random().toString(36).substr
 function fmt(n){ return (n||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
 
 /* ---------- ENTREPRISE (persistée) ---------- */
-var DEFAULT_COMPANY = { name:'Le Relais Chaleur (RSLC Groupe)', tel:'', siret:'', addr:'', email:'', logo:'' };
+var DEFAULT_COMPANY = { name:'Le Relais Chaleur (RSLC Group)', tel:'', siret:'833 139 116 00036', addr:'24 Avenue du Château, 91800 Brunoy', email:'', logo:'' };
 var companyLogo = '';
 function loadCompany(){
   try{
