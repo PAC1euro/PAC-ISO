@@ -627,8 +627,15 @@ var DEFAULT_COMPANY = { name:'Le Relais Chaleur (RSLC Group)', tel:'', siret:'83
 var companyLogo = '';
 function loadCompany(){
   try{
-    var saved = JSON.parse(localStorage.getItem('pacisoCompany')||'null');
-    var c = saved || DEFAULT_COMPANY;
+    var saved = JSON.parse(localStorage.getItem('pacisoCompany')||'null') || {};
+    var c = {
+      name: saved.name || DEFAULT_COMPANY.name,
+      tel: saved.tel || DEFAULT_COMPANY.tel,
+      siret: saved.siret || DEFAULT_COMPANY.siret,
+      addr: saved.addr || DEFAULT_COMPANY.addr,
+      email: saved.email || DEFAULT_COMPANY.email,
+      logo: saved.logo || DEFAULT_COMPANY.logo
+    };
     document.getElementById('cName').value = c.name||'';
     document.getElementById('cTel').value = c.tel||'';
     document.getElementById('cSiret').value = c.siret||'';
@@ -636,6 +643,7 @@ function loadCompany(){
     document.getElementById('cEmail').value = c.email||'';
     companyLogo = c.logo||'';
     updateLogoPreview();
+    saveCompany();
   }catch(e){}
 }
 function saveCompany(){
