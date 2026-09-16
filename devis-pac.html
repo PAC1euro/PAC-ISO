@@ -106,6 +106,17 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
 .small-note{font-size:10px;color:#94a3b8;margin-top:20px;text-align:center;}
 .legal-footer{font-size:9px;color:#94a3b8;margin-top:22px;padding-top:12px;border-top:1px solid #e2e8f0;text-align:center;line-height:1.7;text-transform:uppercase;letter-spacing:.2px;}
 
+.fiche-annexe-title{font-size:20px;font-weight:900;color:#166534;margin-bottom:4px;page-break-before:always;padding-top:10px;}
+.fiche-annexe-sub{font-size:12px;color:#64748b;margin-bottom:20px;}
+.fiche-card{border:1px solid #e2e8f0;border-radius:14px;padding:20px;margin-bottom:18px;page-break-inside:avoid;}
+.fiche-card-head{display:flex;gap:16px;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;}
+.fiche-card-photos{display:flex;gap:6px;flex-shrink:0;background:#f8fafc;border-radius:10px;padding:8px;}
+.fiche-card-title{font-size:16px;font-weight:800;}
+.fiche-card-sub{font-size:12px;color:#64748b;margin-top:3px;}
+.fiche-card-list{margin:0;padding:0;list-style:none;font-size:12px;color:#374151;line-height:2;}
+.fiche-card-list li{padding:5px 0;border-bottom:1px solid #f8fafc;}
+.fiche-card-list li b{color:#166534;}
+
 /* AIDES / BAREME */
 .row4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .mini-lbl{font-size:9px;color:#94a3b8;display:block;margin-bottom:2px;text-align:center;}
@@ -429,6 +440,8 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
 
       <div class="legal-footer" id="legalFooter"></div>
       <div class="small-note">Devis généré via l'outil PAC-ISO — les visuels d'appareils sont des illustrations indicatives.</div>
+
+      <div id="ficheAnnexe"></div>
     </div>
   </div>
 
@@ -1217,6 +1230,27 @@ function render(){
   }
 
   document.getElementById('docNotes').textContent = document.getElementById('notes').value;
+
+  renderFicheAnnexe();
+}
+
+function renderFicheAnnexe(){
+  var equipmentItems = state.items.filter(function(l){ return !l.free; });
+  var el = document.getElementById('ficheAnnexe');
+  if(!equipmentItems.length){ el.innerHTML = ''; return; }
+  var html = '<div class="fiche-annexe-title">Fiches techniques</div>';
+  html += '<div class="fiche-annexe-sub">Annexe au devis '+(state.number||nextNumberPreview())+' — une fiche par équipement proposé.</div>';
+  html += equipmentItems.map(function(l){
+    var detailList = l.fiche || [];
+    return '<div class="fiche-card">' +
+      '<div class="fiche-card-head">' +
+        '<div class="fiche-card-photos">'+getVisualHtml(l,100)+'</div>' +
+        '<div><div class="fiche-card-title">'+l.marque+' — '+l.modele+'</div><div class="fiche-card-sub">'+(l.specs||'')+'</div></div>' +
+      '</div>' +
+      '<ul class="fiche-card-list">'+detailList.map(function(d){return '<li>'+d+'</li>';}).join('')+'</ul>' +
+      '</div>';
+  }).join('');
+  el.innerHTML = html;
 }
 
 function nextNumberPreview(){
