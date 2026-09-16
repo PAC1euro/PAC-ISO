@@ -1240,14 +1240,7 @@ function render(){
     mini.innerHTML = '';
   } else {
     body.innerHTML = state.items.map(function(l){
-      var photo;
-      if(l.free){
-        photo = (l.photos && l.photos.length === 1)
-          ? '<div class="doc-photo"><img src="'+ACCESSORY_PHOTOS[l.photos[0].key]+'" style="width:56px;height:56px;object-fit:contain;" alt="'+l.photos[0].label+'"></div>'
-          : '<div class="doc-photo free">🔧</div>';
-      } else {
-        photo = '<div class="doc-photo featured">'+getVisualHtmlFeatured(l,170)+'</div>';
-      }
+      var photo = l.free ? '' : '<div class="doc-photo featured">'+getVisualHtmlFeatured(l,170)+'</div>';
       var nm = l.free ? l.desc : (l.marque+' — '+l.modele);
       var sub = l.free ? '' : '<div class="item-sp">'+l.specs+'</div>';
       var detailList = l.detail || l.fiche;
