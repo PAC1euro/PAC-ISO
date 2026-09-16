@@ -175,10 +175,16 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
 
     <div class="panel">
       <h2>👤 Client</h2>
-      <label>Nom du client</label>
-      <input id="clName" oninput="render()" placeholder="M. Jean Dupont">
-      <label>Adresse du chantier</label>
-      <input id="clAddr" oninput="render()" placeholder="5 avenue des Tilleuls, 69000 Lyon">
+      <div class="row2">
+        <div><label>Prénom</label><input id="clPrenom" oninput="render()" placeholder="Jean"></div>
+        <div><label>Nom</label><input id="clNom" oninput="render()" placeholder="Dupont"></div>
+      </div>
+      <label>Adresse (n° et rue)</label>
+      <input id="clAddr" oninput="render()" placeholder="5 avenue des Tilleuls">
+      <div class="row2">
+        <div><label>Code postal</label><input id="clCp" oninput="onCpChange()" placeholder="69000" maxlength="5"></div>
+        <div><label>Ville</label><input id="clVille" oninput="render()" placeholder="Lyon"></div>
+      </div>
       <div class="row2">
         <div><label>Téléphone</label><input id="clTel" oninput="render()" placeholder="06 12 34 56 78"></div>
         <div><label>Email</label><input id="clEmail" oninput="render()" placeholder="client@email.fr"></div>
@@ -257,6 +263,7 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
         <option value="H2" selected>H2 — climat intermédiaire</option>
         <option value="H3">H3 — climat doux (pourtour méditerranéen)</option>
       </select>
+      <div class="aides-hint" id="zoneHint"></div>
       <label>Catégorie de revenus (couleur ANAH)</label>
       <select id="selCouleur" onchange="render()">
         <option value="">— Non renseignée —</option>
@@ -266,6 +273,30 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
         <option value="rose">🌸 Rose — supérieur</option>
       </select>
       <div class="aides-hint" id="aidesHint"></div>
+
+      <div class="row2">
+        <div><label>Type de chauffage actuel</label>
+          <select id="selChauffageActuel" onchange="render()">
+            <option value="">— Non renseigné —</option>
+            <option value="Combustible / Gaz">Combustible / Gaz</option>
+            <option value="Combustible / Fioul">Combustible / Fioul</option>
+            <option value="Combustible / Bois">Combustible / Bois</option>
+            <option value="Électrique">Électrique</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div><label>Type de logement</label>
+          <select id="selTypeLogement" onchange="render()">
+            <option value="Maison individuelle">Maison individuelle</option>
+            <option value="Appartement">Appartement</option>
+          </select>
+        </div>
+      </div>
+      <label>Ancienneté du logement</label>
+      <select id="selAncienneteLogement" onchange="render()">
+        <option value="+15 ans">+15 ans</option>
+        <option value="-15 ans">-15 ans</option>
+      </select>
 
       <details class="bareme-box">
         <summary>📊 Barème des primes (modifiable)</summary>
@@ -331,6 +362,11 @@ table.doc-table td.num{text-align:right;white-space:nowrap;}
           <div class="pnm" id="pClientName">Client non renseigné</div>
           <div class="pl" id="pClientDetail">—</div>
         </div>
+      </div>
+
+      <div class="party" style="margin-bottom:24px;">
+        <h4>Situation du projet</h4>
+        <div class="pl" id="pSituation">—</div>
       </div>
 
       <table class="doc-table">
@@ -429,10 +465,35 @@ function addPackIfMissing(key){
 }
 var COULEUR_LABELS = {bleu:'Bleu — très modeste',jaune:'Jaune — modeste',violet:'Violet — intermédiaire',rose:'Rose — supérieur'};
 
+/* ---------- ZONE CLIMATIQUE PAR DEPARTEMENT (arrêté RT2012, H1/H2/H3) ---------- */
+var DEPT_ZONE_H3 = ['06','11','13','20','2A','2B','30','34','66','83'];
+var DEPT_ZONE_H2 = ['07','09','12','16','17','22','24','26','29','31','32','33','35','40','44','46','47','49','53','56','64','65','72','79','81','82','84','85','86','87'];
+function getZoneFromCP(cp){
+  cp = (cp||'').trim();
+  if(!/^\d{5}$/.test(cp)) return null;
+  var dept = cp.substring(0,2);
+  if(dept === '97' || dept === '98') return 'H3';
+  if(DEPT_ZONE_H3.indexOf(dept) !== -1) return 'H3';
+  if(DEPT_ZONE_H2.indexOf(dept) !== -1) return 'H2';
+  return 'H1';
+}
+function onCpChange(){
+  var cp = document.getElementById('clCp').value;
+  var zone = getZoneFromCP(cp);
+  var hint = document.getElementById('zoneHint');
+  if(zone){
+    document.getElementById('selZone').value = zone;
+    hint.textContent = '→ Zone '+zone+' déterminée à partir du code postal (modifiable ci-dessus).';
+  } else {
+    hint.textContent = '';
+  }
+  render();
+}
+
 /* ---------- BAREME DES PRIMES (modifiable, persisté) ---------- */
 var DEFAULT_BAREME = {
   mpr:{bleu:5000,jaune:4000,violet:3000,rose:0},
-  cee:{bleu:{H1:4000,H2:3500,H3:3000},jaune:{H1:3000,H2:2500,H3:2000},violet:{H1:1200,H2:1000,H3:800},rose:{H1:0,H2:0,H3:0}}
+  cee:{bleu:{H1:2000,H2:2000,H3:1800},jaune:{H1:1500,H2:1300,H3:1100},violet:{H1:800,H2:700,H3:600},rose:{H1:0,H2:0,H3:0}}
 };
 var BAREME;
 function loadBareme(){
@@ -473,6 +534,16 @@ function computeAides(){
     cee = (BAREME.cee[couleur] && BAREME.cee[couleur][zone]) || 0;
   }
   return { couleur:couleur, zone:zone, hasPacAirEau:hasPacAirEau, mpr:mpr, cee:cee };
+}
+
+/* ---------- FICHE TECHNIQUE (à partir des données du catalogue) ---------- */
+function generateFiche(p){
+  var lines = ['Marque : '+p.marque, 'Référence : '+p.modele];
+  lines.push((p.cat === 'ecs' ? 'Volume : ' : 'Puissance : ')+p.puissance);
+  lines.push(p.cop);
+  if(p.extra) lines.push(p.extra);
+  lines.push('⚠️ Fiche technique indicative — à compléter avec la documentation constructeur (poids, dimensions, classe énergétique, efficacité saisonnière) avant envoi au client ou dépôt d\'un dossier CEE.');
+  return lines;
 }
 
 /* ---------- VISUELS SVG (générés, pas de dépendance externe) ---------- */
@@ -633,7 +704,7 @@ function addEquipment(){
   var remise = parseFloat(document.getElementById('eqRemise').value) || 0;
   state.items.push({
     id:uid(), free:false, cat:p.cat, marque:p.marque, modele:p.modele, type:p.type, color:p.color,
-    specs:p.puissance+' · '+p.cop+' · '+p.extra, prix:prix, qte:qte, remise:remise
+    specs:p.puissance+' · '+p.cop+' · '+p.extra, fiche:generateFiche(p), prix:prix, qte:qte, remise:remise
   });
   if(p.cat === 'air-eau' && document.getElementById('autoPack').checked){
     addPackIfMissing('pose');
@@ -688,9 +759,24 @@ function render(){
   document.getElementById('pCompanyDetail').textContent = [document.getElementById('cAddr').value, document.getElementById('cTel').value, siret?('SIRET '+siret):''].filter(Boolean).join(' — ') || '—';
 
   // client block
-  var clName = document.getElementById('clName').value;
+  var clPrenom = document.getElementById('clPrenom').value;
+  var clNom = document.getElementById('clNom').value;
+  var clName = (clPrenom+' '+clNom).trim();
+  var clCp = document.getElementById('clCp').value;
+  var clVille = document.getElementById('clVille').value;
+  var clAddrFull = [document.getElementById('clAddr').value, [clCp,clVille].filter(Boolean).join(' ')].filter(Boolean).join(', ');
   document.getElementById('pClientName').textContent = clName || 'Client non renseigné';
-  document.getElementById('pClientDetail').textContent = [document.getElementById('clAddr').value, document.getElementById('clTel').value, document.getElementById('clEmail').value].filter(Boolean).join(' — ') || '—';
+  document.getElementById('pClientDetail').textContent = [clAddrFull, document.getElementById('clTel').value, document.getElementById('clEmail').value].filter(Boolean).join(' — ') || '—';
+
+  // situation du projet
+  var couleurVal = document.getElementById('selCouleur').value;
+  var situationParts = [
+    'Zone '+document.getElementById('selZone').value,
+    couleurVal ? ('Précarité : '+COULEUR_LABELS[couleurVal]) : '',
+    document.getElementById('selChauffageActuel').value ? ('Type de chauffage : '+document.getElementById('selChauffageActuel').value) : '',
+    'Type de logement : '+document.getElementById('selTypeLogement').value+' / '+document.getElementById('selAncienneteLogement').value
+  ].filter(Boolean);
+  document.getElementById('pSituation').textContent = situationParts.join(' · ');
 
   // meta
   document.getElementById('docNum').textContent = state.number || nextNumberPreview();
@@ -710,7 +796,8 @@ function render(){
       var photo = l.free ? '<div class="doc-photo free">'+(l.packKey?'📦':'🔧')+'</div>' : '<div class="doc-photo">'+pacIcon(l.type,l.color,46)+'</div>';
       var nm = l.free ? l.desc : (l.marque+' — '+l.modele);
       var sub = l.free ? '' : '<div class="item-sp">'+l.specs+'</div>';
-      var detail = (l.detail && l.detail.length) ? '<ul class="item-detail">'+l.detail.map(function(d){return '<li>'+d+'</li>';}).join('')+'</ul>' : '';
+      var detailList = l.detail || l.fiche;
+      var detail = (detailList && detailList.length) ? '<ul class="item-detail">'+detailList.map(function(d){return '<li>'+d+'</li>';}).join('')+'</ul>' : '';
       return '<tr><td>'+photo+'</td><td><div class="item-nm">'+nm+'</div>'+sub+detail+'</td><td>'+l.qte+'</td><td class="num">'+fmt(l.prix)+'</td><td class="num">'+(l.remise||0)+'%</td><td class="num">'+fmt(lineTotal(l))+'</td></tr>';
     }).join('');
 
@@ -776,11 +863,15 @@ function nextNumberPreview(){
 function newDevis(){
   if(state.items.length && !confirm('Créer un nouveau devis ? Les lignes actuelles non enregistrées seront perdues.')) return;
   state = { number:null, date:null, items:[], counterKey:'pacisoDevisCounter' };
-  document.getElementById('clName').value = '';
+  document.getElementById('clPrenom').value = '';
+  document.getElementById('clNom').value = '';
   document.getElementById('clAddr').value = '';
+  document.getElementById('clCp').value = '';
+  document.getElementById('clVille').value = '';
   document.getElementById('clTel').value = '';
   document.getElementById('clEmail').value = '';
   document.getElementById('selCouleur').value = '';
+  document.getElementById('selChauffageActuel').value = '';
   document.getElementById('autresAides').value = 0;
   render();
 }
@@ -793,9 +884,10 @@ function saveDevis(){
     state.number = 'DEV-'+new Date().getFullYear()+'-'+String(n).padStart(4,'0');
     state.date = new Date().toLocaleDateString('fr-FR');
   }
+  var clFullName = (document.getElementById('clPrenom').value+' '+document.getElementById('clNom').value).trim();
   var record = {
     number: state.number, date: state.date,
-    client: document.getElementById('clName').value || '(sans nom)',
+    client: clFullName || '(sans nom)',
     items: state.items,
     tvaRate: document.getElementById('tvaRate').value,
     validDays: document.getElementById('validDays').value,
@@ -803,9 +895,16 @@ function saveDevis(){
     couleur: document.getElementById('selCouleur').value,
     autresAides: document.getElementById('autresAides').value,
     notes: document.getElementById('notes').value,
+    clPrenom: document.getElementById('clPrenom').value,
+    clNom: document.getElementById('clNom').value,
     clAddr: document.getElementById('clAddr').value,
+    clCp: document.getElementById('clCp').value,
+    clVille: document.getElementById('clVille').value,
     clTel: document.getElementById('clTel').value,
     clEmail: document.getElementById('clEmail').value,
+    chauffageActuel: document.getElementById('selChauffageActuel').value,
+    typeLogement: document.getElementById('selTypeLogement').value,
+    ancienneteLogement: document.getElementById('selAncienneteLogement').value,
     total: state.items.reduce(function(s,l){return s+lineTotal(l);},0) * (1+parseFloat(document.getElementById('tvaRate').value)/100)
   };
   var idx = list.findIndex(function(d){return d.number===state.number;});
@@ -838,14 +937,20 @@ function loadDevis(number){
   var d = list.find(function(x){return x.number===number;});
   if(!d) return;
   state = { number:d.number, date:d.date, items:d.items||[], counterKey:'pacisoDevisCounter' };
-  document.getElementById('clName').value = d.client==='(sans nom)' ? '' : d.client;
+  document.getElementById('clPrenom').value = d.clPrenom||'';
+  document.getElementById('clNom').value = d.clNom||'';
   document.getElementById('clAddr').value = d.clAddr||'';
+  document.getElementById('clCp').value = d.clCp||'';
+  document.getElementById('clVille').value = d.clVille||'';
   document.getElementById('clTel').value = d.clTel||'';
   document.getElementById('clEmail').value = d.clEmail||'';
   document.getElementById('tvaRate').value = d.tvaRate||'5.5';
   document.getElementById('validDays').value = d.validDays||30;
   document.getElementById('selZone').value = d.zone||'H2';
   document.getElementById('selCouleur').value = d.couleur||'';
+  document.getElementById('selChauffageActuel').value = d.chauffageActuel||'';
+  document.getElementById('selTypeLogement').value = d.typeLogement||'Maison individuelle';
+  document.getElementById('selAncienneteLogement').value = d.ancienneteLogement||'+15 ans';
   document.getElementById('autresAides').value = d.autresAides||0;
   document.getElementById('notes').value = d.notes||'';
   render();
