@@ -598,7 +598,7 @@ function buildResult(){
   th+='<div class="trow" style="background:'+totalBg+';border-radius:8px;padding:10px;"><span class="tl" style="font-weight:bold;">💶 RESTE À CHARGE TOTAL</span><span class="tv" style="font-size:16px;">'+totalVal+'</span></div>';
   if(S.notesPac)th+=trow('Notes PAC',S.notesPac);if(S.notesIso)th+=trow('Notes ISO',S.notesIso);
   g('tBox').innerHTML=th;
-  g('installBox').innerHTML='';
+  g('installBox').innerHTML=(hasPAC&&S.surfPac)?getDimHtml():'';
   g('btnEditIso').style.display=hasISO?'':'none';
 }
 function ri(cls,ico,lbl,val){return'<div class="ri '+cls+'"><div class="riico">'+ico+'</div><div><div class="rilbl">'+lbl+'</div><div class="rival">'+val+'</div></div></div>';}
@@ -642,6 +642,7 @@ function genPDF(){
 +'<div class="row"><span class="l">Plafond Jaune</span><span class="v">'+fmt(PLAF[r].jaune[idx])+'</span></div>'
 +'<div class="row"><span class="l">Couleur ANAH</span><span class="v">'+S.couleur+'</span></div>'
 +'<div class="row"><span class="l">Dpt / Zone</span><span class="v">'+S.dept+' — Zone '+S.zone+'</span></div>'
++(hasPAC?(function(){var _d=calcDimensionnement();return(_d?'<div class="sec">⚙️ DIMENSIONNEMENT PAC</div><div class="row"><span class="l">Puissance calculée</span><span class="v">'+_d.calc+' kW</span></div><div class="row"><span class="l">PAC recommandée</span><span class="v" style="color:#059669;font-size:14px;">'+_d.recommended+' kW</span></div><div class="row"><span class="l">Zone / Isolation</span><span class="v">'+_d.zone+(_d.etatIso?' · '+_d.etatIso:'')+'</span></div>':'');})():'')
 +(hasPAC?'<div class="sec">🔥 POMPE À CHALEUR AIR/EAU</div>'+'<div class="row"><span class="l">Chauffage actuel</span><span class="v">'+S.chauffage+'</span></div>'+'<div class="row"><span class="l">Surface chauffée</span><span class="v">'+S.surfPac+' m²</span></div>'+'<div class="row"><span class="l">Compteur</span><span class="v">'+S.compteur+'</span></div>'+'<div class="row"><span class="l">Eau chaude</span><span class="v">'+S.ecs+'</span></div>'+(S.etatIso?'<div class="row"><span class="l">État isolation</span><span class="v">'+S.etatIso+'</span></div>':'')+(S.emplacementChaudiere?'<div class="row"><span class="l">Emplacement chaudière</span><span class="v">'+S.emplacementChaudiere+'</span></div>':'')+(S.hauteurPlafond?'<div class="row"><span class="l">Hauteur plafond</span><span class="v">'+S.hauteurPlafond+'</span></div>':'')+(S.typeRadiateur?'<div class="row"><span class="l">Radiateurs</span><span class="v">'+S.typeRadiateur+'</span></div>':'')+'<div class="row"><span class="l">RAC PAC</span><span class="v">'+(nonPAC?'VOIR RESPONSABLE TECHNIQUE':S.racPac===0?'1€':fmt(S.racPac))+'</span></div>':'')
 +(hasISO?'<div class="sec">🏠 ISOLATION</div><div class="row"><span class="l">Gestes</span><span class="v">'+(S.gestes.join(', ')||'—')+'</span></div><div class="row"><span class="l">Surface habitable</span><span class="v">'+S.surfIso+' m²</span></div>'+(S.vmc?'<div class="row"><span class="l">VMC/BTD</span><span class="v">'+(S.vmc==='Oui'?'VMC existante → BTD':'Pas de VMC → VMC/VMR')+'</span></div>':'')+'<div class="row"><span class="l">RAC ISO</span><span class="v">'+(S.isoOk?(S.racIso===0?'1€':fmt(S.racIso)):'VOIR RESPONSABLE TECHNIQUE')+'</span></div>':'')
 +(S.notesPac||S.notesIso||S.noteEtatIso?'<div class="sec">📝 NOTES</div>'+(S.noteEtatIso?'<div class="row"><span class="l">Note isolation</span><span class="v">'+S.noteEtatIso+'</span></div>':'')+(S.notesPac?'<div class="row"><span class="l">Notes PAC</span><span class="v">'+S.notesPac+'</span></div>':'')+(S.notesIso?'<div class="row"><span class="l">Notes ISO</span><span class="v">'+S.notesIso+'</span></div>':''):'')
@@ -1175,7 +1176,7 @@ function updRacPreviewS2(){
   var rc=racC(S.couleur),rz=racZ(S.zone);
   var rs=0,surfNote='';
   if(surf>0&&surf<70){el.innerHTML='<div class="alert ar" style="margin-top:10px;">❌ Surface < 70 m² — Non éligible PAC</div>';return;}
-  if(surf>=70&&surf<90){rs=5000;surfNote='Surface 70–90 m² : +5 000€';}
+  if(surf>=70&&surf<90){rs=2714;surfNote='Surface 70–89 m² : +2 714€';}
   else if(surf>190&&surf<=250){rs=3500;surfNote='Surface 190–250 m² : +3 500€';}
   else if(surf>250){el.innerHTML='<div class="alert ar" style="margin-top:10px;">❌ Surface > 250 m² — Non éligible PAC</div>';return;}
   var total=rc+rz+rs;
@@ -1190,6 +1191,39 @@ function updRacPreviewS2(){
     +'<div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin-bottom:6px;">💶 Reste à charge PAC</div>'
     +(lines.length?'<div style="font-size:12px;color:#475569;display:flex;flex-direction:column;gap:3px;margin-bottom:8px;">'+lines.join('')+'</div>':'')
     +totalTxt
+    +'</div>';
+}
+function calcDimensionnement(){
+  var surf=S.surfPac||0;
+  if(!surf||surf<10)return null;
+  var zone=S.zone||'H2';
+  var zCoef={H1:100,H2:85,H3:70};
+  var iCoef={Insuffisante:1.25,Passable:1.05,Bonne:0.85};
+  var base=(zCoef[zone]||85)*surf/1000;
+  var isoMult=iCoef[S.etatIso]||1.0;
+  var calc=Math.round(base*isoMult*10)/10;
+  var sizes=[6,8,10,11,12,14,16,18];
+  var recommended=sizes[sizes.length-1];
+  for(var i=0;i<sizes.length;i++){if(sizes[i]>=calc){recommended=sizes[i];break;}}
+  return{calc:calc,recommended:recommended,zone:zone,etatIso:S.etatIso||''};
+}
+function getDimHtml(){
+  var d=calcDimensionnement();
+  if(!d)return '';
+  return '<div style="margin-top:12px;background:#f0f6ff;border:1.5px solid #bfdbfe;border-radius:12px;padding:14px;">'
+    +'<div style="font-size:11px;font-weight:800;color:#1e40af;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">⚙️ Dimensionnement PAC</div>'
+    +'<div style="display:flex;gap:10px;">'
+    +'<div style="flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;border:1px solid #e2e8f0;">'
+    +'<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Puissance calculée</div>'
+    +'<div style="font-size:24px;font-weight:bold;color:#1a56db;">'+d.calc+' kW</div>'
+    +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">Zone '+d.zone+(d.etatIso?' · '+d.etatIso:'')+'</div>'
+    +'</div>'
+    +'<div style="flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;border:1px solid #e2e8f0;">'
+    +'<div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">PAC recommandée</div>'
+    +'<div style="font-size:24px;font-weight:bold;color:#059669;">'+d.recommended+' kW</div>'
+    +'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">Modèle standard</div>'
+    +'</div>'
+    +'</div>'
     +'</div>';
 }
 function g(id){return document.getElementById(id);}
